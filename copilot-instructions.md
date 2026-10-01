@@ -1,0 +1,1 @@
+/home/krishna/Documents/Projects/shopify-7thheaven/AGENTS.md
