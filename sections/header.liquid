@@ -1,77 +1,130 @@
-<header>
-  <h2 class="header__title">
-    {{ shop.name | link_to: routes.root_url }}
-  </h2>
+<!-- Announcement Bar -->
+<div class="sh-announcement-bar">
+  📍 Live Cakes in 7 Mins | Delivering in Andheri & Thane | Call 1800-XXX-XXXX
+</div>
 
-  <div class="header__menu">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+<!-- Main Header -->
+<header class="sh-header">
+  <div class="sh-container" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0;">
+    
+    <!-- Logo -->
+    <div style="font-size: 1.5rem; font-weight: 700; color: var(--sh-brown);">
+      7th Heaven
+    </div>
 
-  <div class="header__icons">
-    {% if shop.customer_accounts_enabled %}
-      <shopify-account menu="{{ section.settings.customer_account_menu }}">
-        {{ 'icon-account.svg' | inline_asset_content }}
-      </shopify-account>
-    {% endif %}
+    <!-- Navigation -->
+    <nav class="sh-nav sh-hide-mobile">
+      <a href="/collections/cakes">Cakes</a>
+      <a href="/collections/cupcakes">Cupcakes</a>
+      <a href="/collections/desserts">Desserts</a>
+      <a href="/pages/stores">Stores</a>
+      <a href="/pages/franchise">Franchise</a>
+    </nav>
 
-    <a href="{{ routes.cart_url }}">
-      {% if cart.item_count > 0 %}
-        <sup>{{ cart.item_count }}</sup>
-      {% endif %}
-
-      {{ 'icon-cart.svg' | inline_asset_content }}
-    </a>
+    <!-- Header Actions -->
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <button type="button" class="sh-pincode-btn" id="sh-pincode-btn">
+        📍 <span id="sh-pincode-label">Enter pincode</span>
+      </button>
+      
+      <!-- Cart Icon (placeholder) -->
+      <a href="/cart" style="font-size: 1.5rem;">🛒</a>
+    </div>
   </div>
 </header>
 
-{% stylesheet %}
-  header {
-    height: 5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  header a {
-    position: relative;
-    text-decoration: none;
-    color: var(--color-foreground);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  header a sup {
-    position: absolute;
-    left: 100%;
-    overflow: hidden;
-    max-width: var(--page-margin);
-  }
-  header svg {
-    width: 2rem;
-  }
-  header .header__menu,
-  header .header__icons {
-    display: flex;
-    gap: 1rem;
-  }
-{% endstylesheet %}
+<!-- Pincode Modal (hidden by default) -->
+<div id="sh-pincode-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+  <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+    <h3 style="margin-bottom: 1rem; color: var(--sh-brown);">Check Serviceability</h3>
+    <input 
+      type="text" 
+      id="sh-pincode-input" 
+      placeholder="Enter your pincode" 
+      maxlength="6"
+      style="width: 100%; padding: 0.75rem; border: 1px solid var(--sh-border); border-radius: 6px; font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box;"
+    >
+    <div id="sh-pincode-result" style="margin-bottom: 1rem; min-height: 40px;"></div>
+    <div style="display: flex; gap: 1rem;">
+      <button id="sh-pincode-check" class="sh-btn sh-btn--primary" style="flex: 1;">Check</button>
+      <button id="sh-pincode-close" class="sh-btn sh-btn--outline" style="flex: 1;">Close</button>
+    </div>
+  </div>
+</div>
 
-{% schema %}
-{
-  "name": "t:general.header",
-  "settings": [
-    {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
-    },
-    {
-      "type": "link_list",
-      "id": "customer_account_menu",
-      "label": "t:labels.customer_account_menu",
-      "default": "customer-account-main-menu"
-    }
-  ]
+<script>
+// Pincode serviceability data (Day 2 will move this to a metaobject)
+const pincodeMap = {
+  // Andheri: 400053, 400058, 400061, 400069, 400093
+  // Thane: 400601, 400602, 400603, 400604, 400606
+  '400053': 'andheri', '400058': 'andheri', '400061': 'andheri', '400069': 'andheri', '400093': 'andheri',
+  '400601': 'thane', '400602': 'thane', '400603': 'thane', '400604': 'thane', '400606': 'thane'
+};
+
+const storeNames = {
+  'andheri': '7th Heaven Andheri',
+  'thane': '7th Heaven Thane'
+};
+
+const pincodeBtn = document.getElementById('sh-pincode-btn');
+const pincodeModal = document.getElementById('sh-pincode-modal');
+const pincodeInput = document.getElementById('sh-pincode-input');
+const pincodeCheck = document.getElementById('sh-pincode-check');
+const pincodeClose = document.getElementById('sh-pincode-close');
+const pincodeResult = document.getElementById('sh-pincode-result');
+const pincodeLabel = document.getElementById('sh-pincode-label');
+
+// Load saved pincode from localStorage
+let savedPincode = localStorage.getItem('sh-pincode');
+let savedStore = localStorage.getItem('sh-store');
+if (savedPincode && savedStore) {
+  pincodeLabel.textContent = `${savedPincode} (${storeNames[savedStore]})`;
 }
-{% endschema %}
+
+// Open modal
+pincodeBtn.addEventListener('click', () => {
+  pincodeModal.style.display = 'flex';
+  pincodeInput.focus();
+});
+
+// Close modal
+pincodeClose.addEventListener('click', () => {
+  pincodeModal.style.display = 'none';
+  pincodeResult.innerHTML = '';
+});
+
+// Check pincode
+pincodeCheck.addEventListener('click', () => {
+  const pincode = pincodeInput.value.trim();
+  
+  if (!pincode || pincode.length !== 6 || isNaN(pincode)) {
+    pincodeResult.innerHTML = '<p style="color: var(--sh-accent); font-weight: 600;">Please enter a valid 6-digit pincode</p>';
+    return;
+  }
+
+  if (pincodeMap[pincode]) {
+    const store = pincodeMap[pincode];
+    const storeName = storeNames[store];
+    
+    // Save to localStorage
+    localStorage.setItem('sh-pincode', pincode);
+    localStorage.setItem('sh-store', store);
+    
+    pincodeResult.innerHTML = `<p style="color: #1b6b36; font-weight: 600;">✓ Delivering from ${storeName}</p>`;
+    
+    setTimeout(() => {
+      pincodeLabel.textContent = `${pincode} (${storeName})`;
+      pincodeModal.style.display = 'none';
+      pincodeInput.value = '';
+      pincodeResult.innerHTML = '';
+    }, 1000);
+  } else {
+    pincodeResult.innerHTML = '<p style="color: var(--sh-accent); font-weight: 600;">Sorry! Not serviceable yet in your area</p>';
+  }
+});
+
+// Allow Enter key
+pincodeInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') pincodeCheck.click();
+});
+</script>

@@ -1,20 +1,63 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
+    "hero": {
+      "type": "image_banner",
+      "settings": {
+        "image": "your-hero-image-url",
+        "image_overlay_opacity": 0,
+        "image_height": "large",
+        "adapt_height_first_image": true,
+        "desktop_text_box_position": "center",
+        "show_text_box": true,
+        "desktop_content_position": "center",
+        "desktop_content_alignment": "center",
+        "content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "text_box_background": false,
+        "mobile_text_box_position": "center",
+        "sections_mobile_text_box_position": "center"
+      }
+    },
+    "category-tiles": {
+      "type": "category-tiles",
+      "settings": {
+        "heading": "Shop by Category"
+      }
+    },
+    "bestsellers": {
+      "type": "featured_collection",
+      "settings": {
+        "collection": "bestsellers",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "full_width": false,
+        "show_view_all": true,
+        "image_ratio": "portrait",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "enable_quick_add": false
+      }
+    },
+    "trust-strip": {
+      "type": "trust-strip",
       "settings": {}
+    },
+    "franchise-teaser": {
+      "type": "image_with_text",
+      "settings": {
+        "image": "your-franchise-image",
+        "image_width": "half",
+        "layout": "image_first",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "content_layout": "no-overlap",
+        "color_scheme": "background-1",
+        "mobile_content_alignment": "left",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["hero", "category-tiles", "bestsellers", "trust-strip", "franchise-teaser"]
 }
