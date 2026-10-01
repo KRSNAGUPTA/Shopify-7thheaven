@@ -1,7 +1,7 @@
 {
   "sections": {
     "hero": {
-      "type": "image_banner",
+      "type": "image-banner",
       "settings": {
         "image": "your-hero-image-url",
         "image_overlay_opacity": 0,

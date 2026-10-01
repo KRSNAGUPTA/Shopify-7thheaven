@@ -1,152 +1,42 @@
-<!-- Hero Section -->
-<section class="sh-hero sh-container">
-  <h1 class="sh-hero-title">Live Cakes in 7 Mins</h1>
-  <p class="sh-hero-subtitle">Fresh cakes & desserts made to order, delivered to your door</p>
-  <a href="/collections/cakes" class="sh-btn sh-btn--primary">Shop Cakes</a>
-</section>
-
-<!-- Category Tiles -->
-<section class="sh-section sh-container">
-  <div class="sh-section-title">
-    <h2>Shop by Category</h2>
-  </div>
-  <div class="sh-grid sh-grid--4col">
-    <a href="/collections/cakes" class="sh-category-tile">
-      <img 
-        src="https://cdn.shopify.com/s/files/1/0829/5468/2606/files/cakes-category.jpg?v=1"
-        alt="Cakes"
-        class="sh-category-tile-image"
-        loading="lazy"
-      >
-      <span class="sh-category-tile-label">Cakes</span>
-    </a>
-    <a href="/collections/cupcakes" class="sh-category-tile">
-      <img 
-        src="https://cdn.shopify.com/s/files/1/0829/5468/2606/files/cupcakes-category.jpg?v=1"
-        alt="Cupcakes"
-        class="sh-category-tile-image"
-        loading="lazy"
-      >
-      <span class="sh-category-tile-label">Cupcakes</span>
-    </a>
-    <a href="/collections/desserts" class="sh-category-tile">
-      <img 
-        src="https://cdn.shopify.com/s/files/1/0829/5468/2606/files/desserts-category.jpg?v=1"
-        alt="Desserts"
-        class="sh-category-tile-image"
-        loading="lazy"
-      >
-      <span class="sh-category-tile-label">Desserts</span>
-    </a>
-    <a href="/collections/cafe" class="sh-category-tile">
-      <img 
-        src="https://cdn.shopify.com/s/files/1/0829/5468/2606/files/cafe-category.jpg?v=1"
-        alt="Café"
-        class="sh-category-tile-image"
-        loading="lazy"
-      >
-      <span class="sh-category-tile-label">Café</span>
-    </a>
-  </div>
-</section>
-
-<!-- Bestsellers Collection -->
-<section class="sh-section sh-container">
-  <div class="sh-section-title">
-    <h2>Customer Favourites</h2>
-    <p>Our most loved cakes and desserts</p>
-  </div>
-  <div class="sh-product-grid">
-    {% for product in collections.bestsellers.products limit: 8 %}
-      <div class="sh-card">
-        {% if product.featured_image %}
-          <img 
-            src="{{ product.featured_image | image_url: width: 400 }}"
-            alt="{{ product.title }}"
-            class="sh-card-image"
-            loading="lazy"
-          >
+<section class="page-width" style="padding: 3rem 0;">
+  {% if section.settings.heading != blank %}
+    <h2 class="title" style="text-align:center;">{{ section.settings.heading }}</h2>
+  {% endif %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.5rem;margin-top:2rem;">
+    {% for block in section.blocks %}
+      <a href="{{ block.settings.collection.url | default: '#' }}" {{ block.shopify_attributes }}
+         style="text-decoration:none;color:inherit;text-align:center;">
+        {% if block.settings.image != blank %}
+          {{ block.settings.image | image_url: width: 400 | image_tag: loading: 'lazy', style: 'border-radius:16px;width:100%;aspect-ratio:1;object-fit:cover;' }}
         {% endif %}
-        <div class="sh-card-body">
-          {% if product.metafields.custom.eggless_available %}
-            <span class="sh-badge sh-badge--eggless">Eggless available</span>
-          {% endif %}
-          <h3 class="sh-card-title">{{ product.title }}</h3>
-          {% if product.metafields.custom.serves %}
-            <p class="sh-card-serves">Serves: {{ product.metafields.custom.serves }}</p>
-          {% endif %}
-          <p class="sh-card-price">From ₹{{ product.price_min | money_without_currency }}</p>
-          <a href="{{ product.url }}" class="sh-btn sh-btn--primary sh-mt-2" style="width: 100%; text-align: center;">View</a>
-        </div>
-      </div>
+        <p style="margin-top:.8rem;font-weight:600;">{{ block.settings.title | default: block.settings.collection.title }}</p>
+      </a>
     {% endfor %}
   </div>
 </section>
 
-<!-- Occasion Row -->
-<section class="sh-section sh-container">
-  <div class="sh-section-title">
-    <h2>Order for Every Occasion</h2>
-  </div>
-  <div class="sh-grid sh-grid--3col">
-    <a href="/collections/cakes?occasion=Birthday" class="sh-category-tile">
-      <div style="background: linear-gradient(135deg, #f5e6ed 0%, #fde4f0 100%); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
-        <div style="text-align: center;">
-          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎂</div>
-          <span class="sh-category-tile-label" style="position: static; margin: 0; background: transparent; color: var(--sh-brown);">Birthday</span>
-        </div>
-      </div>
-    </a>
-    <a href="/collections/cakes?occasion=Anniversary" class="sh-category-tile">
-      <div style="background: linear-gradient(135deg, #ffe6eb 0%, #ffd9e3 100%); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
-        <div style="text-align: center;">
-          <div style="font-size: 3rem; margin-bottom: 0.5rem;">💕</div>
-          <span class="sh-category-tile-label" style="position: static; margin: 0; background: transparent; color: var(--sh-brown);">Anniversary</span>
-        </div>
-      </div>
-    </a>
-    <a href="/collections/cakes?occasion=Kids" class="sh-category-tile">
-      <div style="background: linear-gradient(135deg, #e6f4ff 0%, #d9ebff 100%); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
-        <div style="text-align: center;">
-          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
-          <span class="sh-category-tile-label" style="position: static; margin: 0; background: transparent; color: var(--sh-brown);">Kids Party</span>
-        </div>
-      </div>
-    </a>
-  </div>
-</section>
-
-<!-- Trust Strip -->
-<section class="sh-trust-strip">
-  <div class="sh-container">
-    <div class="sh-trust-grid">
-      <div class="sh-trust-item">
-        <span class="sh-trust-value">350+</span>
-        <span class="sh-trust-label">Outlets</span>
-      </div>
-      <div class="sh-trust-item">
-        <span class="sh-trust-value">125+</span>
-        <span class="sh-trust-label">Cities</span>
-      </div>
-      <div class="sh-trust-item">
-        <span class="sh-trust-value">7 min</span>
-        <span class="sh-trust-label">Live cakes</span>
-      </div>
-      <div class="sh-trust-item">
-        <span class="sh-trust-value">100%</span>
-        <span class="sh-trust-label">Fresh</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Franchise Teaser -->
-<section class="sh-section sh-container">
-  <div style="background: linear-gradient(135deg, var(--sh-accent-light) 0%, #fff3ed 100%); padding: 3rem; border-radius: 16px; text-align: center;">
-    <h2>Own a 7th Heaven</h2>
-    <p style="font-size: 1.1rem; color: var(--sh-text-light); margin-bottom: 2rem;">
-      Join India's fastest-growing bakery and café franchise
-    </p>
-    <a href="/pages/franchise" class="sh-btn sh-btn--secondary">Learn More</a>
-  </div>
-</section>
+{% schema %}
+{
+  "name": "Category tiles",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by category" }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "title", "label": "Title override" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category tiles",
+      "blocks": [{ "type": "tile" }, { "type": "tile" }, { "type": "tile" }, { "type": "tile" }]
+    }
+  ]
+}
+{% endschema %}

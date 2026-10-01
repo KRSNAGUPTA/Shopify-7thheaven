@@ -1,0 +1,36 @@
+<section style="background:var(--sh-brown);color:#fff;padding:1.5rem 0;">
+  <div class="page-width" style="display:flex;flex-wrap:wrap;justify-content:space-around;gap:1rem;text-align:center;">
+    {% for block in section.blocks %}
+      <div {{ block.shopify_attributes }}>
+        <strong style="font-size:1.8rem;">{{ block.settings.value }}</strong><br>
+        <span>{{ block.settings.label }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Trust strip",
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Value", "default": "350+" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Outlets" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust strip",
+      "blocks": [
+        { "type": "stat", "settings": { "value": "350+", "label": "Outlets" } },
+        { "type": "stat", "settings": { "value": "125+", "label": "Cities" } },
+        { "type": "stat", "settings": { "value": "7 min", "label": "Live cakes" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
