@@ -1,0 +1,92 @@
+<section class="sh-section">
+  <div class="sh-container">
+    <div class="sh-section-title">
+      <h1>{{ section.settings.heading }}</h1>
+      {% if section.settings.subheading != blank %}
+        <p>{{ section.settings.subheading }}</p>
+      {% endif %}
+    </div>
+
+    <div class="sh-grid sh-grid--2col">
+      {% for block in section.blocks %}
+        <article class="sh-card sh-p-3" {{ block.shopify_attributes }}>
+          <h2 style="margin-top: 0;">{{ block.settings.name }}</h2>
+          {% if block.settings.address != blank %}
+            <p style="color: var(--sh-text-light); white-space: pre-line;">{{ block.settings.address }}</p>
+          {% endif %}
+          {% if block.settings.hours != blank %}
+            <p><strong>{{ 'stores.hours' | t }}:</strong> {{ block.settings.hours }}</p>
+          {% endif %}
+          {% if block.settings.phone != blank %}
+            <p><strong>{{ 'stores.phone' | t }}:</strong> <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a></p>
+          {% endif %}
+          {% if block.settings.map_url != blank %}
+            <a href="{{ block.settings.map_url }}" class="sh-btn sh-btn--outline sh-mt-2" target="_blank" rel="noopener">
+              {{ 'stores.directions' | t }}
+            </a>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Store locator",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our stores"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Pick up or get delivery from Andheri or Thane"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "store",
+      "name": "Store",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "7th Heaven Andheri" },
+        { "type": "textarea", "id": "address", "label": "Address", "default": "Andheri West, Mumbai" },
+        { "type": "text", "id": "hours", "label": "Hours", "default": "10 AM – 11 PM" },
+        { "type": "text", "id": "phone", "label": "Phone", "default": "1800-XXX-XXXX" },
+        { "type": "url", "id": "map_url", "label": "Google Maps URL" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Store locator",
+      "blocks": [
+        {
+          "type": "store",
+          "settings": {
+            "name": "7th Heaven Andheri",
+            "address": "Andheri West, Mumbai 400053",
+            "hours": "10 AM – 11 PM",
+            "phone": "1800-XXX-XXXX",
+            "map_url": "https://maps.google.com/?q=Andheri+West+Mumbai"
+          }
+        },
+        {
+          "type": "store",
+          "settings": {
+            "name": "7th Heaven Thane",
+            "address": "Thane West, Thane 400601",
+            "hours": "10 AM – 11 PM",
+            "phone": "1800-XXX-XXXX",
+            "map_url": "https://maps.google.com/?q=Thane+West"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

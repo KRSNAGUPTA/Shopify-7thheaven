@@ -1,82 +1,86 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
-    "theme_version": "0.1.0",
-    "theme_author": "Shopify",
-    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
-    "theme_support_url": "https://support.shopify.com/"
+    "theme_name": "7th Heaven",
+    "theme_version": "1.0.0",
+    "theme_author": "7th Heaven Dev Team",
+    "theme_documentation_url": "https://github.com/krsnagupta/",
+    "theme_support_url": "https://cs@7thheaven.in"
   },
   {
-    "name": "t:general.typography",
+    "name": "t:settings_schema.colors",
     "settings": [
       {
-        "type": "header",
-        "content": "t:general.fonts"
+        "type": "color",
+        "id": "sh_cream",
+        "default": "#fff8f0",
+        "label": "Background (Cream)"
       },
+      {
+        "type": "color",
+        "id": "sh_brown",
+        "default": "#3b2a20",
+        "label": "Primary Text (Brown)"
+      },
+      {
+        "type": "color",
+        "id": "sh_accent",
+        "default": "#d6336c",
+        "label": "Accent (Pink)"
+      },
+      {
+        "type": "color",
+        "id": "sh_text",
+        "default": "#2a2a2a",
+        "label": "Body Text"
+      },
+      {
+        "type": "color",
+        "id": "sh_border",
+        "default": "#e8dfd5",
+        "label": "Border Color"
+      }
+    ]
+  },
+  {
+    "name": "t:settings_schema.typography",
+    "settings": [
       {
         "type": "font_picker",
         "id": "type_primary_font",
         "default": "work_sans_n4",
-        "label": "t:general.primary"
+        "label": "Heading Font"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "default": "work_sans_n4",
+        "label": "Body Font"
       }
     ]
   },
   {
-    "name": "t:general.layout",
+    "name": "t:settings_schema.layout",
     "settings": [
       {
-        "type": "select",
+        "type": "range",
         "id": "max_page_width",
-        "label": "t:labels.page_width",
-        "options": [
-          {
-            "value": "90rem",
-            "label": "t:options.page_width.narrow"
-          },
-          {
-            "value": "110rem",
-            "label": "t:options.page_width.wide"
-          }
-        ],
-        "default": "90rem"
-      },
-      {
-        "type": "range",
-        "id": "min_page_margin",
-        "min": 10,
-        "max": 100,
-        "step": 1,
+        "min": 1000,
+        "max": 1400,
+        "step": 10,
         "unit": "px",
-        "label": "t:labels.page_margin",
-        "default": 20
-      }
-    ]
-  },
-  {
-    "name": "t:general.colors",
-    "settings": [
-      {
-        "type": "color",
-        "id": "background_color",
-        "default": "#FFFFFF",
-        "label": "t:labels.background"
-      },
-      {
-        "type": "color",
-        "id": "foreground_color",
-        "default": "#333333",
-        "label": "t:labels.foreground"
+        "label": "Page Width",
+        "default": 1200
       },
       {
         "type": "range",
-        "id": "input_corner_radius",
+        "id": "page_margin",
         "min": 0,
-        "max": 10,
-        "step": 1,
+        "max": 50,
+        "step": 5,
         "unit": "px",
-        "label": "t:labels.input_corner_radius",
-        "default": 4
+        "label": "Page Margin",
+        "default": 20
       }
     ]
   }

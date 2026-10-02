@@ -3,61 +3,75 @@
     "hero": {
       "type": "image-banner",
       "settings": {
-        "image": "your-hero-image-url",
-        "image_overlay_opacity": 0,
-        "image_height": "large",
-        "adapt_height_first_image": true,
-        "desktop_text_box_position": "center",
-        "show_text_box": true,
-        "desktop_content_position": "center",
-        "desktop_content_alignment": "center",
-        "content_alignment": "center",
-        "mobile_content_alignment": "center",
-        "text_box_background": false,
-        "mobile_text_box_position": "center",
-        "sections_mobile_text_box_position": "center"
+        "heading": "Fresh cakes in 7 minutes",
+        "subheading": "Order for same-day delivery in Andheri & Thane. Enter your pincode to get started.",
+        "button_label": "Shop cakes",
+        "button_link": "/collections/cakes"
       }
     },
     "category-tiles": {
       "type": "category-tiles",
       "settings": {
-        "heading": "Shop by Category"
-      }
+        "heading": "Shop by category"
+      },
+      "blocks": {
+        "tile-cakes": {
+          "type": "tile",
+          "settings": {
+            "title": "Cakes"
+          }
+        },
+        "tile-cupcakes": {
+          "type": "tile",
+          "settings": {
+            "title": "Cupcakes"
+          }
+        },
+        "tile-desserts": {
+          "type": "tile",
+          "settings": {
+            "title": "Desserts"
+          }
+        }
+      },
+      "block_order": ["tile-cakes", "tile-cupcakes", "tile-desserts"]
     },
-    "bestsellers": {
-      "type": "featured_collection",
+    "featured": {
+      "type": "featured-collection",
       "settings": {
-        "collection": "bestsellers",
-        "products_to_show": 8,
-        "columns_desktop": 4,
-        "full_width": false,
-        "show_view_all": true,
-        "image_ratio": "portrait",
-        "show_secondary_image": false,
-        "show_vendor": false,
-        "show_rating": false,
-        "enable_quick_add": false
+        "title": "Bestsellers",
+        "description": "Our most-loved cakes, ready for same-day delivery",
+        "products_to_show": 4,
+        "show_view_all": true
       }
     },
     "trust-strip": {
       "type": "trust-strip",
-      "settings": {}
+      "blocks": {
+        "stat-1": {
+          "type": "stat",
+          "settings": { "value": "350+", "label": "Outlets" }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": { "value": "125+", "label": "Cities" }
+        },
+        "stat-3": {
+          "type": "stat",
+          "settings": { "value": "7 min", "label": "Live cakes" }
+        }
+      },
+      "block_order": ["stat-1", "stat-2", "stat-3"]
     },
     "franchise-teaser": {
-      "type": "image_with_text",
+      "type": "image-with-text",
       "settings": {
-        "image": "your-franchise-image",
-        "image_width": "half",
-        "layout": "image_first",
-        "desktop_content_position": "top",
-        "desktop_content_alignment": "left",
-        "content_layout": "no-overlap",
-        "color_scheme": "background-1",
-        "mobile_content_alignment": "left",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "heading": "Own a 7th Heaven franchise",
+        "text": "<p>Join India's leading bakery café brand. Enquire to learn about investment, support, and available territories.</p>",
+        "button_label": "Enquire now",
+        "button_link": "/pages/franchise"
       }
     }
   },
-  "order": ["hero", "category-tiles", "bestsellers", "trust-strip", "franchise-teaser"]
+  "order": ["hero", "category-tiles", "featured", "trust-strip", "franchise-teaser"]
 }

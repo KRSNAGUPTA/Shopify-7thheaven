@@ -1,0 +1,63 @@
+<section class="sh-section">
+  <div class="sh-container sh-grid sh-grid--2col" style="align-items: center;">
+    <div>
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'sh-rounded-lg', style: 'width:100%;height:auto;' }}
+      {% else %}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'sh-rounded-lg' }}
+      {% endif %}
+    </div>
+    <div>
+      {% if section.settings.heading != blank %}
+        <h2>{{ section.settings.heading }}</h2>
+      {% endif %}
+      {% if section.settings.text != blank %}
+        <div style="color: var(--sh-text-light); margin: 1rem 0 1.5rem; line-height: 1.7;">
+          {{ section.settings.text }}
+        </div>
+      {% endif %}
+      {% if section.settings.button_label != blank %}
+        <a href="{{ section.settings.button_link | default: '/pages/franchise' }}" class="sh-btn sh-btn--secondary">
+          {{ section.settings.button_label }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image with text",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Own a 7th Heaven franchise"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Join India's leading bakery café brand. 350+ outlets across 125+ cities.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Enquire now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [{ "name": "Image with text" }]
+}
+{% endschema %}

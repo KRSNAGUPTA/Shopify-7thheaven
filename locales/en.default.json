@@ -17,7 +17,12 @@
     "checkout": "Checkout",
     "title": "Cart",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+    "empty": "Your cart is empty",
+    "continue": "Continue shopping",
+    "subtotal": "Subtotal",
+    "quantity": "Qty",
+    "close": "Close cart"
   },
   "customers": {
     "login": {
@@ -28,7 +33,59 @@
     }
   },
   "collections": {
-    "title": "Collections"
+    "title": "Collections",
+    "empty": "No products in this collection yet.",
+    "view_all": "View all",
+    "select_collection": "Select a collection in the theme editor."
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "sold_out": "Sold out",
+    "from_price": "From {{ price }}",
+    "eggless_available": "Eggless available",
+    "serves": "Serves",
+    "ready_in": "Ready in",
+    "hours": "hours",
+    "weight_and_type": "Weight & type",
+    "select_variant": "Select weight and type",
+    "message_on_cake": "Message on cake (optional, max 30 characters)",
+    "message_placeholder": "e.g. Happy Birthday!",
+    "delivery_date": "Delivery date",
+    "delivery_date_hint": "Earliest: tomorrow (or later for longer prep)",
+    "delivery_slot": "Delivery slot",
+    "slot_morning": "Morning",
+    "slot_afternoon": "Afternoon",
+    "slot_evening": "Evening"
+  },
+  "stores": {
+    "hours": "Hours",
+    "phone": "Phone",
+    "directions": "Get directions"
+  },
+  "franchise": {
+    "success": "Thanks! We received your franchise enquiry.",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "city": "City of interest",
+    "message": "Tell us about yourself",
+    "submit": "Submit enquiry"
+  },
+  "general": {
+    "announcement": "Live cakes in 7 mins | Delivering in Andheri & Thane",
+    "primary_nav": "Primary",
+    "enter_pincode": "Enter pincode",
+    "pincode_title": "Check serviceability",
+    "pincode_placeholder": "Enter your 6-digit pincode",
+    "check": "Check",
+    "close": "Close",
+    "nav": {
+      "cakes": "Cakes",
+      "cupcakes": "Cupcakes",
+      "desserts": "Desserts",
+      "stores": "Stores",
+      "franchise": "Franchise"
+    }
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",

@@ -1,0 +1,56 @@
+<section class="sh-hero" style="{% if section.settings.image != blank %}background-image: linear-gradient(rgba(59,42,32,0.45), rgba(59,42,32,0.45)), url({{ section.settings.image | image_url: width: 2000 }}); background-size: cover; background-position: center;{% endif %}">
+  <div class="sh-container">
+    {% if section.settings.heading != blank %}
+      <h1 class="sh-hero-title" {% if section.settings.image != blank %}style="color: #fff;"{% endif %}>
+        {{ section.settings.heading }}
+      </h1>
+    {% endif %}
+    {% if section.settings.subheading != blank %}
+      <p class="sh-hero-subtitle" {% if section.settings.image != blank %}style="color: #f5e6ed;"{% endif %}>
+        {{ section.settings.subheading }}
+      </p>
+    {% endif %}
+    {% if section.settings.button_label != blank %}
+      <a href="{{ section.settings.button_link | default: '/collections/cakes' }}" class="sh-btn sh-btn--primary">
+        {{ section.settings.button_label }}
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image banner",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Fresh cakes in 7 minutes"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Order for same-day delivery in Andheri & Thane"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop cakes"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    }
+  ],
+  "presets": [{ "name": "Image banner" }]
+}
+{% endschema %}

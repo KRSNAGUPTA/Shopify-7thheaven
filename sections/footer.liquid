@@ -2,57 +2,49 @@
 <footer class="sh-footer">
   <div class="sh-container">
     <div class="sh-grid sh-grid--4col" style="color: white; margin-bottom: 2rem;">
-      
-      <!-- Brand -->
       <div class="sh-footer-section">
         <h4 class="sh-footer-title">7th Heaven</h4>
         <p style="font-size: 0.95rem; line-height: 1.6; color: #ccc;">
-          India's leading bakery and café brand with 350+ outlets across 125+ cities. Fresh cakes made in 7 minutes.
+          Fresh cakes made in 7 minutes. Delivering across Andheri and Thane for this MVP.
         </p>
       </div>
 
-      <!-- Shop -->
       <div class="sh-footer-section">
-        <h4 class="sh-footer-title">Shop</h4>
-        <a href="/collections/cakes" class="sh-footer-link">Cakes</a>
-        <a href="/collections/cupcakes" class="sh-footer-link">Cupcakes</a>
-        <a href="/collections/desserts" class="sh-footer-link">Desserts</a>
-        <a href="/collections/cafe" class="sh-footer-link">Café Food</a>
-        <a href="/pages/custom-cakes" class="sh-footer-link">Custom Cakes</a>
+        <h4 class="sh-footer-title">{{ 'general.nav.cakes' | t }}</h4>
+        <a href="{{ routes.collections_url }}/cakes" class="sh-footer-link">{{ 'general.nav.cakes' | t }}</a>
+        <a href="{{ routes.collections_url }}/cupcakes" class="sh-footer-link">{{ 'general.nav.cupcakes' | t }}</a>
+        <a href="{{ routes.collections_url }}/desserts" class="sh-footer-link">{{ 'general.nav.desserts' | t }}</a>
       </div>
 
-      <!-- Help -->
       <div class="sh-footer-section">
         <h4 class="sh-footer-title">Help</h4>
-        <a href="/pages/faq" class="sh-footer-link">FAQ</a>
-        <a href="/pages/delivery" class="sh-footer-link">Delivery & Returns</a>
-        <a href="/pages/contact" class="sh-footer-link">Contact Us</a>
-        <a href="/pages/franchise" class="sh-footer-link">Own a Franchise</a>
+        <a href="/pages/stores" class="sh-footer-link">{{ 'general.nav.stores' | t }}</a>
+        <a href="/pages/franchise" class="sh-footer-link">{{ 'general.nav.franchise' | t }}</a>
+        <a href="/policies/privacy-policy" class="sh-footer-link">Privacy</a>
       </div>
 
-      <!-- Connect -->
       <div class="sh-footer-section">
         <h4 class="sh-footer-title">Connect</h4>
         <p style="font-size: 0.95rem; color: #ccc; margin-bottom: 1rem;">
-          📞 <strong>1800-XXX-XXXX</strong><br>
-          📧 cs@7thheaven.in
+          cs@7thheaven.in
         </p>
-        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-          <a href="#" style="font-size: 1.2rem; color: #ccc; hover-color: var(--sh-accent);">f</a>
-          <a href="#" style="font-size: 1.2rem; color: #ccc; hover-color: var(--sh-accent);">📷</a>
-          <a href="#" style="font-size: 1.2rem; color: #ccc; hover-color: var(--sh-accent);">in</a>
-        </div>
       </div>
     </div>
 
-    <!-- Bottom -->
     <div class="sh-footer-bottom">
       <p style="margin: 0;">
-        © 2024 7th Heaven. All rights reserved. | 
-        <a href="/policies/privacy-policy" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Privacy</a> | 
-        <a href="/policies/terms-of-service" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Terms</a> | 
+        © {{ 'now' | date: '%Y' }} 7th Heaven.
+        <a href="/policies/privacy-policy" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Privacy</a>
+        <a href="/policies/terms-of-service" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Terms</a>
         <a href="/policies/refund-policy" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Refund</a>
       </p>
     </div>
   </div>
 </footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": []
+}
+{% endschema %}

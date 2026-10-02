@@ -1,0 +1,77 @@
+<section class="sh-section">
+  <div class="sh-container" style="max-width: 720px;">
+    <div class="sh-section-title">
+      <h1>{{ section.settings.heading }}</h1>
+      {% if section.settings.pitch != blank %}
+        <div style="color: var(--sh-text-light); text-align: left;">
+          {{ section.settings.pitch }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% form 'contact', id: 'sh-franchise-form' %}
+      {% if form.posted_successfully? %}
+        <p style="padding: 1rem; background: #e6f4ea; color: #1b6b36; border-radius: 8px; font-weight: 600;">
+          {{ 'franchise.success' | t }}
+        </p>
+      {% endif %}
+
+      {% if form.errors %}
+        <div style="padding: 1rem; background: #fdecea; color: #a12a1f; border-radius: 8px; margin-bottom: 1rem;">
+          {{ form.errors | default_errors }}
+        </div>
+      {% endif %}
+
+      <input type="hidden" name="contact[subject]" value="Franchise enquiry">
+      <input type="hidden" name="contact[tags]" value="franchise">
+
+      <div class="sh-mt-3">
+        <label for="franchise-name" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ 'franchise.name' | t }}</label>
+        <input id="franchise-name" type="text" name="contact[name]" required value="{{ form.name }}" style="width:100%;padding:0.75rem;border:1px solid var(--sh-border);border-radius:6px;">
+      </div>
+
+      <div class="sh-mt-3">
+        <label for="franchise-email" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ 'franchise.email' | t }}</label>
+        <input id="franchise-email" type="email" name="contact[email]" required value="{{ form.email }}" style="width:100%;padding:0.75rem;border:1px solid var(--sh-border);border-radius:6px;">
+      </div>
+
+      <div class="sh-mt-3">
+        <label for="franchise-phone" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ 'franchise.phone' | t }}</label>
+        <input id="franchise-phone" type="tel" name="contact[phone]" required style="width:100%;padding:0.75rem;border:1px solid var(--sh-border);border-radius:6px;">
+      </div>
+
+      <div class="sh-mt-3">
+        <label for="franchise-city" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ 'franchise.city' | t }}</label>
+        <input id="franchise-city" type="text" name="contact[City]" required style="width:100%;padding:0.75rem;border:1px solid var(--sh-border);border-radius:6px;">
+      </div>
+
+      <div class="sh-mt-3">
+        <label for="franchise-message" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">{{ 'franchise.message' | t }}</label>
+        <textarea id="franchise-message" name="contact[body]" rows="4" required style="width:100%;padding:0.75rem;border:1px solid var(--sh-border);border-radius:6px;font-family:inherit;">{{ form.body }}</textarea>
+      </div>
+
+      <button type="submit" class="sh-btn sh-btn--primary sh-mt-4">{{ 'franchise.submit' | t }}</button>
+    {% endform %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Franchise form",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Own a franchise"
+    },
+    {
+      "type": "richtext",
+      "id": "pitch",
+      "label": "Pitch",
+      "default": "<p>Partner with 7th Heaven and bring fresh cakes to your city. Share your details and our franchise team will reach out.</p>"
+    }
+  ],
+  "presets": [{ "name": "Franchise form" }]
+}
+{% endschema %}

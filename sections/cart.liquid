@@ -1,37 +1,60 @@
-{% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
+<section class="sh-section">
+  <div class="sh-container">
+    <h1>{{ 'cart.title' | t }}</h1>
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
-{% endcomment %}
+    {% if cart.item_count == 0 %}
+      <p style="color: var(--sh-text-light); margin: 2rem 0;">{{ 'cart.empty' | t }}</p>
+      <a href="{{ routes.collections_url }}/cakes" class="sh-btn sh-btn--primary">{{ 'cart.continue' | t }}</a>
+    {% else %}
+      <form action="{{ routes.cart_url }}" method="post" class="sh-mt-3">
+        {% for item in cart.items %}
+          <div class="sh-card sh-mb-3" style="display: grid; grid-template-columns: 100px 1fr auto; gap: 1rem; padding: 1rem;">
+            <div>
+              {% if item.image %}
+                {{ item.image | image_url: width: 200 | image_tag: loading: 'lazy', style: 'width:100%;border-radius:8px;' }}
+              {% endif %}
+            </div>
+            <div>
+              <h3 style="margin: 0 0 0.5rem;">{{ item.product.title | escape }}</h3>
+              <p style="color: var(--sh-text-light); margin: 0 0 0.5rem;">{{ item.variant.title }}</p>
+              {% for property in item.properties %}
+                {% unless property.last == blank %}
+                  <p style="font-size: 0.9rem; margin: 0.2rem 0;">
+                    <strong>{{ property.first }}:</strong> {{ property.last }}
+                  </p>
+                {% endunless %}
+              {% endfor %}
+              <div style="margin-top: 0.75rem; display: flex; gap: 1rem; align-items: center;">
+                <label>
+                  {{ 'cart.quantity' | t }}
+                  <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" style="width: 4rem; margin-left: 0.5rem; padding: 0.35rem;">
+                </label>
+                <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+              </div>
+            </div>
+            <div style="font-weight: 700; color: var(--sh-accent);">
+              {{ item.final_line_price | money }}
+            </div>
+          </div>
+        {% endfor %}
 
-<h1>{{ 'cart.title' | t }}</h1>
-
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
+          <p style="font-size: 1.25rem; margin: 0;">
+            <strong>{{ 'cart.subtotal' | t }}:</strong> {{ cart.total_price | money }}
+          </p>
+          <div style="display: flex; gap: 0.75rem;">
+            <button type="submit" name="update" class="sh-btn sh-btn--outline">{{ 'cart.update' | t }}</button>
+            <button type="submit" name="checkout" class="sh-btn sh-btn--primary">{{ 'cart.checkout' | t }}</button>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</section>
 
 {% schema %}
 {
-  "name": "t:general.cart",
+  "name": "Cart",
   "settings": []
 }
 {% endschema %}

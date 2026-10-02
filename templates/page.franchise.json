@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "main": {
+      "type": "franchise-form",
+      "settings": {
+        "heading": "Own a franchise",
+        "pitch": "<p>Partner with 7th Heaven and bring fresh cakes to your city. Share your details and our franchise team will reach out.</p>"
+      }
+    }
+  },
+  "order": ["main"]
+}

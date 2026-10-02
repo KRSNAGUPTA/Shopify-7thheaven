@@ -1,0 +1,35 @@
+{
+  "sections": {
+    "main": {
+      "type": "store-locator",
+      "settings": {
+        "heading": "Our stores",
+        "subheading": "Pick up or get delivery from Andheri or Thane"
+      },
+      "blocks": {
+        "andheri": {
+          "type": "store",
+          "settings": {
+            "name": "7th Heaven Andheri",
+            "address": "Andheri West, Mumbai 400053",
+            "hours": "10 AM – 11 PM",
+            "phone": "1800-XXX-XXXX",
+            "map_url": "https://maps.google.com/?q=Andheri+West+Mumbai"
+          }
+        },
+        "thane": {
+          "type": "store",
+          "settings": {
+            "name": "7th Heaven Thane",
+            "address": "Thane West, Thane 400601",
+            "hours": "10 AM – 11 PM",
+            "phone": "1800-XXX-XXXX",
+            "map_url": "https://maps.google.com/?q=Thane+West"
+          }
+        }
+      },
+      "block_order": ["andheri", "thane"]
+    }
+  },
+  "order": ["main"]
+}

@@ -1,0 +1,203 @@
+<div id="sh-cart-drawer" class="sh-cart-drawer" aria-hidden="true" data-money-format="{{ shop.money_format | escape }}">
+  <div class="sh-cart-drawer__header">
+    <h3>{{ 'cart.title' | t }}</h3>
+    <button type="button" id="sh-cart-close" class="sh-cart-drawer__close" aria-label="{{ 'cart.close' | t }}">✕</button>
+  </div>
+
+  <div id="sh-cart-items" class="sh-cart-drawer__items"></div>
+
+  <div class="sh-cart-drawer__footer">
+    <div class="sh-cart-drawer__subtotal">
+      <strong>{{ 'cart.subtotal' | t }}</strong>
+      <strong id="sh-cart-total">₹0</strong>
+    </div>
+    <a href="/checkout" id="sh-cart-checkout" class="sh-btn sh-btn--primary" style="width: 100%; text-align: center;">
+      {{ 'cart.checkout' | t }}
+    </a>
+    <button type="button" id="sh-cart-continue" class="sh-btn sh-btn--secondary" style="width: 100%; margin-top: 0.5rem;">
+      {{ 'cart.continue' | t }}
+    </button>
+  </div>
+</div>
+
+<div id="sh-cart-overlay" class="sh-cart-overlay" hidden></div>
+
+{% stylesheet %}
+  .sh-cart-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(400px, 100vw);
+    height: 100vh;
+    background: #fff;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sh-cart-drawer.is-open {
+    transform: translateX(0);
+  }
+
+  .sh-cart-drawer__header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--sh-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .sh-cart-drawer__header h3 {
+    margin: 0;
+    color: var(--sh-brown);
+    font-size: 1.3rem;
+  }
+
+  .sh-cart-drawer__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .sh-cart-drawer__items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .sh-cart-drawer__footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--sh-border);
+  }
+
+  .sh-cart-drawer__subtotal {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .sh-cart-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--sh-border);
+    margin-bottom: 0.5rem;
+  }
+
+  .sh-cart-item h4 {
+    margin: 0 0 0.5rem;
+    color: var(--sh-brown);
+  }
+
+  .sh-cart-item p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+  }
+
+  .sh-cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 998;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var drawer = document.getElementById('sh-cart-drawer');
+    var overlay = document.getElementById('sh-cart-overlay');
+    var itemsEl = document.getElementById('sh-cart-items');
+    var totalEl = document.getElementById('sh-cart-total');
+    var closeBtn = document.getElementById('sh-cart-close');
+    var continueBtn = document.getElementById('sh-cart-continue');
+    var moneyFormat = drawer.getAttribute('data-money-format') || '';
+
+    function formatMoney(cents) {
+      if (window.Shopify && Shopify.formatMoney && moneyFormat) {
+        return Shopify.formatMoney(cents, moneyFormat);
+      }
+      return '₹' + (cents / 100).toLocaleString('en-IN');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function updateCart() {
+      var res = await fetch('/cart.js');
+      var cart = await res.json();
+      var countEls = document.querySelectorAll('[data-cart-count]');
+      countEls.forEach(function (el) {
+        el.textContent = String(cart.item_count);
+        el.hidden = cart.item_count === 0;
+      });
+
+      itemsEl.innerHTML = '';
+      if (!cart.items.length) {
+        itemsEl.innerHTML = '<p style="text-align:center;color:var(--sh-text-light);">Your cart is empty</p>';
+        totalEl.textContent = formatMoney(0);
+        return;
+      }
+
+      cart.items.forEach(function (item) {
+        var attrs = item.properties || {};
+        var html = '<div class="sh-cart-item">'
+          + '<h4>' + escapeHtml(item.product_title) + '</h4>'
+          + '<p style="color:var(--sh-text-light);">' + escapeHtml(item.variant_title || '') + '</p>';
+        if (attrs['Message on cake']) html += '<p>Message: "' + escapeHtml(attrs['Message on cake']) + '"</p>';
+        if (attrs['Delivery date']) html += '<p>Date: ' + escapeHtml(attrs['Delivery date']) + '</p>';
+        if (attrs['Delivery slot']) html += '<p>Slot: ' + escapeHtml(attrs['Delivery slot']) + '</p>';
+        if (attrs['Fulfilment store']) html += '<p>Store: ' + escapeHtml(attrs['Fulfilment store']) + '</p>';
+        html += '<div style="display:flex;justify-content:space-between;margin-top:0.5rem;">'
+          + '<span>Qty: ' + item.quantity + '</span>'
+          + '<strong>' + formatMoney(item.final_line_price) + '</strong></div></div>';
+        itemsEl.innerHTML += html;
+      });
+
+      totalEl.textContent = formatMoney(cart.total_price);
+    }
+
+    function openCart() {
+      drawer.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      overlay.hidden = false;
+      updateCart();
+    }
+
+    function closeCart() {
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      overlay.hidden = true;
+    }
+
+    document.querySelectorAll('[data-cart-open]').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        openCart();
+      });
+    });
+
+    closeBtn.addEventListener('click', closeCart);
+    continueBtn.addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+    document.addEventListener('sh:cart:open', openCart);
+    document.addEventListener('sh:cart:updated', updateCart);
+
+    updateCart();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "settings": []
+}
+{% endschema %}

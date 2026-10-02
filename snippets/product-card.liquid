@@ -1,0 +1,36 @@
+{% doc %}
+  Renders a product card for grids.
+
+  @param {product} product - Product to render
+  @param {string} [css_class] - Optional extra class
+
+  @example
+  {% render 'product-card', product: product %}
+{% enddoc %}
+
+<article class="sh-card {{ css_class }}">
+  <a href="{{ product.url }}" style="display: block; text-decoration: none; color: inherit;">
+    {% if product.featured_image %}
+      {{ product.featured_image
+        | image_url: width: 600
+        | image_tag: loading: 'lazy', class: 'sh-card-image', alt: product.featured_image.alt | default: product.title
+      }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'sh-card-image' }}
+    {% endif %}
+    <div class="sh-card-body">
+      <h3 class="sh-card-title">{{ product.title | escape }}</h3>
+      <p class="sh-card-price">
+        {% if product.price_varies %}
+          {% assign from_price = product.price_min | money %}
+          {{ 'products.from_price' | t: price: from_price }}
+        {% else %}
+          {{ product.price | money }}
+        {% endif %}
+      </p>
+      {% if product.metafields.custom.eggless_available %}
+        <span class="sh-badge sh-badge--eggless">{{ 'products.eggless_available' | t }}</span>
+      {% endif %}
+    </div>
+  </a>
+</article>
