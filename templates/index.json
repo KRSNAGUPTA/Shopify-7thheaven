@@ -28,7 +28,7 @@
         "title": "Our Curated Selection",
         "description": "Thoughtfully crafted using the finest ingredients for an exceptional taste experience",
         "collection": "bestsellers",
-        "products_to_show": 5,
+        "products_to_show": 4,
         "show_badges": false,
         "show_meta": false,
         "show_wishlist": false
