@@ -75,6 +75,7 @@
     --font-weight-extrabold: 800;
     --font-weight-black: 900;
     --tracking-tight: -0.025em;
+    --tracking-normal: 0em;
     --tracking-wide: 0.025em;
     --tracking-wider: 0.05em;
     --tracking-widest: 0.1em;
@@ -612,6 +613,12 @@
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
+  .w-\[75vw\] {
+    width: 75vw;
+  }
+  .w-\[280px\] {
+    width: 280px;
+  }
   .w-\[calc\(\%-0\.5rem\)\] {
     width: calc(% - 0.5rem);
   }
@@ -672,6 +679,9 @@
   .max-w-sm {
     max-width: var(--container-sm);
   }
+  .max-w-xl {
+    max-width: var(--container-xl);
+  }
   .min-w-0 {
     min-width: 0px;
   }
@@ -680,6 +690,9 @@
   }
   .flex-1 {
     flex: 1;
+  }
+  .flex-none {
+    flex: none;
   }
   .flex-shrink {
     flex-shrink: 1;
@@ -732,6 +745,15 @@
   }
   .resize-y {
     resize: vertical;
+  }
+  .snap-x {
+    scroll-snap-type: x var(--tw-scroll-snap-strictness);
+  }
+  .snap-mandatory {
+    --tw-scroll-snap-strictness: mandatory;
+  }
+  .snap-start {
+    scroll-snap-align: start;
   }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -818,6 +840,11 @@
     margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)));
   }
+  :where(.space-y-12 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 12) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 12) * calc(1 - var(--tw-space-y-reverse)));
+  }
   .gap-x-6 {
     column-gap: calc(var(--spacing) * 6);
   }
@@ -831,6 +858,9 @@
   }
   .overflow-hidden {
     overflow: hidden;
+  }
+  .overflow-x-auto {
+    overflow-x: auto;
   }
   .overflow-y-auto {
     overflow-y: auto;
@@ -877,6 +907,9 @@
   }
   .border-amber-50 {
     border-color: var(--color-amber-50);
+  }
+  .border-amber-100 {
+    border-color: var(--color-amber-100);
   }
   .border-sh-accent {
     border-color: var(--color-sh-accent);
@@ -1183,6 +1216,12 @@
   .pt-6 {
     padding-top: calc(var(--spacing) * 6);
   }
+  .pb-3 {
+    padding-bottom: calc(var(--spacing) * 3);
+  }
+  .pb-4 {
+    padding-bottom: calc(var(--spacing) * 4);
+  }
   .pb-8 {
     padding-bottom: calc(var(--spacing) * 8);
   }
@@ -1289,6 +1328,10 @@
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
+  }
+  .tracking-normal {
+    --tw-tracking: var(--tracking-normal);
+    letter-spacing: var(--tracking-normal);
   }
   .tracking-tight {
     --tw-tracking: var(--tracking-tight);
@@ -1630,6 +1673,9 @@
     .hover\:no-underline:hover {
       text-decoration-line: none;
     }
+    .hover\:underline:hover {
+      text-decoration-line: underline;
+    }
     .hover\:opacity-80:hover {
       opacity: 80%;
     }
@@ -1702,6 +1748,9 @@
     .sm\:col-span-2 {
       grid-column: span 2 / span 2;
     }
+    .sm\:mb-14 {
+      margin-bottom: calc(var(--spacing) * 14);
+    }
     .sm\:mb-16 {
       margin-bottom: calc(var(--spacing) * 16);
     }
@@ -1719,6 +1768,9 @@
     }
     .sm\:w-4 {
       width: calc(var(--spacing) * 4);
+    }
+    .sm\:w-\[280px\] {
+      width: 280px;
     }
     .sm\:w-\[calc\(50\%-12px\)\] {
       width: calc(50% - 12px);
@@ -1746,6 +1798,11 @@
     }
     .sm\:gap-7 {
       gap: calc(var(--spacing) * 7);
+    }
+    :where(.sm\:space-y-16 > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 16) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 16) * calc(1 - var(--tw-space-y-reverse)));
     }
     .sm\:p-5 {
       padding: calc(var(--spacing) * 5);
@@ -1887,6 +1944,9 @@
     .lg\:col-span-2 {
       grid-column: span 2 / span 2;
     }
+    .lg\:w-\[320px\] {
+      width: 320px;
+    }
     .lg\:w-\[calc\(\%-1\.25rem\)\] {
       width: calc(% - 1.25rem);
     }
@@ -1937,6 +1997,10 @@
     }
     .lg\:px-8 {
       padding-inline: calc(var(--spacing) * 8);
+    }
+    .lg\:text-5xl {
+      font-size: var(--text-5xl);
+      line-height: var(--tw-leading, var(--text-5xl--line-height));
     }
     .lg\:text-6xl {
       font-size: var(--text-6xl);
@@ -2009,6 +2073,11 @@
 @property --tw-skew-y {
   syntax: "*";
   inherits: false;
+}
+@property --tw-scroll-snap-strictness {
+  syntax: "*";
+  inherits: false;
+  initial-value: proximity;
 }
 @property --tw-space-y-reverse {
   syntax: "*";
@@ -2272,6 +2341,7 @@
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
+      --tw-scroll-snap-strictness: proximity;
       --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-gradient-position: initial;
