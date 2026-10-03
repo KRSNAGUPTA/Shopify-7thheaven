@@ -12,15 +12,13 @@
     "hero": {
       "type": "hero-banner",
       "settings": {
-        "heading": "Baking Smiles, One Pastry At A Time",
+        "background_image": "shopify://shop_images/vecteezy_sweet-bakery-and-ingredients-on-brown-background.jpg",
+        "heading": "7th Heaven",
         "subheading": "Taste The Warmth, Love, And Tradition In Every Bite. Order for same-day delivery in Andheri & Thane.",
-        "left_subheading": "",
-        "transparent_image": "shopify://shop_images/vecteezy_sweet-bakery-and-ingredients-on-brown-background.jpg",
         "button_label": "Shop Now",
         "button_link": "/collections/cakes",
-        "rating_value": "4.8",
-        "rating_count": "4,582",
-        "testimonial_text": "Amazing baked goods every time! The perfect spot for a sweet treat."
+        "secondary_button_label": "Franchise Enquiry",
+        "secondary_button_link": "shopify://pages/contact"
       }
     },
     "featured": {
