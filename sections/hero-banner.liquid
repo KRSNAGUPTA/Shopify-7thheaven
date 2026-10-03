@@ -10,16 +10,16 @@
 
     <!-- Center Column: Main Headline, Button & Transparent Image -->
     <div class="flex flex-col items-center text-center space-y-6 order-1 md:order-2">
-      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+      <h1 class="font-sniglet text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
         {{ section.settings.heading }}
       </h1>
       
-      <p class="text-amber-100/80 text-sm sm:text-base max-w-md">
+      <p class="text-amber-100/80 text-sm sm:text-base max-w-md font-light">
         {{ section.settings.subheading }}
       </p>
 
       {%- if section.settings.button_link != blank -%}
-        <a href="{{ section.settings.button_link }}" class="inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:scale-105">
+        <a href="{{ section.settings.button_link }}" class="inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95">
           {{ section.settings.button_label | default: 'Shop Now' }}
         </a>
       {%- endif -%}
@@ -27,7 +27,7 @@
       <!-- Transparent Product Overlay PNG -->
       <div class="relative w-full max-w-lg mt-6">
         {%- if section.settings.transparent_image != blank -%}
-          {{ section.settings.transparent_image | image_url: width: 800 | image_tag: class: 'w-full h-auto object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-300', loading: 'eager', alt: section.settings.heading }}
+          {{ section.settings.transparent_image | image_url: width: 800 | image_tag: class: 'w-full h-auto object-contain drop-shadow-2xl', loading: 'eager', alt: section.settings.heading }}
         {%- else -%}
           <div class="w-full h-64 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
             <span class="text-xs text-white/60">Upload PNG Image in Theme Customizer</span>
@@ -44,7 +44,7 @@
           ★★★★★
         </div>
         <p class="text-xs text-amber-100/70">({{ section.settings.rating_count }} Customer Reviews)</p>
-        <p class="text-xs text-white/90 italic mt-2">"{{ section.settings.testimonial_text }}"</p>
+        <p class="text-xs text-white/90 italic mt-2 font-light">"{{ section.settings.testimonial_text }}"</p>
       </div>
     </div>
 
@@ -115,3 +115,9 @@
   ]
 }
 {% endschema %}
+
+{% stylesheet %}
+  .font-sniglet {
+    font-family: 'Sniglet', cursive, sans-serif;
+  }
+{% endstylesheet %}
