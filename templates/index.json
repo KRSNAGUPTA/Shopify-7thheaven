@@ -12,21 +12,26 @@
     "hero": {
       "type": "hero-banner",
       "settings": {
-        "image": "shopify://shop_images/cake-pattern-background.png",
         "heading": "Baking Smiles, One Pastry At A Time",
         "subheading": "Taste The Warmth, Love, And Tradition In Every Bite. Order for same-day delivery in Andheri & Thane.",
+        "left_subheading": "Bringing Joy With Fresh, Homemade Baked Delights",
         "button_label": "Shop Now",
-        "button_link": "/collections/cakes"
+        "button_link": "/collections/cakes",
+        "rating_value": "4.8",
+        "rating_count": "4,582",
+        "testimonial_text": "Amazing baked goods every time! The perfect spot for a sweet treat."
       }
     },
     "featured": {
       "type": "featured-collection",
       "settings": {
-        "title": "Bestsellers",
-        "description": "Our most-loved cakes, ready for same-day delivery",
+        "title": "Our Curated Selection",
+        "description": "Thoughtfully crafted using the finest ingredients for an exceptional taste experience",
         "collection": "bestsellers",
-        "products_to_show": 8,
-        "show_view_all": true
+        "products_to_show": 5,
+        "show_badges": false,
+        "show_meta": false,
+        "show_wishlist": false
       }
     },
     "category-tiles": {
