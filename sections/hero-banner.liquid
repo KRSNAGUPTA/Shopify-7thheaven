@@ -1,0 +1,117 @@
+<div class="w-full bg-[#2C1810] text-white overflow-hidden py-12 md:py-20 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center relative">
+    
+    <!-- Left Column: Tagline -->
+    <div class="space-y-4 text-center md:text-left order-2 md:order-1">
+      <p class="text-amber-200 text-sm md:text-base font-medium tracking-wide">
+        {{ section.settings.left_subheading }}
+      </p>
+    </div>
+
+    <!-- Center Column: Main Headline, Button & Transparent Image -->
+    <div class="flex flex-col items-center text-center space-y-6 order-1 md:order-2">
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+        {{ section.settings.heading }}
+      </h1>
+      
+      <p class="text-amber-100/80 text-sm sm:text-base max-w-md">
+        {{ section.settings.subheading }}
+      </p>
+
+      {%- if section.settings.button_link != blank -%}
+        <a href="{{ section.settings.button_link }}" class="inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:scale-105">
+          {{ section.settings.button_label | default: 'Shop Now' }}
+        </a>
+      {%- endif -%}
+
+      <!-- Transparent Product Overlay PNG -->
+      <div class="relative w-full max-w-lg mt-6">
+        {%- if section.settings.transparent_image != blank -%}
+          {{ section.settings.transparent_image | image_url: width: 800 | image_tag: class: 'w-full h-auto object-contain drop-shadow-2xl transform hover:scale-105 transition-transform duration-300', loading: 'eager', alt: section.settings.heading }}
+        {%- else -%}
+          <div class="w-full h-64 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+            <span class="text-xs text-white/60">Upload PNG Image in Theme Customizer</span>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- Right Column: Rating / Reviews Badges -->
+    <div class="space-y-4 text-center md:text-right order-3">
+      <div class="inline-block bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-left sm:text-right">
+        <div class="flex items-center justify-center md:justify-end gap-1 text-amber-400 mb-1">
+          <span class="text-lg font-bold text-white mr-1">{{ section.settings.rating_value }}</span>
+          ★★★★★
+        </div>
+        <p class="text-xs text-amber-100/70">({{ section.settings.rating_count }} Customer Reviews)</p>
+        <p class="text-xs text-white/90 italic mt-2">"{{ section.settings.testimonial_text }}"</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Baking Smiles, One Pastry At A Time"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Taste The Warmth, Love, And Tradition In Every Bite."
+    },
+    {
+      "type": "text",
+      "id": "left_subheading",
+      "label": "Left Subheading",
+      "default": "Bringing Joy With Fresh, Homemade Baked Delights"
+    },
+    {
+      "type": "image_picker",
+      "id": "transparent_image",
+      "label": "Transparent Product PNG"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "text",
+      "id": "rating_value",
+      "label": "Rating Value",
+      "default": "4.8"
+    },
+    {
+      "type": "text",
+      "id": "rating_count",
+      "label": "Rating Count",
+      "default": "4,582"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_text",
+      "label": "Testimonial Snippet",
+      "default": "Amazing baked goods every time! The perfect spot for a sweet treat."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner"
+    }
+  ]
+}
+{% endschema %}
