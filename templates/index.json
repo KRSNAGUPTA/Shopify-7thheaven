@@ -32,7 +32,8 @@
         "tile-cupcakes": {
           "type": "tile",
           "settings": {
-            "collection": "",
+            "collection": "bestsellers",
+            "image": "shopify://shop_images/cake-pattern-background.png",
             "title": "Cupcakes"
           }
         },
