@@ -12,33 +12,81 @@
     "settings": [
       {
         "type": "color",
-        "id": "sh_cream",
-        "default": "#fff8f0",
-        "label": "Background (Cream)"
+        "id": "sh_primary",
+        "default": "#E8984A",
+        "label": "Primary (Orange)"
+      },
+      {
+        "type": "color",
+        "id": "sh_primary_dark",
+        "default": "#D17A2E",
+        "label": "Primary Dark"
+      },
+      {
+        "type": "color",
+        "id": "sh_primary_light",
+        "default": "#F5D5B8",
+        "label": "Primary Light"
       },
       {
         "type": "color",
         "id": "sh_brown",
-        "default": "#3b2a20",
-        "label": "Primary Text (Brown)"
+        "default": "#6B4423",
+        "label": "Brown (Headings)"
       },
       {
         "type": "color",
-        "id": "sh_accent",
-        "default": "#d6336c",
-        "label": "Accent (Pink)"
+        "id": "sh_brown_dark",
+        "default": "#4A2C17",
+        "label": "Brown Dark"
+      },
+      {
+        "type": "color",
+        "id": "sh_cream",
+        "default": "#FEF9F3",
+        "label": "Cream (Background)"
+      },
+      {
+        "type": "color",
+        "id": "sh_cream_light",
+        "default": "#FBF7F0",
+        "label": "Cream Light"
       },
       {
         "type": "color",
         "id": "sh_text",
-        "default": "#2a2a2a",
+        "default": "#2A2A2A",
         "label": "Body Text"
       },
       {
         "type": "color",
+        "id": "sh_text_light",
+        "default": "#6B6B6B",
+        "label": "Light Text"
+      },
+      {
+        "type": "color",
         "id": "sh_border",
-        "default": "#e8dfd5",
+        "default": "#E8DFD5",
         "label": "Border Color"
+      },
+      {
+        "type": "color",
+        "id": "sh_caramel",
+        "default": "#C9956E",
+        "label": "Caramel (Accent)"
+      },
+      {
+        "type": "color",
+        "id": "sh_success",
+        "default": "#4CAF50",
+        "label": "Success (Green)"
+      },
+      {
+        "type": "color",
+        "id": "sh_error",
+        "default": "#E74C3C",
+        "label": "Error (Red)"
       }
     ]
   },

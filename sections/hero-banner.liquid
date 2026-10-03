@@ -1,81 +1,52 @@
 {%- comment -%}
-  Hero Banner Section with Fullscreen Background Image and Dual CTAs
+Hero Banner Section with Fullscreen Background Image
 {%- endcomment -%}
 
 {%- assign bg_image = section.settings.background_image -%}
 
 <div 
-  class="relative w-full min-h-screen flex items-center justify-center text-white overflow-hidden py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-[#2C1810]"
+  class="relative w-full h-screen flex items-center justify-center text-white overflow-hidden"
   style="
     {%- if bg_image != blank -%}
       background-image: url('{{ bg_image | image_url: width: 2400 }}');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+    {%- else -%}
+      background-color: #2C1810;
     {%- endif -%}
   "
 >
-  {%- comment -%} Dark Overlay for contrast when a background image is uploaded {%- endcomment -%}
-  <div class="absolute inset-0 bg-black/50 z-0"></div>
+  <div class="absolute inset-0 bg-black/40 z-0"></div>
 
-  <div class="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center relative z-10">
+  <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
     
-    {%- comment -%} Left Empty Column (Grid Spacer on desktop for centering) {%- endcomment -%}
-    <div class="hidden md:block"></div>
+    <h1 class="font-sniglet text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight drop-shadow-lg mb-4">
+      {{ section.settings.heading }}
+    </h1>
+    
+    <p class="text-lg sm:text-xl text-white/90 font-light drop-shadow-md mb-8 max-w-2xl mx-auto">
+      {{ section.settings.subheading }}
+    </p>
 
-    {%- comment -%} Center Column: Main Headline, Dual Buttons & Transparent Image {%- endcomment -%}
-    <div class="flex flex-col items-center text-center space-y-6 order-1 md:order-2">
-      <h1 class="font-sniglet text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
-        {{ section.settings.heading }}
-      </h1>
-      
-      <p class="text-amber-100/90 text-sm sm:text-base max-w-md font-light drop-shadow-sm">
-        {{ section.settings.subheading }}
-      </p>
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+      {%- if section.settings.button_link != blank -%}
+        <a 
+          href="{{ section.settings.button_link }}" 
+          class="w-full sm:w-auto inline-flex items-center justify-center bg-sh-accent hover:bg-primary-hover text-white font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+        >
+          {{ section.settings.button_label | default: 'Shop Now' }}
+        </a>
+      {%- endif -%}
 
-      {%- comment -%} Dual CTA Buttons {%- endcomment -%}
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto pt-2">
-        {%- if section.settings.button_link != blank -%}
-          <a 
-            href="{{ section.settings.button_link }}" 
-            class="w-full sm:w-auto inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
-          >
-            {{ section.settings.button_label | default: 'Shop Now' }}
-          </a>
-        {%- endif -%}
-
-        {%- if section.settings.secondary_button_link != blank -%}
-          <a 
-            href="{{ section.settings.secondary_button_link }}" 
-            class="w-full sm:w-auto inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
-          >
-            {{ section.settings.secondary_button_label | default: 'Franchise Enquiry' }}
-          </a>
-        {%- endif -%}
-      </div>
-
-      {%- comment -%} Transparent Product Overlay PNG {%- endcomment -%}
-      <div class="relative w-full max-w-lg mt-6">
-        {%- if section.settings.transparent_image != blank -%}
-          {{ section.settings.transparent_image | image_url: width: 800 | image_tag: class: 'w-full h-auto object-contain drop-shadow-2xl', loading: 'eager', alt: section.settings.heading }}
-        {%- else -%}
-          <div class="w-full h-64 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 backdrop-blur-sm">
-            <span class="text-xs text-white/70">Upload PNG Image in Theme Customizer</span>
-          </div>
-        {%- endif -%}
-      </div>
-    </div>
-
-    {%- comment -%} Right Column: Rating / Reviews Badges {%- endcomment -%}
-    <div class="space-y-4 text-center md:text-right order-2 md:order-3">
-      <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-left sm:text-right shadow-xl">
-        <div class="flex items-center justify-center md:justify-end gap-1 text-amber-400 mb-1">
-          <span class="text-lg font-bold text-white mr-1">{{ section.settings.rating_value }}</span>
-          ★★★★★
-        </div>
-        <p class="text-xs text-amber-100/80">({{ section.settings.rating_count }} Customer Reviews)</p>
-        <p class="text-xs text-white/95 italic mt-2 font-light">"{{ section.settings.testimonial_text }}"</p>
-      </div>
+      {%- if section.settings.secondary_button_link != blank -%}
+        <a 
+          href="{{ section.settings.secondary_button_link }}" 
+          class="w-full sm:w-auto inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/40 backdrop-blur-md font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+        >
+          {{ section.settings.secondary_button_label | default: 'Franchise Enquiry' }}
+        </a>
+      {%- endif -%}
     </div>
 
   </div>
@@ -88,24 +59,19 @@
     {
       "type": "image_picker",
       "id": "background_image",
-      "label": "Full Screen Background Image"
+      "label": "Fullscreen Background Image"
     },
     {
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "Baking Smiles, One Pastry At A Time"
+      "default": "7th Heaven - Krishna"
     },
     {
       "type": "text",
       "id": "subheading",
       "label": "Subheading",
-      "default": "Taste The Warmth, Love, And Tradition In Every Bite."
-    },
-    {
-      "type": "image_picker",
-      "id": "transparent_image",
-      "label": "Transparent Product PNG"
+      "default": "Handcrafted freshly baked treats with love and the finest ingredients"
     },
     {
       "type": "header",
@@ -120,8 +86,7 @@
     {
       "type": "url",
       "id": "button_link",
-      "label": "Primary Button Link",
-      "default": "/collections/all"
+      "label": "Primary Button Link"
     },
     {
       "type": "header",
@@ -136,30 +101,7 @@
     {
       "type": "url",
       "id": "secondary_button_link",
-      "label": "Secondary Button Link",
-      "default": "/pages/franchise"
-    },
-    {
-      "type": "header",
-      "content": "Social Proof"
-    },
-    {
-      "type": "text",
-      "id": "rating_value",
-      "label": "Rating Value",
-      "default": "4.8"
-    },
-    {
-      "type": "text",
-      "id": "rating_count",
-      "label": "Rating Count",
-      "default": "4,582"
-    },
-    {
-      "type": "textarea",
-      "id": "testimonial_text",
-      "label": "Testimonial Snippet",
-      "default": "Amazing baked goods every time! The perfect spot for a sweet treat."
+      "label": "Secondary Button Link"
     }
   ],
   "presets": [

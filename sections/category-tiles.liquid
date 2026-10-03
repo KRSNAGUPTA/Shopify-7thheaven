@@ -65,7 +65,7 @@
                   <div class="flex flex-col flex-1 p-4 space-y-2">
                     {%- comment -%}Pricing{%- endcomment -%}
                     <div class="flex flex-row justify-between items-center gap-4">
-                      <div class="font-sniglet text-3xl font-medium text-[#E91E63] tracking-tight">
+                      <div class="font-sniglet text-3xl font-medium text-sh-accent tracking-tight">
                         {{ product.price | money }}
                       </div>
                       {%- if product.compare_at_price > product.price -%}
@@ -92,7 +92,7 @@
                         <button
                           type="submit"
                           name="add"
-                          class="cursor-pointer w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 text-white text-sm font-semibold bg-[#E91E63] hover:bg-[#c21850] transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                          class="cursor-pointer w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 text-white text-sm font-semibold bg-sh-accent hover:bg-sh-accent transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                           {%- unless product.available -%}disabled{%- endunless -%}
                           title="Add to Cart"
                         >
