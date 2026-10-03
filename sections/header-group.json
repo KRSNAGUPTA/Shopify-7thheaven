@@ -13,42 +13,16 @@
   "sections": {
     "header": {
       "type": "header",
-      "blocks": {
-        "andheri": {
-          "type": "service_area",
-          "settings": {
-            "store_name": "7th Heaven Andheri",
-            "handle": "andheri",
-            "pincodes": "400053\n400058\n400061\n400069\n400093",
-            "phone": "+91 97693 74926",
-            "address": "Andheri West, Mumbai 400053",
-            "hours": "10 AM – 11 PM",
-            "map_url": "https://maps.google.com/?q=Andheri+West+Mumbai"
-          }
-        },
-        "thane": {
-          "type": "service_area",
-          "settings": {
-            "store_name": "7th Heaven Thane",
-            "handle": "thane",
-            "pincodes": "400601\n400602\n400603\n400604\n400606",
-            "phone": "+91 70219 77902",
-            "address": "Thane West, Thane 400601",
-            "hours": "10 AM – 11 PM",
-            "map_url": "https://maps.google.com/?q=Thane+West"
-          }
-        }
-      },
-      "block_order": [
-        "andheri",
-        "thane"
-      ],
       "settings": {
         "logo": "shopify://shop_images/7thheaven.avif",
-        "logo_width": 250,
+        "logo_width": 260,
         "menu": "main-menu",
         "show_announcement": true,
-        "announcement_link": ""
+        "announcement_text": "",
+        "announcement_link": "",
+        "storefront_token": "be21f37f205dceb35ad117323844e0a6",
+        "probe_variant_id": "49679015510254",
+        "api_version": "2026-01"
       }
     }
   },
