@@ -28,7 +28,7 @@
         "title": "Our Curated Selection",
         "description": "Thoughtfully crafted using the finest ingredients for an exceptional taste experience",
         "collection": "bestsellers",
-        "products_to_show": 5,
+        "products_to_show": 7,
         "show_badges": false,
         "show_meta": false,
         "show_wishlist": false
@@ -37,36 +37,37 @@
     "category-tiles": {
       "type": "category-tiles",
       "blocks": {
-        "tile-cakes": {
-          "type": "tile",
+        "category_teQTwU": {
+          "type": "category",
           "settings": {
-            "collection": "cakes",
-            "title": "Cakes"
+            "collection": "birthday-cakes",
+            "title": ""
           }
         },
-        "tile-cupcakes": {
-          "type": "tile",
-          "settings": {
-            "collection": "cupcakes",
-            "image": "shopify://shop_images/cake-pattern-background.png",
-            "title": "Cupcakes"
-          }
-        },
-        "tile-desserts": {
-          "type": "tile",
+        "category_iPEUcQ": {
+          "type": "category",
           "settings": {
             "collection": "desserts",
-            "title": "Desserts"
+            "title": ""
+          }
+        },
+        "category_PHhNLw": {
+          "type": "category",
+          "settings": {
+            "collection": "donuts",
+            "title": ""
           }
         }
       },
       "block_order": [
-        "tile-cakes",
-        "tile-cupcakes",
-        "tile-desserts"
+        "category_teQTwU",
+        "category_iPEUcQ",
+        "category_PHhNLw"
       ],
       "settings": {
-        "heading": "Shop by category"
+        "heading": "Shop by category",
+        "products_to_show": 6,
+        "show_badges": true
       }
     },
     "trust-strip": {
