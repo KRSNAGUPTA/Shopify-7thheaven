@@ -13,79 +13,79 @@
       {
         "type": "color",
         "id": "sh_primary",
-        "default": "#E8984A",
-        "label": "Primary (Orange)"
+        "default": "#FF5401",
+        "label": "Primary (Logo Orange)"
       },
       {
         "type": "color",
         "id": "sh_primary_dark",
-        "default": "#D17A2E",
-        "label": "Primary Dark"
+        "default": "#D94500",
+        "label": "Primary Dark (Hover, Links)"
       },
       {
         "type": "color",
         "id": "sh_primary_light",
-        "default": "#F5D5B8",
-        "label": "Primary Light"
+        "default": "#FFE3D3",
+        "label": "Primary Light (Tints, Badges)"
       },
       {
         "type": "color",
         "id": "sh_brown",
-        "default": "#6B4423",
+        "default": "#4A2412",
         "label": "Brown (Headings)"
       },
       {
         "type": "color",
         "id": "sh_brown_dark",
-        "default": "#4A2C17",
-        "label": "Brown Dark"
+        "default": "#2E1608",
+        "label": "Brown Dark (Header/Footer)"
       },
       {
         "type": "color",
         "id": "sh_cream",
-        "default": "#FEF9F3",
+        "default": "#FFF9F2",
         "label": "Cream (Background)"
       },
       {
         "type": "color",
         "id": "sh_cream_light",
-        "default": "#FBF7F0",
-        "label": "Cream Light"
+        "default": "#FFF3E6",
+        "label": "Cream Light (Sections/Cards)"
       },
       {
         "type": "color",
         "id": "sh_text",
-        "default": "#2A2A2A",
+        "default": "#2B1B12",
         "label": "Body Text"
       },
       {
         "type": "color",
         "id": "sh_text_light",
-        "default": "#6B6B6B",
+        "default": "#6F5B4F",
         "label": "Light Text"
       },
       {
         "type": "color",
         "id": "sh_border",
-        "default": "#E8DFD5",
+        "default": "#EBDDD0",
         "label": "Border Color"
       },
       {
         "type": "color",
         "id": "sh_caramel",
-        "default": "#C9956E",
+        "default": "#D4894A",
         "label": "Caramel (Accent)"
       },
       {
         "type": "color",
         "id": "sh_success",
-        "default": "#4CAF50",
+        "default": "#3E8E41",
         "label": "Success (Green)"
       },
       {
         "type": "color",
         "id": "sh_error",
-        "default": "#E74C3C",
+        "default": "#D93025",
         "label": "Error (Red)"
       }
     ]
