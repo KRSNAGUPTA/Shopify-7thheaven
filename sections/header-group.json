@@ -1,11 +1,56 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "header",
   "name": "t:general.header",
   "sections": {
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "logo": "shopify://shop_images/7thheaven.avif",
+        "logo_width": 140,
+        "show_announcement": true
+      },
+      "blocks": {
+        "andheri": {
+          "type": "service_area",
+          "settings": {
+            "store_name": "7th Heaven Andheri",
+            "handle": "andheri",
+            "pincodes": "400053\n400058\n400061\n400069\n400093",
+            "phone": "+91 97693 74926",
+            "address": "Andheri West, Mumbai 400053",
+            "hours": "10 AM – 11 PM",
+            "map_url": "https://maps.google.com/?q=Andheri+West+Mumbai"
+          }
+        },
+        "thane": {
+          "type": "service_area",
+          "settings": {
+            "store_name": "7th Heaven Thane",
+            "handle": "thane",
+            "pincodes": "400601\n400602\n400603\n400604\n400606",
+            "phone": "+91 70219 77902",
+            "address": "Thane West, Thane 400601",
+            "hours": "10 AM – 11 PM",
+            "map_url": "https://maps.google.com/?q=Thane+West"
+          }
+        }
+      },
+      "block_order": [
+        "andheri",
+        "thane"
+      ]
     }
   },
-  "order": ["header"]
+  "order": [
+    "header"
+  ]
 }

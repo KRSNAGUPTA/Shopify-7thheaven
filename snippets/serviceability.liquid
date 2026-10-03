@@ -1,0 +1,93 @@
+{% doc %}
+  Outputs the store serviceability map as JSON so the storefront can check
+  whether a pincode is deliverable and which store fulfils it.
+
+  Store locations are read from the `store_location` metaobject definition when
+  entries exist, and fall back to the passed "Service area" section blocks
+  otherwise.
+
+  @param {block[]} [fallback_blocks] - Section blocks used when no metaobject entries exist
+
+  @example
+  {% render 'serviceability', fallback_blocks: section.blocks %}
+{% enddoc %}
+
+{% liquid
+  assign metaobject_stores = metaobjects.store_location.values
+  assign use_metaobjects = false
+  if metaobject_stores.size > 0
+    assign use_metaobjects = true
+  endif
+%}
+
+<script type="application/json" id="sh-serviceability">
+  {
+    "source": {% if use_metaobjects %}"metaobject"{% else %}"blocks"{% endif %},
+    "stores": {
+      {%- assign first_store = true -%}
+      {%- if use_metaobjects -%}
+        {%- for store in metaobject_stores -%}
+          {%- assign store_handle = store.system.handle -%}
+          {%- unless first_store -%},{%- endunless -%}
+          {%- assign first_store = false -%}
+          {{ store_handle | json }}: {
+            "name": {{ store.name.value | default: store_handle | json }},
+            "phone": {{ store.phone.value | default: '' | json }},
+            "address": {{ store.address.value | default: '' | json }},
+            "hours": {{ store.hours.value | default: '' | json }},
+            "map_url": {{ store.map_url.value | default: '' | json }}
+          }
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in fallback_blocks -%}
+          {%- if block.type == 'service_area' -%}
+            {%- assign store_handle = block.settings.handle | default: block.id -%}
+            {%- unless first_store -%},{%- endunless -%}
+            {%- assign first_store = false -%}
+            {{ store_handle | json }}: {
+              "name": {{ block.settings.store_name | default: store_handle | json }},
+              "phone": {{ block.settings.phone | default: '' | json }},
+              "address": {{ block.settings.address | default: '' | json }},
+              "hours": {{ block.settings.hours | default: '' | json }},
+              "map_url": {{ block.settings.map_url | default: '' | json }}
+            }
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    },
+    "pincodes": {
+      {%- assign first_pincode = true -%}
+      {%- if use_metaobjects -%}
+        {%- for store in metaobject_stores -%}
+          {%- assign store_handle = store.system.handle -%}
+          {%- for code in store.pincodes.value -%}
+            {%- assign pincode = code | strip -%}
+            {%- if pincode != blank -%}
+              {%- unless first_pincode -%},{%- endunless -%}
+              {%- assign first_pincode = false -%}
+              {{ pincode | json }}: {{ store_handle | json }}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in fallback_blocks -%}
+          {%- if block.type == 'service_area' -%}
+            {%- assign store_handle = block.settings.handle | default: block.id -%}
+            {%- assign lines = block.settings.pincodes | newline_to_br | split: '<br />' -%}
+            {%- for line in lines -%}
+              {%- assign parts = line | split: ',' -%}
+              {%- for part in parts -%}
+                {%- assign pincode = part | strip -%}
+                {%- if pincode != blank -%}
+                  {%- unless first_pincode -%},{%- endunless -%}
+                  {%- assign first_pincode = false -%}
+                  {{ pincode | json }}: {{ store_handle | json }}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    }
+  }
+</script>

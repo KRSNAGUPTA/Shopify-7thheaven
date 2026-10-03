@@ -1,104 +1,95 @@
-<!-- Announcement Bar -->
-<div class="full-width w-full bg-sh-accent text-white text-center py-2 px-4 text-xs md:text-sm font-medium tracking-wide shadow-xs">
-  {{ 'general.announcement' | t }}
-</div>
+{% style %}
+  #shopify-section-{{ section.id }} {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+{% endstyle %}
 
-<!-- Main Header -->
-<header class="full-width w-full bg-white border-b border-sh-border sticky top-0 z-50 shadow-xs">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-    <!-- Brand Logo -->
-    <a
-      href="{{ routes.root_url }}"
-      class="text-2xl font-extrabold text-sh-brown hover:opacity-90 transition-opacity tracking-tight shrink-0"
-    >
-      {% if section.settings.logo != blank %}
-        <img
-          src="{{ section.settings.logo | image_url: width: section.settings.logo_width }}"
-          alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
-          loading="eager"
-          width="{{ section.settings.logo.width }}"
-          height="{{ section.settings.logo.height }}"
-          style="max-width: {{ section.settings.logo_width }}px;"
-          class="h-auto object-contain"
-        >
+{% if section.settings.show_announcement %}
+  <div class="full-width w-full bg-sh-brown text-white">
+    <div class="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-[11px] font-medium tracking-wide sm:text-xs">
+      <span class="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-sh-accent"></span>
+      {% if section.settings.announcement_link != blank %}
+        <a href="{{ section.settings.announcement_link }}" class="text-white no-underline hover:text-sh-accent-light">
+          {{ 'general.announcement' | t }}
+        </a>
       {% else %}
-        <span class="text-2xl font-extrabold text-sh-brown tracking-tight">
-          {{ shop.name }}
-        </span>
+        <span>{{ 'general.announcement' | t }}</span>
       {% endif %}
-    </a>
+    </div>
+  </div>
+{% endif %}
 
-    <!-- Primary Navigation -->
-    <nav class="hidden md:flex items-center gap-6 lg:gap-8" aria-label="{{ 'general.primary_nav' | t }}">
-      <a
-        href="{{ routes.collections_url }}/cakes"
-        class="text-sm font-semibold text-sh-brown hover:text-sh-accent transition-colors py-1"
+<header class="full-width w-full border-b border-sh-border bg-white/95 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        id="sh-menu-btn"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-sh-brown transition-colors hover:bg-sh-cream md:hidden"
+        aria-label="{{ 'general.open_menu' | t }}"
+        aria-controls="sh-mobile-menu"
+        aria-expanded="false"
       >
-        {{ 'general.nav.cakes' | t }}
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+
+      <a href="{{ routes.root_url }}" class="flex shrink-0 items-center">
+        {% if section.settings.logo != blank %}
+          <img
+            src="{{ section.settings.logo | image_url: width: section.settings.logo_width }}"
+            alt="{{ section.settings.logo.alt | default: shop.name | escape }}"
+            width="{{ section.settings.logo.width }}"
+            height="{{ section.settings.logo.height }}"
+            loading="eager"
+            class="h-auto w-auto object-contain"
+            style="max-width: {{ section.settings.logo_width }}px;"
+          >
+        {% else %}
+          <span class="text-xl font-extrabold tracking-tight text-sh-brown sm:text-2xl">{{ shop.name }}</span>
+        {% endif %}
       </a>
-      <a
-        href="{{ routes.collections_url }}/cupcakes"
-        class="text-sm font-semibold text-sh-brown hover:text-sh-accent transition-colors py-1"
-      >
-        {{ 'general.nav.cupcakes' | t }}
-      </a>
-      <a
-        href="{{ routes.collections_url }}/desserts"
-        class="text-sm font-semibold text-sh-brown hover:text-sh-accent transition-colors py-1"
-      >
-        {{ 'general.nav.desserts' | t }}
-      </a>
-      <a
-        href="{{ pages.stores.url | default: '/pages/stores' }}"
-        class="text-sm font-semibold text-sh-brown hover:text-sh-accent transition-colors py-1"
-      >
-        {{ 'general.nav.stores' | t }}
-      </a>
-      <a
-        href="{{ pages.franchise.url | default: '/pages/franchise' }}"
-        class="text-sm font-semibold text-sh-brown hover:text-sh-accent transition-colors py-1"
-      >
-        {{ 'general.nav.franchise' | t }}
-      </a>
+    </div>
+
+    <nav class="hidden items-center gap-1 md:flex" aria-label="{{ 'general.primary_nav' | t }}">
+      {% if section.settings.menu != blank %}
+        {% for link in section.settings.menu.links %}
+          <a href="{{ link.url }}" class="rounded-lg px-3 py-2 text-sm font-semibold text-sh-brown transition-colors hover:bg-sh-cream hover:text-sh-accent">
+            {{ link.title }}
+          </a>
+        {% endfor %}
+      {% endif %}
     </nav>
 
-    <!-- Header Right Actions -->
-    <div class="flex items-center gap-3 md:gap-4">
-      <!-- Location / Pincode Button -->
+    <div class="flex items-center gap-1 sm:gap-2">
       <button
         type="button"
         id="sh-pincode-btn"
-        class="inline-flex items-center gap-2 bg-sh-cream hover:bg-sh-accent-light border border-sh-accent/30 text-sh-accent text-xs md:text-sm font-semibold px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
+        class="inline-flex items-center gap-2 rounded-full border border-sh-accent/30 bg-sh-cream px-2.5 py-2 text-xs font-semibold text-sh-accent transition-all duration-200 hover:bg-sh-accent-light active:scale-95 sm:px-3 sm:text-sm"
       >
-        <svg
-          class="w-4 h-4 text-sh-accent shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
         </svg>
-        <span id="sh-pincode-label" class="truncate max-w-[120px] sm:max-w-[180px]">
-          {{ 'general.enter_pincode' | t }}
-        </span>
+        <span id="sh-pincode-label" class="hidden max-w-[7rem] truncate sm:inline">{{ 'general.enter_pincode' | t }}</span>
       </button>
 
-      <!-- Cart Button -->
       <a
         href="{{ routes.cart_url }}"
         data-cart-open
-        class="relative inline-flex items-center justify-center p-2 text-sh-brown hover:text-sh-accent transition-colors rounded-lg hover:bg-sh-cream"
+        class="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-sh-brown transition-colors hover:bg-sh-cream"
         aria-label="{{ 'cart.title' | t }}"
       >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
         </svg>
         <span
           data-cart-count
           hidden
-          class="absolute -top-1 -right-1 bg-sh-accent text-white font-bold text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 shadow-xs border-2 border-white"
+          class="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-white bg-sh-accent px-1 text-[10px] font-bold text-white"
         >
           0
         </span>
@@ -107,50 +98,115 @@
   </div>
 </header>
 
-<!-- Pincode Modal Backdrop & Container -->
-<div
-  id="sh-pincode-modal"
-  class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
->
-  <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-sh-border transform transition-all">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-bold text-sh-brown">
-        {{ 'general.pincode_title' | t }}
-      </h3>
-      <button id="sh-pincode-close-icon" type="button" class="text-gray-400 hover:text-sh-brown transition-colors p-1">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="sh-mobile-menu" data-open="false" aria-hidden="true" class="group fixed inset-0 z-[1000] md:hidden">
+  <div
+    data-menu-close
+    class="pointer-events-none invisible absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-data-[open=true]:pointer-events-auto group-data-[open=true]:visible group-data-[open=true]:opacity-100"
+  ></div>
+  <nav
+    class="absolute inset-y-0 left-0 flex w-80 max-w-[85%] -translate-x-full flex-col bg-white shadow-2xl transition-transform duration-300 group-data-[open=true]:translate-x-0"
+    aria-label="{{ 'general.primary_nav' | t }}"
+  >
+    <div class="flex items-center justify-between border-b border-sh-border px-5 py-4">
+      <span class="text-lg font-bold text-sh-brown">{{ 'general.menu' | t }}</span>
+      <button
+        type="button"
+        data-menu-close
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-sh-text-light transition-colors hover:bg-sh-cream hover:text-sh-brown"
+        aria-label="{{ 'general.close_menu' | t }}"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
         </svg>
       </button>
     </div>
 
-    <p class="text-xs text-sh-text-light mb-4">
-      Enter your delivery pincode to check instant cake availability and store allocation.
-    </p>
+    <div class="flex-1 overflow-y-auto p-3">
+      {% if section.settings.menu != blank %}
+        {% for link in section.settings.menu.links %}
+          <a href="{{ link.url }}" class="block rounded-lg px-4 py-3 font-semibold text-sh-brown transition-colors hover:bg-sh-cream hover:text-sh-accent">
+            {{ link.title }}
+          </a>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="border-t border-sh-border p-4">
+      <button
+        type="button"
+        id="sh-mobile-pincode-btn"
+        class="flex w-full items-center justify-center gap-2 rounded-xl bg-sh-accent px-5 py-3 font-semibold text-white transition-all hover:bg-[#b8234c] active:scale-95"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        {{ 'general.check_delivery' | t }}
+      </button>
+    </div>
+  </nav>
+</div>
+
+<div
+  id="sh-pincode-modal"
+  class="hidden fixed inset-0 z-[1100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="sh-pincode-title"
+  data-msg-invalid="{{ 'general.pincode_invalid' | t | escape }}"
+  data-msg-delivering="{{ 'general.pincode_delivering' | t | escape }}"
+  data-msg-unavailable="{{ 'general.pincode_unavailable' | t | escape }}"
+>
+  <div class="w-full max-w-md rounded-2xl border border-sh-border bg-white p-6 shadow-2xl">
+    <div class="mb-5 flex items-start justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sh-accent-light text-sh-accent">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </span>
+        <div>
+          <h3 id="sh-pincode-title" class="text-lg font-bold text-sh-brown">{{ 'general.pincode_title' | t }}</h3>
+          <p class="text-xs text-sh-text-light">{{ 'general.pincode_hint' | t }}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        id="sh-pincode-close-icon"
+        class="rounded-lg p-1 text-sh-text-light transition-colors hover:bg-sh-cream hover:text-sh-brown"
+        aria-label="{{ 'general.close' | t }}"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
 
     <input
       type="text"
       id="sh-pincode-input"
-      placeholder="{{ 'general.pincode_placeholder' | t }}"
-      maxlength="6"
       inputmode="numeric"
-      class="w-full px-4 py-3 border border-sh-border rounded-xl text-base focus:ring-2 focus:ring-sh-accent focus:border-sh-accent outline-hidden transition-all mb-3 text-sh-brown placeholder:text-gray-400"
+      maxlength="6"
+      autocomplete="postal-code"
+      placeholder="{{ 'general.pincode_placeholder' | t }}"
+      class="w-full rounded-xl border border-sh-border px-4 py-3 text-base text-sh-brown transition-all placeholder:text-gray-400 focus:border-sh-accent focus:outline-none focus:ring-2 focus:ring-sh-accent/40"
     >
 
-    <div id="sh-pincode-result" class="min-h-[36px] mb-4 text-xs font-semibold"></div>
+    <div id="sh-pincode-result" class="mt-3 min-h-[20px] text-sm"></div>
 
-    <div class="flex items-center gap-3">
+    <div class="mt-4 flex gap-3">
       <button
         type="button"
         id="sh-pincode-check"
-        class="flex-1 bg-sh-accent hover:bg-rose-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer text-sm"
+        class="flex-1 rounded-xl bg-sh-accent px-4 py-3 font-semibold text-white transition-all hover:bg-[#b8234c] active:scale-95"
       >
         {{ 'general.check' | t }}
       </button>
       <button
         type="button"
         id="sh-pincode-close"
-        class="flex-1 bg-gray-100 hover:bg-gray-200 text-sh-brown font-semibold py-3 px-4 rounded-xl transition-all cursor-pointer text-sm"
+        class="flex-1 rounded-xl bg-gray-100 px-4 py-3 font-semibold text-sh-brown transition-all hover:bg-gray-200 active:scale-95"
       >
         {{ 'general.close' | t }}
       </button>
@@ -158,81 +214,144 @@
   </div>
 </div>
 
+{% render 'serviceability', fallback_blocks: section.blocks %}
+
 {% javascript %}
   (function () {
-    var pincodeMap = {
-      400053: 'andheri',
-      400058: 'andheri',
-      400061: 'andheri',
-      400069: 'andheri',
-      400093: 'andheri',
-      400601: 'thane',
-      400602: 'thane',
-      400603: 'thane',
-      400604: 'thane',
-      400606: 'thane',
-    };
-    var storeNames = {
-      andheri: '7th Heaven Andheri',
-      thane: '7th Heaven Thane',
-    };
+    var serviceability = { stores: {}, pincodes: {} };
+    var dataEl = document.getElementById('sh-serviceability');
+    if (dataEl) {
+      try {
+        var parsed = JSON.parse(dataEl.textContent);
+        if (parsed && parsed.stores && parsed.pincodes) serviceability = parsed;
+      } catch (error) {
+        serviceability = { stores: {}, pincodes: {} };
+      }
+    }
 
-    var pincodeBtn = document.getElementById('sh-pincode-btn');
-    var pincodeModal = document.getElementById('sh-pincode-modal');
-    var pincodeInput = document.getElementById('sh-pincode-input');
-    var pincodeCheck = document.getElementById('sh-pincode-check');
-    var pincodeClose = document.getElementById('sh-pincode-close');
-    var pincodeCloseIcon = document.getElementById('sh-pincode-close-icon');
-    var pincodeResult = document.getElementById('sh-pincode-result');
-    var pincodeLabel = document.getElementById('sh-pincode-label');
+    function storeName(handle) {
+      var store = serviceability.stores[handle];
+      return (store && store.name) || handle;
+    }
 
-    var savedPincode = localStorage.getItem('sh-pincode');
-    var savedStore = localStorage.getItem('sh-store');
-    if (savedPincode && savedStore && storeNames[savedStore]) {
-      pincodeLabel.textContent = savedPincode + ' (' + storeNames[savedStore] + ')';
+    var body = document.body;
+    var menuBtn = document.getElementById('sh-menu-btn');
+    var mobileMenu = document.getElementById('sh-mobile-menu');
+
+    function setMenu(open) {
+      if (!mobileMenu) return;
+      mobileMenu.setAttribute('data-open', open ? 'true' : 'false');
+      mobileMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (menuBtn) menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      body.classList.toggle('overflow-hidden', open);
+    }
+
+    if (menuBtn) menuBtn.addEventListener('click', function () { setMenu(true); });
+    if (mobileMenu) {
+      mobileMenu.querySelectorAll('[data-menu-close]').forEach(function (el) {
+        el.addEventListener('click', function () { setMenu(false); });
+      });
+    }
+
+    var modal = document.getElementById('sh-pincode-modal');
+    var input = document.getElementById('sh-pincode-input');
+    var checkBtn = document.getElementById('sh-pincode-check');
+    var closeBtn = document.getElementById('sh-pincode-close');
+    var closeIcon = document.getElementById('sh-pincode-close-icon');
+    var resultEl = document.getElementById('sh-pincode-result');
+    var labelEl = document.getElementById('sh-pincode-label');
+
+    var msgInvalid = modal ? modal.getAttribute('data-msg-invalid') : '';
+    var msgDelivering = modal ? modal.getAttribute('data-msg-delivering') : '';
+    var msgUnavailable = modal ? modal.getAttribute('data-msg-unavailable') : '';
+
+    function openModal() {
+      if (!modal) return;
+      setMenu(false);
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (resultEl) resultEl.innerHTML = '';
+      if (input) {
+        input.value = '';
+        window.setTimeout(function () { input.focus(); }, 50);
+      }
     }
 
     function closeModal() {
-      pincodeModal.classList.add('hidden');
-      pincodeModal.classList.remove('flex');
-      pincodeResult.innerHTML = '';
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
-    pincodeBtn.addEventListener('click', function () {
-      pincodeModal.classList.remove('hidden');
-      pincodeModal.classList.add('flex');
-      pincodeInput.focus();
+    function renderSaved() {
+      var pincode = localStorage.getItem('sh-pincode');
+      var handle = localStorage.getItem('sh-store');
+      if (!labelEl || !pincode || !handle) return;
+      labelEl.textContent = pincode;
+      labelEl.title = storeName(handle);
+      labelEl.classList.remove('hidden');
+      labelEl.classList.add('inline');
+    }
+
+    document.addEventListener('click', function (event) {
+      var trigger = event.target.closest('[data-pincode-open]');
+      if (trigger) {
+        event.preventDefault();
+        openModal();
+      }
     });
 
-    if (pincodeClose) pincodeClose.addEventListener('click', closeModal);
-    if (pincodeCloseIcon) pincodeCloseIcon.addEventListener('click', closeModal);
+    var pincodeBtn = document.getElementById('sh-pincode-btn');
+    var mobilePincodeBtn = document.getElementById('sh-mobile-pincode-btn');
+    if (pincodeBtn) pincodeBtn.addEventListener('click', openModal);
+    if (mobilePincodeBtn) mobilePincodeBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (closeIcon) closeIcon.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) closeModal();
+      });
+    }
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeModal();
+        setMenu(false);
+      }
+    });
 
-    pincodeCheck.addEventListener('click', function () {
-      var pincode = pincodeInput.value.trim();
-      if (!pincode || pincode.length !== 6 || isNaN(Number(pincode))) {
-        pincodeResult.innerHTML = '<p class="text-sh-accent">Please enter a valid 6-digit pincode</p>';
+    function checkPincode() {
+      if (!input || !resultEl) return;
+      var pincode = (input.value || '').trim();
+      if (!/^\d{6}$/.test(pincode)) {
+        resultEl.innerHTML = '<p class="font-semibold text-sh-accent">' + msgInvalid + '</p>';
         return;
       }
-
-      if (pincodeMap[pincode]) {
-        var store = pincodeMap[pincode];
+      var handle = serviceability.pincodes[pincode];
+      if (handle) {
         localStorage.setItem('sh-pincode', pincode);
-        localStorage.setItem('sh-store', store);
-        pincodeResult.innerHTML = '<p class="text-emerald-700">Delivering from ' + storeNames[store] + '</p>';
+        localStorage.setItem('sh-store', handle);
+        resultEl.innerHTML = '<p class="font-semibold text-emerald-700">' + msgDelivering + ' ' + storeName(handle) + '</p>';
         window.dispatchEvent(new CustomEvent('sh:pincode-updated'));
-        setTimeout(function () {
-          pincodeLabel.textContent = pincode + ' (' + storeNames[store] + ')';
+        window.setTimeout(function () {
+          renderSaved();
           closeModal();
-          pincodeInput.value = '';
-        }, 800);
+        }, 900);
       } else {
-        pincodeResult.innerHTML = '<p class="text-sh-accent">Sorry! Not serviceable yet in your area</p>';
+        resultEl.innerHTML = '<p class="font-semibold text-sh-accent">' + msgUnavailable + '</p>';
       }
-    });
+    }
 
-    pincodeInput.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') pincodeCheck.click();
-    });
+    if (checkBtn) checkBtn.addEventListener('click', checkPincode);
+    if (input) {
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          checkPincode();
+        }
+      });
+    }
+
+    renderSaved();
   })();
 {% endjavascript %}
 
@@ -243,7 +362,7 @@
     {
       "type": "image_picker",
       "id": "logo",
-      "label": "logo_image"
+      "label": "Logo"
     },
     {
       "type": "range",
@@ -253,7 +372,70 @@
       "step": 10,
       "default": 140,
       "unit": "px",
-      "label": "Custom Logo Width"
+      "label": "Logo width"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement bar",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "announcement_link",
+      "label": "Announcement link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "service_area",
+      "name": "Service area",
+      "settings": [
+        {
+          "type": "text",
+          "id": "store_name",
+          "label": "Store name",
+          "default": "7th Heaven Andheri"
+        },
+        {
+          "type": "text",
+          "id": "handle",
+          "label": "Store handle",
+          "default": "andheri",
+          "info": "Must match the store_location metaobject handle when metaobjects are used."
+        },
+        {
+          "type": "textarea",
+          "id": "pincodes",
+          "label": "Serviceable pincodes",
+          "info": "One pincode per line, or comma separated."
+        },
+        {
+          "type": "text",
+          "id": "phone",
+          "label": "Phone"
+        },
+        {
+          "type": "textarea",
+          "id": "address",
+          "label": "Address"
+        },
+        {
+          "type": "text",
+          "id": "hours",
+          "label": "Hours"
+        },
+        {
+          "type": "url",
+          "id": "map_url",
+          "label": "Map URL"
+        }
+      ]
     }
   ]
 }
