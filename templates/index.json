@@ -18,7 +18,7 @@
         "button_label": "Shop Now",
         "button_link": "/collections/cakes",
         "secondary_button_label": "Franchise Enquiry",
-        "secondary_button_link": "shopify://pages/contact"
+        "secondary_button_link": "shopify://pages/franchise"
       }
     },
     "featured": {
@@ -28,9 +28,7 @@
         "description": "Thoughtfully crafted using the finest ingredients for an exceptional taste experience",
         "collection": "bestsellers",
         "products_to_show": 5,
-        "show_badges": false,
-        "show_meta": false,
-        "show_wishlist": false
+        "show_badges": false
       }
     },
     "category-tiles": {
