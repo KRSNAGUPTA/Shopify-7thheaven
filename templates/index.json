@@ -12,6 +12,7 @@
     "hero": {
       "type": "image-banner",
       "settings": {
+        "image": "shopify://shop_images/cake-pattern-background.png",
         "heading": "Fresh cakes in 7 minutes",
         "subheading": "Order for same-day delivery in Andheri & Thane. Enter your pincode to get started.",
         "button_label": "Shop cakes",
@@ -24,18 +25,21 @@
         "tile-cakes": {
           "type": "tile",
           "settings": {
+            "collection": "",
             "title": "Cakes"
           }
         },
         "tile-cupcakes": {
           "type": "tile",
           "settings": {
+            "collection": "",
             "title": "Cupcakes"
           }
         },
         "tile-desserts": {
           "type": "tile",
           "settings": {
+            "collection": "",
             "title": "Desserts"
           }
         }
@@ -54,6 +58,7 @@
       "settings": {
         "title": "Bestsellers",
         "description": "Our most-loved cakes, ready for same-day delivery",
+        "collection": "",
         "products_to_show": 4,
         "show_view_all": true
       }
