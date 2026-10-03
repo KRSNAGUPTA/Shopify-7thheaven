@@ -11,6 +11,7 @@
   "current": {
     "sh_primary": "#F35225",
     "sh_primary_dark": "#E54316",
+    "type_primary_font": "anek_tamil_n4",
     "sections": {
       "cart-drawer": {
         "type": "cart-drawer",
