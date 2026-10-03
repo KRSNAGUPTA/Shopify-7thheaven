@@ -1,9 +1,9 @@
-<section class="sh-section">
-  <div class="sh-container">
-    <div class="sh-section-title">
-      <h1>{{ collection.title | escape }}</h1>
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-10 text-center">
+      <h1 class="mb-2">{{ collection.title | escape }}</h1>
       {% if collection.description != blank %}
-        <div style="color: var(--sh-text-light); max-width: 40rem; margin: 0 auto;">
+        <div class="mx-auto max-w-2xl text-sh-text-light">
           {{ collection.description }}
         </div>
       {% endif %}
@@ -11,9 +11,9 @@
 
     {% paginate collection.products by 24 %}
       {% if collection.products.size == 0 %}
-        <p class="sh-text-center" style="color: var(--sh-text-light);">{{ 'collections.empty' | t }}</p>
+        <p class="text-center text-sh-text-light">{{ 'collections.empty' | t }}</p>
       {% else %}
-        <div class="sh-product-grid">
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {% for product in collection.products %}
             {% render 'product-card', product: product %}
           {% endfor %}
@@ -21,7 +21,7 @@
       {% endif %}
 
       {% if paginate.pages > 1 %}
-        <div class="sh-text-center sh-mt-4">
+        <div class="mt-8 text-center">
           {{ paginate | default_pagination }}
         </div>
       {% endif %}

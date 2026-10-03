@@ -1,50 +1,59 @@
-<section class="sh-section">
-  <div class="sh-container">
-    <h1>{{ 'cart.title' | t }}</h1>
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h1 class="mb-8">{{ 'cart.title' | t }}</h1>
 
     {% if cart.item_count == 0 %}
-      <p style="color: var(--sh-text-light); margin: 2rem 0;">{{ 'cart.empty' | t }}</p>
-      <a href="{{ routes.collections_url }}/cakes" class="sh-btn sh-btn--primary">{{ 'cart.continue' | t }}</a>
+      <p class="mb-8 text-sh-text-light">{{ 'cart.empty' | t }}</p>
+      <a
+        href="{{ routes.collections_url }}/cakes"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#b8234c] hover:shadow-md active:scale-95"
+      >
+        {{ 'cart.continue' | t }}
+      </a>
     {% else %}
-      <form action="{{ routes.cart_url }}" method="post" class="sh-mt-3">
+      <form action="{{ routes.cart_url }}" method="post" class="mt-6">
         {% for item in cart.items %}
-          <div class="sh-card sh-mb-3" style="display: grid; grid-template-columns: 100px 1fr auto; gap: 1rem; padding: 1rem;">
+          <div class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-sh-border bg-white p-4 sm:grid-cols-[100px_1fr_auto]">
             <div>
               {% if item.image %}
-                {{ item.image | image_url: width: 200 | image_tag: loading: 'lazy', style: 'width:100%;border-radius:8px;' }}
+                {{ item.image | image_url: width: 200 | image_tag: loading: 'lazy', class: 'w-full rounded-lg' }}
               {% endif %}
             </div>
             <div>
-              <h3 style="margin: 0 0 0.5rem;">{{ item.product.title | escape }}</h3>
-              <p style="color: var(--sh-text-light); margin: 0 0 0.5rem;">{{ item.variant.title }}</p>
+              <h3 class="mb-2">{{ item.product.title | escape }}</h3>
+              <p class="mb-2 text-sm text-sh-text-light">{{ item.variant.title }}</p>
               {% for property in item.properties %}
                 {% unless property.last == blank %}
-                  <p style="font-size: 0.9rem; margin: 0.2rem 0;">
+                  <p class="my-1 text-sm">
                     <strong>{{ property.first }}:</strong> {{ property.last }}
                   </p>
                 {% endunless %}
               {% endfor %}
-              <div style="margin-top: 0.75rem; display: flex; gap: 1rem; align-items: center;">
-                <label>
+              <div class="mt-3 flex items-center gap-4">
+                <label class="text-sm">
                   {{ 'cart.quantity' | t }}
-                  <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" style="width: 4rem; margin-left: 0.5rem; padding: 0.35rem;">
+                  <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" class="ml-2 w-16 rounded-lg border border-sh-border px-2 py-1">
                 </label>
-                <a href="{{ item.url_to_remove }}">{{ 'cart.remove' | t }}</a>
+                <a href="{{ item.url_to_remove }}" class="text-sm">{{ 'cart.remove' | t }}</a>
               </div>
             </div>
-            <div style="font-weight: 700; color: var(--sh-accent);">
+            <div class="font-bold text-sh-accent">
               {{ item.final_line_price | money }}
             </div>
           </div>
         {% endfor %}
 
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
-          <p style="font-size: 1.25rem; margin: 0;">
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <p class="m-0 text-xl">
             <strong>{{ 'cart.subtotal' | t }}:</strong> {{ cart.total_price | money }}
           </p>
-          <div style="display: flex; gap: 0.75rem;">
-            <button type="submit" name="update" class="sh-btn sh-btn--outline">{{ 'cart.update' | t }}</button>
-            <button type="submit" name="checkout" class="sh-btn sh-btn--primary">{{ 'cart.checkout' | t }}</button>
+          <div class="flex flex-wrap gap-3">
+            <button type="submit" name="update" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-sh-accent px-6 py-3 font-semibold text-sh-accent transition-all duration-200 hover:bg-sh-accent-light active:scale-95">
+              {{ 'cart.update' | t }}
+            </button>
+            <button type="submit" name="checkout" class="inline-flex items-center justify-center gap-2 rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#b8234c] hover:shadow-md active:scale-95">
+              {{ 'cart.checkout' | t }}
+            </button>
           </div>
         </div>
       </form>

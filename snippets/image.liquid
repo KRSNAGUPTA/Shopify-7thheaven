@@ -40,25 +40,11 @@
 %}
 
 <{{ wrapper }}
-  class="image {{ class }}"
+  class="block w-full overflow-hidden {{ class }}"
   {% if url %}
     href="{{ url }}"
   {% endif %}
 >
-  {{ image | image_url: width: width, height: height, crop: crop | image_tag }}
+  {{ image | image_url: width: width, height: height, crop: crop | image_tag: class: 'h-auto w-full' }}
 </{{ wrapper }}>
 
-{% stylesheet %}
-  .image {
-    display: block;
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: auto;
-  }
-
-  .image > img {
-    width: 100%;
-    height: auto;
-  }
-{% endstylesheet %}

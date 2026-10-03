@@ -1,34 +1,35 @@
-<section class="sh-section">
-  <div class="sh-container">
-    <div class="sh-section-title">
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-10 text-center">
       {% if section.settings.title != blank %}
-        <h2>{{ section.settings.title }}</h2>
+        <h2 class="mb-2">{{ section.settings.title }}</h2>
       {% endif %}
       {% if section.settings.description != blank %}
-        <p>{{ section.settings.description }}</p>
+        <p class="text-lg text-sh-text-light">{{ section.settings.description }}</p>
       {% endif %}
     </div>
 
     {% if section.settings.collection != blank %}
-      <div class="sh-product-grid">
+      <div class="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
         {% for product in section.settings.collection.products limit: section.settings.products_to_show %}
           {% render 'product-card', product: product %}
         {% else %}
-          <p>{{ 'collections.empty' | t }}</p>
+          <p class="col-span-full text-center text-sh-text-light">{{ 'collections.empty' | t }}</p>
         {% endfor %}
       </div>
 
       {% if section.settings.show_view_all %}
-        <div class="sh-text-center sh-mt-3">
-          <a href="{{ section.settings.collection.url }}" class="sh-btn sh-btn--outline">
+        <div class="mt-8 text-center">
+          <a
+            href="{{ section.settings.collection.url }}"
+            class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-sh-accent px-6 py-3 font-semibold text-sh-accent transition-all duration-200 hover:bg-sh-accent-light active:scale-95"
+          >
             {{ 'collections.view_all' | t }}
           </a>
         </div>
       {% endif %}
     {% else %}
-      <p class="sh-text-center" style="color: var(--sh-text-light);">
-        {{ 'collections.select_collection' | t }}
-      </p>
+      <p class="text-center text-sh-text-light">{{ 'collections.select_collection' | t }}</p>
     {% endif %}
   </div>
 </section>

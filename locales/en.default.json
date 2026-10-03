@@ -72,7 +72,7 @@
     "submit": "Submit enquiry"
   },
   "general": {
-    "announcement": "Live cakes in 7 mins | Delivering in Andheri & Thane",
+    "announcement": "Live cakes in 7 mins | Delivering in Andheri & Thane | Use Code KRSNA10 for 10% off",
     "primary_nav": "Primary",
     "enter_pincode": "Enter pincode",
     "pincode_title": "Check serviceability",
@@ -86,6 +86,14 @@
       "stores": "Stores",
       "franchise": "Franchise"
     }
+  },
+  "footer": {
+    "about_text": "Fresh cakes made in 7 minutes. Delivering across Andheri and Thane for this MVP.",
+    "help": "Help",
+    "connect": "Connect",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "refund": "Refund"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",

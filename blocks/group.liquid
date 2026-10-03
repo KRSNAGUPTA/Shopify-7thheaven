@@ -12,37 +12,12 @@
 {% enddoc %}
 
 <div
-  class="group {{ block.settings.layout_direction }}"
-  style="
-    --padding: {{ block.settings.padding }}px;
-    --alignment: {{ block.settings.alignment }};
-  "
+  class="flex w-full flex-nowrap overflow-hidden {% if block.settings.layout_direction == 'group--horizontal' %}flex-row items-center justify-between{% else %}flex-col{% endif %}"
+  style="{% if block.settings.layout_direction == 'group--horizontal' %}padding: 0 {{ block.settings.padding }}px;{% else %}padding: {{ block.settings.padding }}px 0; align-items: {{ block.settings.alignment }};{% endif %}"
   {{ block.shopify_attributes }}
 >
   {% content_for 'blocks' %}
 </div>
-
-{% stylesheet %}
-  .group {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow: hidden;
-    width: 100%;
-  }
-
-  .group--horizontal {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 var(--padding);
-  }
-
-  .group--vertical {
-    flex-direction: column;
-    align-items: var(--alignment);
-    padding: var(--padding) 0;
-  }
-{% endstylesheet %}
 
 {% schema %}
 {

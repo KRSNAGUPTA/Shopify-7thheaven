@@ -1,23 +1,26 @@
-<section class="sh-section">
-  <div class="sh-container sh-grid sh-grid--2col" style="align-items: center;">
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
     <div>
       {% if section.settings.image != blank %}
-        {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'sh-rounded-lg', style: 'width:100%;height:auto;' }}
+        {{ section.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'w-full rounded-2xl', style: 'height:auto;' }}
       {% else %}
-        {{ 'lifestyle-1' | placeholder_svg_tag: 'sh-rounded-lg' }}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'w-full rounded-2xl' }}
       {% endif %}
     </div>
     <div>
       {% if section.settings.heading != blank %}
-        <h2>{{ section.settings.heading }}</h2>
+        <h2 class="mb-4">{{ section.settings.heading }}</h2>
       {% endif %}
       {% if section.settings.text != blank %}
-        <div style="color: var(--sh-text-light); margin: 1rem 0 1.5rem; line-height: 1.7;">
+        <div class="mb-6 leading-relaxed text-sh-text-light">
           {{ section.settings.text }}
         </div>
       {% endif %}
       {% if section.settings.button_label != blank %}
-        <a href="{{ section.settings.button_link | default: '/pages/franchise' }}" class="sh-btn sh-btn--secondary">
+        <a
+          href="{{ section.settings.button_link | default: '/pages/franchise' }}"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-sh-brown px-6 py-3 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#2a1a12] hover:shadow-md active:scale-95"
+        >
           {{ section.settings.button_label }}
         </a>
       {% endif %}

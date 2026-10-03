@@ -1,110 +1,47 @@
-<div id="sh-cart-drawer" class="sh-cart-drawer" aria-hidden="true" data-money-format="{{ shop.money_format | escape }}">
-  <div class="sh-cart-drawer__header">
-    <h3>{{ 'cart.title' | t }}</h3>
-    <button type="button" id="sh-cart-close" class="sh-cart-drawer__close" aria-label="{{ 'cart.close' | t }}">✕</button>
+<div
+  id="sh-cart-drawer"
+  class="fixed inset-y-0 right-0 z-[999] flex h-screen w-full max-w-md translate-x-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out"
+  aria-hidden="true"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-empty-message="{{ 'cart.empty' | t | escape }}"
+>
+  <div class="flex items-center justify-between border-b border-sh-border p-6">
+    <h3 class="text-xl font-bold text-sh-brown">{{ 'cart.title' | t }}</h3>
+    <button
+      type="button"
+      id="sh-cart-close"
+      class="cursor-pointer p-1 text-2xl leading-none text-sh-text-light transition-colors hover:text-sh-brown"
+      aria-label="{{ 'cart.close' | t }}"
+    >
+      ✕
+    </button>
   </div>
 
-  <div id="sh-cart-items" class="sh-cart-drawer__items"></div>
+  <div id="sh-cart-items" class="flex-1 overflow-y-auto p-4"></div>
 
-  <div class="sh-cart-drawer__footer">
-    <div class="sh-cart-drawer__subtotal">
+  <div class="border-t border-sh-border p-6">
+    <div class="mb-4 flex items-center justify-between text-lg font-semibold text-sh-brown">
       <strong>{{ 'cart.subtotal' | t }}</strong>
       <strong id="sh-cart-total">₹0</strong>
     </div>
-    <a href="/checkout" id="sh-cart-checkout" class="sh-btn sh-btn--primary" style="width: 100%; text-align: center;">
+    <a
+      href="/checkout"
+      id="sh-cart-checkout"
+      class="flex w-full items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95"
+    >
       {{ 'cart.checkout' | t }}
     </a>
-    <button type="button" id="sh-cart-continue" class="sh-btn sh-btn--secondary" style="width: 100%; margin-top: 0.5rem;">
+    <button
+      type="button"
+      id="sh-cart-continue"
+      class="mt-2 flex w-full items-center justify-center rounded-xl bg-sh-brown px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#2a1a12] active:scale-95"
+    >
       {{ 'cart.continue' | t }}
     </button>
   </div>
 </div>
 
-<div id="sh-cart-overlay" class="sh-cart-overlay" hidden></div>
-
-{% stylesheet %}
-  .sh-cart-drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: min(400px, 100vw);
-    height: 100vh;
-    background: #fff;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-  }
-
-  .sh-cart-drawer.is-open {
-    transform: translateX(0);
-  }
-
-  .sh-cart-drawer__header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--sh-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .sh-cart-drawer__header h3 {
-    margin: 0;
-    color: var(--sh-brown);
-    font-size: 1.3rem;
-  }
-
-  .sh-cart-drawer__close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-  }
-
-  .sh-cart-drawer__items {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-  }
-
-  .sh-cart-drawer__footer {
-    padding: 1.5rem;
-    border-top: 1px solid var(--sh-border);
-  }
-
-  .sh-cart-drawer__subtotal {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-  }
-
-  .sh-cart-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--sh-border);
-    margin-bottom: 0.5rem;
-  }
-
-  .sh-cart-item h4 {
-    margin: 0 0 0.5rem;
-    color: var(--sh-brown);
-  }
-
-  .sh-cart-item p {
-    margin: 0.3rem 0;
-    font-size: 0.9rem;
-  }
-
-  .sh-cart-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 998;
-  }
-{% endstylesheet %}
+<div id="sh-cart-overlay" class="fixed inset-0 z-[998] bg-black/40" hidden></div>
 
 {% javascript %}
   (function () {
@@ -115,6 +52,7 @@
     var closeBtn = document.getElementById('sh-cart-close');
     var continueBtn = document.getElementById('sh-cart-continue');
     var moneyFormat = drawer.getAttribute('data-money-format') || '';
+    var emptyMessage = drawer.getAttribute('data-empty-message') || 'Your cart is empty';
 
     function formatMoney(cents) {
       if (window.Shopify && Shopify.formatMoney && moneyFormat) {
@@ -142,23 +80,23 @@
 
       itemsEl.innerHTML = '';
       if (!cart.items.length) {
-        itemsEl.innerHTML = '<p style="text-align:center;color:var(--sh-text-light);">Your cart is empty</p>';
+        itemsEl.innerHTML = '<p class="py-8 text-center text-sh-text-light">' + escapeHtml(emptyMessage) + '</p>';
         totalEl.textContent = formatMoney(0);
         return;
       }
 
       cart.items.forEach(function (item) {
         var attrs = item.properties || {};
-        var html = '<div class="sh-cart-item">'
-          + '<h4>' + escapeHtml(item.product_title) + '</h4>'
-          + '<p style="color:var(--sh-text-light);">' + escapeHtml(item.variant_title || '') + '</p>';
-        if (attrs['Message on cake']) html += '<p>Message: "' + escapeHtml(attrs['Message on cake']) + '"</p>';
-        if (attrs['Delivery date']) html += '<p>Date: ' + escapeHtml(attrs['Delivery date']) + '</p>';
-        if (attrs['Delivery slot']) html += '<p>Slot: ' + escapeHtml(attrs['Delivery slot']) + '</p>';
-        if (attrs['Fulfilment store']) html += '<p>Store: ' + escapeHtml(attrs['Fulfilment store']) + '</p>';
-        html += '<div style="display:flex;justify-content:space-between;margin-top:0.5rem;">'
-          + '<span>Qty: ' + item.quantity + '</span>'
-          + '<strong>' + formatMoney(item.final_line_price) + '</strong></div></div>';
+        var html = '<div class="mb-2 border-b border-sh-border p-4">'
+          + '<h4 class="mb-1 font-semibold text-sh-brown">' + escapeHtml(item.product_title) + '</h4>'
+          + '<p class="text-sm text-sh-text-light">' + escapeHtml(item.variant_title || '') + '</p>';
+        if (attrs['Message on cake']) html += '<p class="text-sm text-sh-text-light">Message: "' + escapeHtml(attrs['Message on cake']) + '"</p>';
+        if (attrs['Delivery date']) html += '<p class="text-sm text-sh-text-light">Date: ' + escapeHtml(attrs['Delivery date']) + '</p>';
+        if (attrs['Delivery slot']) html += '<p class="text-sm text-sh-text-light">Slot: ' + escapeHtml(attrs['Delivery slot']) + '</p>';
+        if (attrs['Fulfilment store']) html += '<p class="text-sm text-sh-text-light">Store: ' + escapeHtml(attrs['Fulfilment store']) + '</p>';
+        html += '<div class="mt-3 flex items-center justify-between">'
+          + '<span class="text-sm">Qty: ' + item.quantity + '</span>'
+          + '<strong class="text-sh-accent">' + formatMoney(item.final_line_price) + '</strong></div></div>';
         itemsEl.innerHTML += html;
       });
 
@@ -166,14 +104,16 @@
     }
 
     function openCart() {
-      drawer.classList.add('is-open');
+      drawer.classList.remove('translate-x-full');
+      drawer.classList.add('translate-x-0');
       drawer.setAttribute('aria-hidden', 'false');
       overlay.hidden = false;
       updateCart();
     }
 
     function closeCart() {
-      drawer.classList.remove('is-open');
+      drawer.classList.add('translate-x-full');
+      drawer.classList.remove('translate-x-0');
       drawer.setAttribute('aria-hidden', 'true');
       overlay.hidden = true;
     }

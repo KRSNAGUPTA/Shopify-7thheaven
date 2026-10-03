@@ -5,40 +5,50 @@
   https://shopify.dev/docs/storefronts/themes/architecture/templates/product
 {% endcomment %}
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+<div class="grid gap-8 md:grid-cols-2">
+  <div class="grid grid-cols-2 gap-4">
+    {% for image in product.images %}
+      {% render 'image', class: 'rounded-xl', image: image %}
+    {% endfor %}
+  </div>
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+  <div>
+    <h1 class="mb-2">{{ product.title }}</h1>
+    <p class="text-2xl font-bold text-sh-accent">{{ product.price | money }}</p>
+    <div class="my-6 leading-relaxed text-sh-text-light">{{ product.description }}</div>
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
+    {% form 'product', product %}
+      {% assign current_variant = product.selected_or_first_available_variant %}
 
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
-          {% endif %}
-        >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
+      <select name="id" class="w-full rounded-lg border border-sh-border px-4 py-3">
+        {% for variant in product.variants %}
+          <option
+            value="{{ variant.id }}"
+            {% if variant == current_variant %}
+              selected="selected"
+            {% endif %}
+          >
+            {{ variant.title }} - {{ variant.price | money }}
+          </option>
+        {% endfor %}
+      </select>
 
-    <input type="text" name="quantity" min="1" value="1">
+      <input
+        type="text"
+        name="quantity"
+        min="1"
+        value="1"
+        class="mt-4 w-24 rounded-lg border border-sh-border px-4 py-3"
+      >
 
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
+      <input
+        type="submit"
+        value="Add to cart"
+        class="mt-4 inline-flex cursor-pointer items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95"
+      >
+      {{ form | payment_button }}
+    {% endform %}
+  </div>
 </div>
 
 {% schema %}

@@ -8,19 +8,22 @@
   {% render 'product-card', product: product %}
 {% enddoc %}
 
-<article class="sh-card {{ css_class }}">
-  <a href="{{ product.url }}" style="display: block; text-decoration: none; color: inherit;">
+<article class="group overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ css_class }}">
+  <a href="{{ product.url }}" class="block text-sh-brown no-underline">
     {% if product.featured_image %}
       {{ product.featured_image
         | image_url: width: 600
-        | image_tag: loading: 'lazy', class: 'sh-card-image', alt: product.featured_image.alt | default: product.title
+        | image_tag:
+          loading: 'lazy',
+          class: 'h-56 w-full object-cover md:h-72',
+          alt: product.featured_image.alt | default: product.title
       }}
     {% else %}
-      {{ 'product-1' | placeholder_svg_tag: 'sh-card-image' }}
+      {{ 'product-1' | placeholder_svg_tag: 'h-56 w-full object-cover md:h-72' }}
     {% endif %}
-    <div class="sh-card-body">
-      <h3 class="sh-card-title">{{ product.title | escape }}</h3>
-      <p class="sh-card-price">
+    <div class="p-4">
+      <h3 class="mb-2 text-lg font-semibold text-sh-brown">{{ product.title | escape }}</h3>
+      <p class="text-xl font-bold text-sh-accent">
         {% if product.price_varies %}
           {% assign from_price = product.price_min | money %}
           {{ 'products.from_price' | t: price: from_price }}
@@ -29,7 +32,7 @@
         {% endif %}
       </p>
       {% if product.metafields.custom.eggless_available %}
-        <span class="sh-badge sh-badge--eggless">{{ 'products.eggless_available' | t }}</span>
+        <span class="mt-2 inline-block rounded-full bg-[#fdecea] px-3 py-1 text-sm font-semibold text-[#a12a1f]">{{ 'products.eggless_available' | t }}</span>
       {% endif %}
     </div>
   </a>

@@ -1,11 +1,16 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "store-locator",
-      "settings": {
-        "heading": "Our stores",
-        "subheading": "Pick up or get delivery from Andheri or Thane"
-      },
       "blocks": {
         "andheri": {
           "type": "store",
@@ -13,7 +18,7 @@
             "name": "7th Heaven Andheri",
             "address": "Andheri West, Mumbai 400053",
             "hours": "10 AM – 11 PM",
-            "phone": "1800-XXX-XXXX",
+            "phone": "+91 97693 74926",
             "map_url": "https://maps.google.com/?q=Andheri+West+Mumbai"
           }
         },
@@ -23,13 +28,22 @@
             "name": "7th Heaven Thane",
             "address": "Thane West, Thane 400601",
             "hours": "10 AM – 11 PM",
-            "phone": "1800-XXX-XXXX",
+            "phone": "+91 70219 77902",
             "map_url": "https://maps.google.com/?q=Thane+West"
           }
         }
       },
-      "block_order": ["andheri", "thane"]
+      "block_order": [
+        "andheri",
+        "thane"
+      ],
+      "settings": {
+        "heading": "Our stores",
+        "subheading": "Pick up or get delivery from Andheri or Thane"
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }

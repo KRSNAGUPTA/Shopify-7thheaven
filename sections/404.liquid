@@ -1,23 +1,40 @@
-{% comment %}
-  This section is used in the 404 template to render page shown when customers
-  enter an invalid store URL.
+<section class="w-full min-h-[60vh] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-sh-cream/50">
+  <div class="max-w-md w-full text-center space-y-6">
+    
+    <!-- Visual 404 Indicator -->
+    <div class="space-y-2">
+      <span class="text-7xl font-black tracking-widest text-sh-accent/20 block select-none">
+        404
+      </span>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-sh-brown tracking-tight">
+        {{ '404.title' | t }}
+      </h1>
+    </div>
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/404
-{% endcomment %}
+    <!-- Description Message -->
+    <p class="text-base text-sh-text-light leading-relaxed">
+      {{ '404.not_found' | t }}
+    </p>
 
-<h1>{{ '404.title' | t }}</h1>
+    <!-- Call To Action Buttons -->
+    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a 
+        href="{{ routes.all_products_collection_url }}" 
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-sh-accent hover:bg-rose-700 !text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm no-underline"
+      >
+        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+        <span class="!text-white">{{ '404.back_to_shopping' | t }}</span>
+      </a>
 
-<p>
-  {{ '404.not_found' | t }}
-</p>
+      <a 
+        href="{{ routes.root_url }}" 
+        class="w-full sm:w-auto inline-flex items-center justify-center bg-white hover:bg-sh-cream !text-sh-brown border border-sh-border font-semibold px-6 py-3 rounded-xl transition-all text-sm no-underline"
+      >
+        <span class="!text-sh-brown">Go to Homepage</span>
+      </a>
+    </div>
 
-<a href="{{ routes.all_products_collection_url }}">
-  {{ '404.back_to_shopping' | t }}
-</a>
-
-{% schema %}
-{
-  "name": "t:general.404",
-  "settings": []
-}
-{% endschema %}
+  </div>
+</section>

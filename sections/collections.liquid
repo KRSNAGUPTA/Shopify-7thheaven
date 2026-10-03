@@ -5,53 +5,46 @@
   https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
 {% endcomment %}
 
-<h1>{{ 'collections.title' | t }}</h1>
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h1 class="mb-8">{{ 'collections.title' | t }}</h1>
 
-<div
-  class="collections {{ section.settings.grid_item_width }}"
-  style="--grid-gap: {{ section.settings.grid_gap }}px"
->
-  {% for collection in collections %}
-    <a class="collection-card" href="{{ collection.url }}">
-      {% if collection.featured_image %}
-        {% render 'image',
-          class: 'collection-card__image',
-          image: collection.featured_image,
-          width: 600,
-          height: 600,
-          crop: 'center'
-        %}
-      {% endif %}
+    {% liquid
+      if section.settings.grid_item_width == 'collections--compact'
+        assign card_size = '160px'
+      else
+        assign card_size = '280px'
+      endif
+    %}
 
-      <div class="collection-card__content">
-        <p>{{ collection.title }}</p>
+    <div
+      class="grid grid-cols-[repeat(auto-fill,minmax(min(var(--collection-card-size),100%),1fr))]"
+      style="--collection-card-size: {{ card_size }}; gap: {{ section.settings.grid_gap }}px;"
+    >
+      {% for collection in collections %}
+        <a class="flex w-full flex-col text-sh-brown no-underline" href="{{ collection.url }}">
+          {% if collection.featured_image %}
+            {% render 'image',
+              class: 'aspect-square w-full rounded-xl',
+              image: collection.featured_image,
+              width: 600,
+              height: 600,
+              crop: 'center'
+            %}
+          {% endif %}
 
-        {% if collection.description %}
-          <p>{{ collection.description | strip_html | truncatewords: 15 }}</p>
-        {% endif %}
-      </div>
-    </a>
-  {% endfor %}
-</div>
+          <div class="mt-3">
+            <p class="font-semibold">{{ collection.title }}</p>
 
-{% stylesheet %}
-  .collections {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--collection-card-size), 100%), 1fr));
-    gap: var(--grid-gap);
-  }
-  .collections--compact {
-    --collection-card-size: 160px;
-  }
-  .collections--full {
-    --collection-card-size: 280px;
-  }
-  .collection-card {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-{% endstylesheet %}
+            {% if collection.description %}
+              <p class="text-sm text-sh-text-light">{{ collection.description | strip_html | truncatewords: 15 }}</p>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 
 {% schema %}
 {

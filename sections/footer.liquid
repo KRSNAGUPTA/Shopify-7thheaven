@@ -1,42 +1,39 @@
-<!-- Footer -->
-<footer class="sh-footer">
-  <div class="sh-container">
-    <div class="sh-grid sh-grid--4col" style="color: white; margin-bottom: 2rem;">
-      <div class="sh-footer-section">
-        <h4 class="sh-footer-title">7th Heaven</h4>
-        <p style="font-size: 0.95rem; line-height: 1.6; color: #ccc;">
-          Fresh cakes made in 7 minutes. Delivering across Andheri and Thane for this MVP.
+<footer class="full-width mt-12 bg-sh-brown text-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="mb-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h4 class="mb-4 text-lg font-bold text-white">7th Heaven</h4>
+        <p class="text-sm leading-relaxed text-gray-300">
+          {{ 'footer.about_text' | t }}
         </p>
       </div>
 
-      <div class="sh-footer-section">
-        <h4 class="sh-footer-title">{{ 'general.nav.cakes' | t }}</h4>
-        <a href="{{ routes.collections_url }}/cakes" class="sh-footer-link">{{ 'general.nav.cakes' | t }}</a>
-        <a href="{{ routes.collections_url }}/cupcakes" class="sh-footer-link">{{ 'general.nav.cupcakes' | t }}</a>
-        <a href="{{ routes.collections_url }}/desserts" class="sh-footer-link">{{ 'general.nav.desserts' | t }}</a>
+      <div>
+        <h4 class="mb-4 text-lg font-bold text-white">{{ 'general.nav.cakes' | t }}</h4>
+        <a href="{{ routes.collections_url }}/cakes" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'general.nav.cakes' | t }}</a>
+        <a href="{{ routes.collections_url }}/cupcakes" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'general.nav.cupcakes' | t }}</a>
+        <a href="{{ routes.collections_url }}/desserts" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'general.nav.desserts' | t }}</a>
       </div>
 
-      <div class="sh-footer-section">
-        <h4 class="sh-footer-title">Help</h4>
-        <a href="/pages/stores" class="sh-footer-link">{{ 'general.nav.stores' | t }}</a>
-        <a href="/pages/franchise" class="sh-footer-link">{{ 'general.nav.franchise' | t }}</a>
-        <a href="/policies/privacy-policy" class="sh-footer-link">Privacy</a>
+      <div>
+        <h4 class="mb-4 text-lg font-bold text-white">{{ 'footer.help' | t }}</h4>
+        <a href="/pages/stores" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'general.nav.stores' | t }}</a>
+        <a href="/pages/franchise" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'general.nav.franchise' | t }}</a>
+        <a href="/policies/privacy-policy" class="mb-2 block text-sm text-gray-300 transition-colors hover:text-sh-accent">{{ 'footer.privacy' | t }}</a>
       </div>
 
-      <div class="sh-footer-section">
-        <h4 class="sh-footer-title">Connect</h4>
-        <p style="font-size: 0.95rem; color: #ccc; margin-bottom: 1rem;">
-          cs@7thheaven.in
-        </p>
+      <div>
+        <h4 class="mb-4 text-lg font-bold text-white">{{ 'footer.connect' | t }}</h4>
+        <p class="mb-4 text-sm text-gray-300">cs@7thheaven.in</p>
       </div>
     </div>
 
-    <div class="sh-footer-bottom">
-      <p style="margin: 0;">
+    <div class="border-t border-white/10 pt-6 text-center text-xs text-gray-400">
+      <p class="m-0">
         © {{ 'now' | date: '%Y' }} 7th Heaven.
-        <a href="/policies/privacy-policy" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Privacy</a>
-        <a href="/policies/terms-of-service" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Terms</a>
-        <a href="/policies/refund-policy" class="sh-footer-link" style="display: inline; margin: 0 0.5rem;">Refund</a>
+        <a href="/policies/privacy-policy" class="mx-2 inline text-gray-400 transition-colors hover:text-sh-accent">{{ 'footer.privacy' | t }}</a>
+        <a href="/policies/terms-of-service" class="mx-2 inline text-gray-400 transition-colors hover:text-sh-accent">{{ 'footer.terms' | t }}</a>
+        <a href="/policies/refund-policy" class="mx-2 inline text-gray-400 transition-colors hover:text-sh-accent">{{ 'footer.refund' | t }}</a>
       </p>
     </div>
   </div>

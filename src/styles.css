@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sh-cream: #fff8f0;
+  --color-sh-brown: #3b2a20;
+  --color-sh-accent: #d6336c;
+  --color-sh-accent-light: #f5e6ed;
+  --color-sh-text: #2a2a2a;
+  --color-sh-text-light: #666;
+  --color-sh-border: #e8dfd5;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-sh-brown);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 3rem;
+    }
+
+    h2 {
+      font-size: 2.25rem;
+    }
+  }
+
+  a {
+    color: var(--color-sh-accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-sh-brown);
+  }
+}

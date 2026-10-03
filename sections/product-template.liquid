@@ -1,209 +1,158 @@
-<div class="sh-container sh-p-4" id="sh-product" data-prep-hours="{{ product.metafields.custom.prep_hours.value | default: 2 }}">
-  <div class="sh-grid sh-grid--2col" style="gap: 2rem;">
-    <div>
-      {% if product.featured_image %}
-        {{ product.featured_image
-          | image_url: width: 800
-          | image_tag: id: 'sh-product-image', style: 'width:100%;border-radius:12px;', alt: product.featured_image.alt | default: product.title
-        }}
-      {% else %}
-        {{ 'product-1' | placeholder_svg_tag }}
-      {% endif %}
-    </div>
-
-    <div>
-      <h1 class="sh-hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">{{ product.title | escape }}</h1>
-
-      {% if product.metafields.custom.serves %}
-        <p class="sh-card-serves">{{ 'products.serves' | t }}: {{ product.metafields.custom.serves.value }}</p>
-      {% endif %}
-
-      {% if product.metafields.custom.prep_hours %}
-        <p class="sh-card-serves">{{ 'products.ready_in' | t }}: {{ product.metafields.custom.prep_hours.value }} {{ 'products.hours' | t }}</p>
-      {% endif %}
-
-      {% if product.metafields.custom.eggless_available %}
-        <span class="sh-badge sh-badge--eggless">{{ 'products.eggless_available' | t }}</span>
-      {% endif %}
-
-      <p class="sh-card-price sh-mt-3" id="sh-product-price">
-        {% if product.price_varies %}
-          {% assign from_price = product.price_min | money %}
-          {{ 'products.from_price' | t: price: from_price }}
+<section class="full-width py-8 md:py-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" id="sh-product" data-prep-hours="{{ product.metafields.custom.prep_hours.value | default: 2 }}">
+    <div class="grid gap-8 lg:grid-cols-2">
+      <div>
+        {% if product.featured_image %}
+          {{ product.featured_image
+            | image_url: width: 800
+            | image_tag: id: 'sh-product-image', class: 'w-full rounded-2xl', alt: product.featured_image.alt | default: product.title
+          }}
         {% else %}
-          {{ product.price | money }}
+          {{ 'product-1' | placeholder_svg_tag: 'w-full rounded-2xl' }}
         {% endif %}
-      </p>
+      </div>
 
-      {% if product.description != blank %}
-        <div style="color: var(--sh-text-light); line-height: 1.6; margin: 1.5rem 0;">
-          {{ product.description }}
-        </div>
-      {% endif %}
+      <div>
+        <h1 class="mb-2 text-3xl">{{ product.title | escape }}</h1>
 
-      {% form 'product', product, id: 'sh-product-form' %}
-        <input type="hidden" name="properties[Fulfilment store]" id="sh-fulfilment-store" value="">
+        {% if product.metafields.custom.serves %}
+          <p class="text-sm text-sh-text-light">{{ 'products.serves' | t }}: {{ product.metafields.custom.serves.value }}</p>
+        {% endif %}
 
-        <div class="sh-mt-3">
-          <label for="sh-variant-select" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">
-            {{ 'products.weight_and_type' | t }}
-          </label>
-          <select
-            name="id"
-            id="sh-variant-select"
-            required
-            style="width: 100%; padding: 0.75rem; border: 1px solid var(--sh-border); border-radius: 6px; font-size: 1rem;"
-          >
-            <option value="">{{ 'products.select_variant' | t }}</option>
-            {% for variant in product.variants %}
-              <option
-                value="{{ variant.id }}"
-                data-price="{{ variant.price | money }}"
-                {% unless variant.available %}disabled{% endunless %}
-              >
-                {{ variant.title }} — {{ variant.price | money }}{% unless variant.available %} ({{ 'products.sold_out' | t }}){% endunless %}
-              </option>
-            {% endfor %}
-          </select>
-        </div>
+        {% if product.metafields.custom.prep_hours %}
+          <p class="text-sm text-sh-text-light">{{ 'products.ready_in' | t }}: {{ product.metafields.custom.prep_hours.value }} {{ 'products.hours' | t }}</p>
+        {% endif %}
 
-        <div class="sh-mt-3">
-          <label for="sh-cake-message" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">
-            {{ 'products.message_on_cake' | t }}
-          </label>
-          <textarea
-            name="properties[Message on cake]"
-            id="sh-cake-message"
-            maxlength="30"
-            placeholder="{{ 'products.message_placeholder' | t }}"
-            style="width: 100%; padding: 0.75rem; border: 1px solid var(--sh-border); border-radius: 6px; font-size: 1rem; font-family: inherit; resize: vertical; min-height: 80px;"
-          ></textarea>
-          <p style="font-size: 0.85rem; color: var(--sh-text-light); margin-top: 0.25rem;">
-            <span id="sh-message-count">0</span>/30
-          </p>
-        </div>
+        {% if product.metafields.custom.eggless_available %}
+          <span class="mt-2 inline-block rounded-full bg-[#fdecea] px-3 py-1 text-sm font-semibold text-[#a12a1f]">{{ 'products.eggless_available' | t }}</span>
+        {% endif %}
 
-        <div class="sh-mt-3">
-          <label for="sh-delivery-date" style="font-weight: 600; display: block; margin-bottom: 0.5rem;">
-            {{ 'products.delivery_date' | t }} *
-          </label>
-          <input
-            type="date"
-            name="properties[Delivery date]"
-            id="sh-delivery-date"
-            required
-            style="width: 100%; padding: 0.75rem; border: 1px solid var(--sh-border); border-radius: 6px; font-size: 1rem;"
-          >
-          <p style="font-size: 0.85rem; color: var(--sh-text-light); margin-top: 0.25rem;">
-            {{ 'products.delivery_date_hint' | t }}
-          </p>
-        </div>
+        <p class="mt-4 text-3xl font-bold text-sh-accent" id="sh-product-price">
+          {% if product.price_varies %}
+            {% assign from_price = product.price_min | money %}
+            {{ 'products.from_price' | t: price: from_price }}
+          {% else %}
+            {{ product.price | money }}
+          {% endif %}
+        </p>
 
-        <div class="sh-mt-3">
-          <p style="font-weight: 600; margin-bottom: 0.5rem;">{{ 'products.delivery_slot' | t }} *</p>
-          <div class="sh-slot-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
-            <label class="sh-slot">
-              <input type="radio" name="properties[Delivery slot]" value="Morning (11 AM - 1 PM)" required>
-              <span class="sh-slot__box">
-                {{ 'products.slot_morning' | t }}<br>
-                <small>11 AM – 1 PM</small>
-              </span>
-            </label>
-            <label class="sh-slot">
-              <input type="radio" name="properties[Delivery slot]" value="Afternoon (1 PM - 5 PM)">
-              <span class="sh-slot__box">
-                {{ 'products.slot_afternoon' | t }}<br>
-                <small>1 PM – 5 PM</small>
-              </span>
-            </label>
-            <label class="sh-slot">
-              <input type="radio" name="properties[Delivery slot]" value="Evening (5 PM - 9 PM)">
-              <span class="sh-slot__box">
-                {{ 'products.slot_evening' | t }}<br>
-                <small>5 PM – 9 PM</small>
-              </span>
-            </label>
+        {% if product.description != blank %}
+          <div class="my-6 leading-relaxed text-sh-text-light">
+            {{ product.description }}
           </div>
-        </div>
+        {% endif %}
 
-        <div class="sh-mt-4" id="sh-store-info" style="padding: 1rem; background: var(--sh-accent-light); border-radius: 8px; display: none;">
-          <p style="margin: 0; font-weight: 600; color: var(--sh-brown);">
-            <span id="sh-store-name"></span>
-          </p>
-        </div>
+        {% form 'product', product, id: 'sh-product-form' %}
+          <input type="hidden" name="properties[Fulfilment store]" id="sh-fulfilment-store" value="">
+          <div class="mt-6">
+            <label for="sh-variant-select" class="mb-2 block font-semibold text-sh-brown">
+              {{ 'products.weight_and_type' | t }}
+            </label>
+            <select
+              name="id"
+              id="sh-variant-select"
+              required
+              class="w-full rounded-lg border border-sh-border px-4 py-3 text-base"
+            >
+              <option value="">{{ 'products.select_variant' | t }}</option>
+              {% for variant in product.variants %}
+                <option
+                  value="{{ variant.id }}"
+                  data-price="{{ variant.price | money }}"
+                  {% unless variant.available %}disabled{% endunless %}
+                >
+                  {{ variant.title }} — {{ variant.price | money }}{% unless variant.available %} ({{ 'products.sold_out' | t }}){% endunless %}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
 
-        <p id="sh-product-error" style="display: none; color: var(--sh-accent); font-weight: 600; margin-top: 1rem;"></p>
+          <div class="mt-6">
+            <label for="sh-cake-message" class="mb-2 block font-semibold text-sh-brown">
+              {{ 'products.message_on_cake' | t }}
+            </label>
+            <textarea
+              name="properties[Message on cake]"
+              id="sh-cake-message"
+              maxlength="30"
+              placeholder="{{ 'products.message_placeholder' | t }}"
+              class="min-h-20 w-full resize-y rounded-lg border border-sh-border px-4 py-3 text-base"
+            ></textarea>
+            <p class="mt-1 text-sm text-sh-text-light">
+              <span id="sh-message-count">0</span>/30
+            </p>
+          </div>
 
-        <button
-          type="submit"
-          class="sh-btn sh-btn--primary sh-mt-4 sh-hide-mobile"
-          id="sh-add-to-cart"
-          style="width: 100%; padding: 1rem; font-size: 1.1rem;"
-        >
-          {{ 'products.add_to_cart' | t }}
-        </button>
-      {% endform %}
+          <div class="mt-6">
+            <label for="sh-delivery-date" class="mb-2 block font-semibold text-sh-brown">
+              {{ 'products.delivery_date' | t }} *
+            </label>
+            <input
+              type="date"
+              name="properties[Delivery date]"
+              id="sh-delivery-date"
+              required
+              class="w-full rounded-lg border border-sh-border px-4 py-3 text-base"
+            >
+            <p class="mt-1 text-sm text-sh-text-light">
+              {{ 'products.delivery_date_hint' | t }}
+            </p>
+          </div>
+
+          <div class="mt-6">
+            <p class="mb-2 font-semibold text-sh-brown">{{ 'products.delivery_slot' | t }} *</p>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <label class="relative cursor-pointer">
+                <input type="radio" name="properties[Delivery slot]" value="Morning (11 AM - 1 PM)" required class="peer sr-only">
+                <span class="block rounded-lg border-2 border-sh-border px-3 py-3 text-center font-medium transition-colors peer-checked:border-sh-accent peer-checked:bg-sh-accent-light">
+                  {{ 'products.slot_morning' | t }}<br>
+                  <small>11 AM – 1 PM</small>
+                </span>
+              </label>
+              <label class="relative cursor-pointer">
+                <input type="radio" name="properties[Delivery slot]" value="Afternoon (1 PM - 5 PM)" class="peer sr-only">
+                <span class="block rounded-lg border-2 border-sh-border px-3 py-3 text-center font-medium transition-colors peer-checked:border-sh-accent peer-checked:bg-sh-accent-light">
+                  {{ 'products.slot_afternoon' | t }}<br>
+                  <small>1 PM – 5 PM</small>
+                </span>
+              </label>
+              <label class="relative cursor-pointer">
+                <input type="radio" name="properties[Delivery slot]" value="Evening (5 PM - 9 PM)" class="peer sr-only">
+                <span class="block rounded-lg border-2 border-sh-border px-3 py-3 text-center font-medium transition-colors peer-checked:border-sh-accent peer-checked:bg-sh-accent-light">
+                  {{ 'products.slot_evening' | t }}<br>
+                  <small>5 PM – 9 PM</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="mt-8 rounded-lg bg-sh-accent-light p-4" id="sh-store-info" style="display: none;">
+            <p class="m-0 font-semibold text-sh-brown">
+              <span id="sh-store-name"></span>
+            </p>
+          </div>
+
+          <p id="sh-product-error" class="mt-4 font-semibold text-sh-accent" style="display: none;"></p>
+
+          <button
+            type="submit"
+            id="sh-add-to-cart"
+            class="mt-8 hidden w-full items-center justify-center rounded-xl bg-sh-accent px-6 py-4 text-lg font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95 sm:inline-flex"
+          >
+            {{ 'products.add_to_cart' | t }}
+          </button>
+        {% endform %}
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<div class="sh-sticky-atc sh-show-mobile" id="sh-sticky-atc">
-  <button type="submit" form="sh-product-form" class="sh-btn sh-btn--primary" id="sh-sticky-atc-btn" style="width: 100%;">
+<div class="fixed inset-x-0 bottom-0 z-[90] border-t border-sh-border bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] sm:hidden" id="sh-sticky-atc">
+  <button type="submit" form="sh-product-form" id="sh-sticky-atc-btn" class="flex w-full items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95">
     {{ 'products.add_to_cart' | t }}
   </button>
 </div>
 
-{% stylesheet %}
-  .sh-slot input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .sh-slot {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .sh-slot__box {
-    display: block;
-    padding: 0.75rem;
-    border: 2px solid var(--sh-border);
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 500;
-    transition: border-color 0.2s, background 0.2s;
-  }
-
-  .sh-slot input:checked + .sh-slot__box {
-    border-color: var(--sh-accent);
-    background: var(--sh-accent-light);
-  }
-
-  .sh-sticky-atc {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 90;
-    padding: 0.75rem 1rem;
-    background: #fff;
-    border-top: 1px solid var(--sh-border);
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-  }
-
-  @media (min-width: 481px) {
-    .sh-sticky-atc {
-      display: none !important;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .sh-slot-grid {
-      grid-template-columns: 1fr !important;
-    }
-  }
-{% endstylesheet %}
 
 {% javascript %}
   (function () {

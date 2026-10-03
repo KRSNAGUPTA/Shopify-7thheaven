@@ -1,18 +1,18 @@
-<section class="sh-section">
-  <div class="sh-container">
-    <div class="sh-section-title">
-      <h1>{{ section.settings.heading }}</h1>
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-10 text-center">
+      <h1 class="mb-2">{{ section.settings.heading }}</h1>
       {% if section.settings.subheading != blank %}
-        <p>{{ section.settings.subheading }}</p>
+        <p class="text-lg text-sh-text-light">{{ section.settings.subheading }}</p>
       {% endif %}
     </div>
 
-    <div class="sh-grid sh-grid--2col">
+    <div class="grid gap-6 md:grid-cols-2">
       {% for block in section.blocks %}
-        <article class="sh-card sh-p-3" {{ block.shopify_attributes }}>
-          <h2 style="margin-top: 0;">{{ block.settings.name }}</h2>
+        <article class="rounded-2xl border border-sh-border bg-white p-6 shadow-sm" {{ block.shopify_attributes }}>
+          <h2 class="mt-0">{{ block.settings.name }}</h2>
           {% if block.settings.address != blank %}
-            <p style="color: var(--sh-text-light); white-space: pre-line;">{{ block.settings.address }}</p>
+            <p class="whitespace-pre-line text-sh-text-light">{{ block.settings.address }}</p>
           {% endif %}
           {% if block.settings.hours != blank %}
             <p><strong>{{ 'stores.hours' | t }}:</strong> {{ block.settings.hours }}</p>
@@ -21,7 +21,12 @@
             <p><strong>{{ 'stores.phone' | t }}:</strong> <a href="tel:{{ block.settings.phone }}">{{ block.settings.phone }}</a></p>
           {% endif %}
           {% if block.settings.map_url != blank %}
-            <a href="{{ block.settings.map_url }}" class="sh-btn sh-btn--outline sh-mt-2" target="_blank" rel="noopener">
+            <a
+              href="{{ block.settings.map_url }}"
+              target="_blank"
+              rel="noopener"
+              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-sh-accent px-6 py-3 font-semibold text-sh-accent transition-all duration-200 hover:bg-sh-accent-light active:scale-95"
+            >
               {{ 'stores.directions' | t }}
             </a>
           {% endif %}

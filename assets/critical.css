@@ -31,12 +31,6 @@ input,
 textarea,
 select {
   font: inherit;
-  border-radius: var(--style-border-radius-inputs);
-}
-
-select {
-  background-color: var(--color-background);
-  color: currentcolor;
 }
 
 dialog {
@@ -74,8 +68,10 @@ p:empty {
 /** Theme styles below */
 body {
   font-family: var(--font-primary--family);
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--color-sh-cream);
+  color: var(--color-sh-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /** Section layout utilities */

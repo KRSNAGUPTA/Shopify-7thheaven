@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -11,9 +20,6 @@
     },
     "category-tiles": {
       "type": "category-tiles",
-      "settings": {
-        "heading": "Shop by category"
-      },
       "blocks": {
         "tile-cakes": {
           "type": "tile",
@@ -34,7 +40,14 @@
           }
         }
       },
-      "block_order": ["tile-cakes", "tile-cupcakes", "tile-desserts"]
+      "block_order": [
+        "tile-cakes",
+        "tile-cupcakes",
+        "tile-desserts"
+      ],
+      "settings": {
+        "heading": "Shop by category"
+      }
     },
     "featured": {
       "type": "featured-collection",
@@ -50,18 +63,32 @@
       "blocks": {
         "stat-1": {
           "type": "stat",
-          "settings": { "value": "350+", "label": "Outlets" }
+          "settings": {
+            "value": "350+",
+            "label": "Outlets"
+          }
         },
         "stat-2": {
           "type": "stat",
-          "settings": { "value": "125+", "label": "Cities" }
+          "settings": {
+            "value": "125+",
+            "label": "Cities"
+          }
         },
         "stat-3": {
           "type": "stat",
-          "settings": { "value": "7 min", "label": "Live cakes" }
+          "settings": {
+            "value": "7 min",
+            "label": "Live cakes"
+          }
         }
       },
-      "block_order": ["stat-1", "stat-2", "stat-3"]
+      "block_order": [
+        "stat-1",
+        "stat-2",
+        "stat-3"
+      ],
+      "settings": {}
     },
     "franchise-teaser": {
       "type": "image-with-text",
@@ -73,5 +100,11 @@
       }
     }
   },
-  "order": ["hero", "category-tiles", "featured", "trust-strip", "franchise-teaser"]
+  "order": [
+    "hero",
+    "category-tiles",
+    "featured",
+    "trust-strip",
+    "franchise-teaser"
+  ]
 }

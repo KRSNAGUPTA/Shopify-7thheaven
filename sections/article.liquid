@@ -6,59 +6,69 @@
   https://shopify.dev/docs/storefronts/themes/architecture/templates/article
 {% endcomment %}
 
-{% if article.image %}
-  {{ article.image | image_url: width: 1000 | image_tag }}
-{% endif %}
+<section class="full-width py-12 md:py-16">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <article>
+      {% if article.image %}
+        {{ article.image | image_url: width: 1000 | image_tag: loading: 'lazy', class: 'mb-6 w-full rounded-2xl' }}
+      {% endif %}
 
-<h1>{{ article.title }}</h1>
+      <h1 class="mb-2">{{ article.title }}</h1>
 
-{% assign date = article.published_at | time_tag: format: 'date' %}
-<p>{{ 'blog.article_metadata_html' | t: date: date, author: article.author }}</p>
+      {% assign date = article.published_at | time_tag: format: 'date' %}
+      <p class="text-sm text-sh-text-light">{{ 'blog.article_metadata_html' | t: date: date, author: article.author }}</p>
 
-{{ article.content }}
+      <div class="mt-6 leading-relaxed">
+        {{ article.content }}
+      </div>
+    </article>
 
-{% if blog.comments_enabled? %}
-  <h2>{{ 'blog.article_comments' | t }}</h2>
+    {% if blog.comments_enabled? %}
+      <h2 class="mt-12">{{ 'blog.article_comments' | t }}</h2>
 
-  <div id="comments">
-    {% paginate article.comments by 10 %}
-      {% for comment in article.comments %}
-        <div>
-          <p>{{ comment.author }}</p>
-          <p>
-            {{- comment.created_at | time_tag: format: 'date' -}}
-          </p>
-          <p>{{ comment.content }}</p>
+      <div id="comments" class="mt-4 space-y-4">
+        {% paginate article.comments by 10 %}
+          {% for comment in article.comments %}
+            <div class="rounded-xl border border-sh-border bg-white p-4">
+              <p class="font-semibold text-sh-brown">{{ comment.author }}</p>
+              <p class="text-xs text-sh-text-light">
+                {{- comment.created_at | time_tag: format: 'date' -}}
+              </p>
+              <p class="mt-2">{{ comment.content }}</p>
+            </div>
+          {% endfor %}
+
+          <div class="mt-6">
+            {{ paginate | default_pagination: anchor: 'comments' }}
+          </div>
+        {% endpaginate %}
+      </div>
+
+      {% form 'new_comment', article %}
+        <h2 class="mb-4 mt-8">{{ 'blog.comment_form_title' | t }}</h2>
+
+        {{ form.errors | default_errors }}
+
+        <div class="mt-4">
+          <label for="author" class="mb-2 block font-semibold text-sh-brown">{{ 'blog.comment_form_name' | t }}</label>
+          <input type="text" name="comment[author]" id="author" value="{{ form.author }}" required class="w-full rounded-lg border border-sh-border px-4 py-3">
         </div>
-      {% endfor %}
 
-      {{ paginate | default_pagination: anchor: 'comments' }}
-    {% endpaginate %}
+        <div class="mt-4">
+          <label for="email" class="mb-2 block font-semibold text-sh-brown">{{ 'blog.comment_form_email' | t }}</label>
+          <input type="email" name="comment[email]" id="email" value="{{ form.email }}" required class="w-full rounded-lg border border-sh-border px-4 py-3">
+        </div>
+
+        <div class="mt-4">
+          <label for="body" class="mb-2 block font-semibold text-sh-brown">{{ 'blog.comment_form_body' | t }}</label>
+          <textarea name="comment[body]" id="body" required class="w-full rounded-lg border border-sh-border px-4 py-3">{{ form.body }}</textarea>
+        </div>
+
+        <input type="submit" value="{{ 'blog.comment_form_submit' | t }}" class="mt-4 inline-flex cursor-pointer items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95">
+      {% endform %}
+    {% endif %}
   </div>
-
-  {% form 'new_comment', article %}
-    <h2>{{ 'blog.comment_form_title' | t }}</h2>
-
-    {{ form.errors | default_errors }}
-
-    <div>
-      <label for="author">{{ 'blog.comment_form_name' | t }}</label>
-      <input type="text" name="comment[author]" id="author" value="{{ form.author }}" required>
-    </div>
-
-    <div>
-      <label for="email">{{ 'blog.comment_form_email' | t }}</label>
-      <input type="email" name="comment[email]" id="email" value="{{ form.email }}" required>
-    </div>
-
-    <div>
-      <label for="body">{{ 'blog.comment_form_body' | t }}</label>
-      <textarea name="comment[body]" id="body" required>{{ form.body }}</textarea>
-    </div>
-
-    <input type="submit" value="{{ 'blog.comment_form_submit' | t }}">
-  {% endform %}
-{% endif %}
+</section>
 
 {% schema %}
 {

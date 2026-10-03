@@ -5,26 +5,24 @@
   {% content_for 'block', type: 'text', id: 'text' %}
 {% enddoc %}
 
+{% liquid
+  case block.settings.text_style
+    when 'text--title'
+      assign text_style_class = 'text-2xl font-bold md:text-3xl'
+    when 'text--subtitle'
+      assign text_style_class = 'text-xl md:text-2xl'
+    else
+      assign text_style_class = 'text-base'
+  endcase
+%}
+
 <div
-  class="text {{ block.settings.text_style }}"
-  style="--text-align: {{ block.settings.alignment }}"
+  class="text-sh-brown {{ text_style_class }}"
+  style="text-align: {{ block.settings.alignment }}"
   {{ block.shopify_attributes }}
 >
   {{ block.settings.text }}
 </div>
-
-{% stylesheet %}
-  .text {
-    text-align: var(--text-align);
-  }
-  .text--title {
-    font-size: 2rem;
-    font-weight: 700;
-  }
-  .text--subtitle {
-    font-size: 1.5rem;
-  }
-{% endstylesheet %}
 
 {% schema %}
 {

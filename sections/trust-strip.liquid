@@ -1,9 +1,9 @@
-<section style="background:var(--sh-brown);color:#fff;padding:1.5rem 0;">
-  <div class="page-width" style="display:flex;flex-wrap:wrap;justify-content:space-around;gap:1rem;text-align:center;">
+<section class="full-width bg-sh-brown text-white">
+  <div class="mx-auto flex max-w-7xl flex-wrap justify-around gap-6 px-4 py-8 text-center sm:px-6 lg:px-8">
     {% for block in section.blocks %}
       <div {{ block.shopify_attributes }}>
-        <strong style="font-size:1.8rem;">{{ block.settings.value }}</strong><br>
-        <span>{{ block.settings.label }}</span>
+        <strong class="block text-3xl font-bold">{{ block.settings.value }}</strong>
+        <span class="text-sm text-white/90">{{ block.settings.label }}</span>
       </div>
     {% endfor %}
   </div>
