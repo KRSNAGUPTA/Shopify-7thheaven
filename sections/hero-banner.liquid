@@ -1,50 +1,80 @@
-<div class="w-full bg-[#2C1810] text-white overflow-hidden py-12 md:py-20 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center relative">
-    
-    <!-- Left Column: Tagline -->
-    <div class="space-y-4 text-center md:text-left order-2 md:order-1">
-      <p class="text-amber-200 text-sm md:text-base font-medium tracking-wide">
-        {{ section.settings.left_subheading }}
-      </p>
-    </div>
+{%- comment -%}
+  Hero Banner Section with Fullscreen Background Image and Dual CTAs
+{%- endcomment -%}
 
-    <!-- Center Column: Main Headline, Button & Transparent Image -->
+{%- assign bg_image = section.settings.background_image -%}
+
+<div 
+  class="relative w-full min-h-screen flex items-center justify-center text-white overflow-hidden py-12 md:py-20 px-4 sm:px-6 lg:px-8 bg-[#2C1810]"
+  style="
+    {%- if bg_image != blank -%}
+      background-image: url('{{ bg_image | image_url: width: 2400 }}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    {%- endif -%}
+  "
+>
+  {%- comment -%} Dark Overlay for contrast when a background image is uploaded {%- endcomment -%}
+  <div class="absolute inset-0 bg-black/50 z-0"></div>
+
+  <div class="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center relative z-10">
+    
+    {%- comment -%} Left Empty Column (Grid Spacer on desktop for centering) {%- endcomment -%}
+    <div class="hidden md:block"></div>
+
+    {%- comment -%} Center Column: Main Headline, Dual Buttons & Transparent Image {%- endcomment -%}
     <div class="flex flex-col items-center text-center space-y-6 order-1 md:order-2">
-      <h1 class="font-sniglet text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+      <h1 class="font-sniglet text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
         {{ section.settings.heading }}
       </h1>
       
-      <p class="text-amber-100/80 text-sm sm:text-base max-w-md font-light">
+      <p class="text-amber-100/90 text-sm sm:text-base max-w-md font-light drop-shadow-sm">
         {{ section.settings.subheading }}
       </p>
 
-      {%- if section.settings.button_link != blank -%}
-        <a href="{{ section.settings.button_link }}" class="inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95">
-          {{ section.settings.button_label | default: 'Shop Now' }}
-        </a>
-      {%- endif -%}
+      {%- comment -%} Dual CTA Buttons {%- endcomment -%}
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto pt-2">
+        {%- if section.settings.button_link != blank -%}
+          <a 
+            href="{{ section.settings.button_link }}" 
+            class="w-full sm:w-auto inline-flex items-center justify-center bg-[#E91E63] hover:bg-[#c21850] text-white font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+          >
+            {{ section.settings.button_label | default: 'Shop Now' }}
+          </a>
+        {%- endif -%}
 
-      <!-- Transparent Product Overlay PNG -->
+        {%- if section.settings.secondary_button_link != blank -%}
+          <a 
+            href="{{ section.settings.secondary_button_link }}" 
+            class="w-full sm:w-auto inline-flex items-center justify-center bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-semibold px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+          >
+            {{ section.settings.secondary_button_label | default: 'Franchise Enquiry' }}
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Transparent Product Overlay PNG {%- endcomment -%}
       <div class="relative w-full max-w-lg mt-6">
         {%- if section.settings.transparent_image != blank -%}
           {{ section.settings.transparent_image | image_url: width: 800 | image_tag: class: 'w-full h-auto object-contain drop-shadow-2xl', loading: 'eager', alt: section.settings.heading }}
         {%- else -%}
-          <div class="w-full h-64 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
-            <span class="text-xs text-white/60">Upload PNG Image in Theme Customizer</span>
+          <div class="w-full h-64 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 backdrop-blur-sm">
+            <span class="text-xs text-white/70">Upload PNG Image in Theme Customizer</span>
           </div>
         {%- endif -%}
       </div>
     </div>
 
-    <!-- Right Column: Rating / Reviews Badges -->
-    <div class="space-y-4 text-center md:text-right order-3">
-      <div class="inline-block bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-left sm:text-right">
+    {%- comment -%} Right Column: Rating / Reviews Badges {%- endcomment -%}
+    <div class="space-y-4 text-center md:text-right order-2 md:order-3">
+      <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-left sm:text-right shadow-xl">
         <div class="flex items-center justify-center md:justify-end gap-1 text-amber-400 mb-1">
           <span class="text-lg font-bold text-white mr-1">{{ section.settings.rating_value }}</span>
           ★★★★★
         </div>
-        <p class="text-xs text-amber-100/70">({{ section.settings.rating_count }} Customer Reviews)</p>
-        <p class="text-xs text-white/90 italic mt-2 font-light">"{{ section.settings.testimonial_text }}"</p>
+        <p class="text-xs text-amber-100/80">({{ section.settings.rating_count }} Customer Reviews)</p>
+        <p class="text-xs text-white/95 italic mt-2 font-light">"{{ section.settings.testimonial_text }}"</p>
       </div>
     </div>
 
@@ -55,6 +85,11 @@
 {
   "name": "Hero Banner",
   "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Full Screen Background Image"
+    },
     {
       "type": "text",
       "id": "heading",
@@ -68,26 +103,45 @@
       "default": "Taste The Warmth, Love, And Tradition In Every Bite."
     },
     {
-      "type": "text",
-      "id": "left_subheading",
-      "label": "Left Subheading",
-      "default": "Bringing Joy With Fresh, Homemade Baked Delights"
-    },
-    {
       "type": "image_picker",
       "id": "transparent_image",
       "label": "Transparent Product PNG"
     },
     {
+      "type": "header",
+      "content": "Primary CTA"
+    },
+    {
       "type": "text",
       "id": "button_label",
-      "label": "Button Label",
+      "label": "Primary Button Label",
       "default": "Shop Now"
     },
     {
       "type": "url",
       "id": "button_link",
-      "label": "Button Link"
+      "label": "Primary Button Link",
+      "default": "/collections/all"
+    },
+    {
+      "type": "header",
+      "content": "Secondary CTA"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_label",
+      "label": "Secondary Button Label",
+      "default": "Franchise Enquiry"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "Secondary Button Link",
+      "default": "/pages/franchise"
+    },
+    {
+      "type": "header",
+      "content": "Social Proof"
     },
     {
       "type": "text",
