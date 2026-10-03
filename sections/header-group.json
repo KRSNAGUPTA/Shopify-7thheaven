@@ -13,11 +13,6 @@
   "sections": {
     "header": {
       "type": "header",
-      "settings": {
-        "logo": "shopify://shop_images/7thheaven.avif",
-        "logo_width": 140,
-        "show_announcement": true
-      },
       "blocks": {
         "andheri": {
           "type": "service_area",
@@ -47,7 +42,14 @@
       "block_order": [
         "andheri",
         "thane"
-      ]
+      ],
+      "settings": {
+        "logo": "shopify://shop_images/7thheaven.avif",
+        "logo_width": 150,
+        "menu": "main-menu",
+        "show_announcement": true,
+        "announcement_link": ""
+      }
     }
   },
   "order": [
