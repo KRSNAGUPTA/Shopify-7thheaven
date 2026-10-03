@@ -5,20 +5,58 @@
   {% render 'css-variables' %}
 {% enddoc %}
 
+{%- liquid
+  assign primary_font = settings.type_primary_font
+  assign body_font = settings.type_body_font
+-%}
+
 {% style %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {{ primary_font | font_face: font_display: 'swap' }}
+  {{ primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {{ primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+
+  {%- comment -%} Only load body font faces if it differs from the heading font {%- endcomment -%}
+  {% if body_font.family != primary_font.family %}
+    {{ body_font | font_face: font_display: 'swap' }}
+    {{ body_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+    {{ body_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+    {{ body_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {% endif %}
 
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    /* Typography */
+    --font-primary--family: {{ primary_font.family }}, {{ primary_font.fallback_families }};
+    --font-primary--style: {{ primary_font.style }};
+    --font-primary--weight: {{ primary_font.weight }};
+    --font-body--family: {{ body_font.family }}, {{ body_font.fallback_families }};
+    --font-body--style: {{ body_font.style }};
+    --font-body--weight: {{ body_font.weight }};
+
+    /* Layout */
     --page-width: {{ settings.max_page_width | default: 1200 }}px;
     --page-margin: {{ settings.page_margin | default: 20 }}px;
-    --color-background: {{ settings.background_color | default: '#fff8f0' }};
-    --color-foreground: {{ settings.foreground_color | default: '#2a2a2a' }};
+
+    /* Brand colors (Theme settings → Colors) */
+    --sh-primary: {{ settings.sh_primary | default: '#ff5401' }};
+    --sh-primary-dark: {{ settings.sh_primary_dark | default: '#d94500' }};
+    --sh-primary-light: {{ settings.sh_primary_light | default: '#ffe3d3' }};
+    --sh-brown: {{ settings.sh_brown | default: '#4a2412' }};
+    --sh-brown-dark: {{ settings.sh_brown_dark | default: '#2e1608' }};
+    --sh-cream: {{ settings.sh_cream | default: '#fff9f2' }};
+    --sh-cream-light: {{ settings.sh_cream_light | default: '#fff3e6' }};
+    --sh-text: {{ settings.sh_text | default: '#2b1b12' }};
+    --sh-text-light: {{ settings.sh_text_light | default: '#6f5b4f' }};
+    --sh-border: {{ settings.sh_border | default: '#ebddd0' }};
+    --sh-caramel: {{ settings.sh_caramel | default: '#d4894a' }};
+    --sh-success: {{ settings.sh_success | default: '#3e8e41' }};
+    --sh-error: {{ settings.sh_error | default: '#d93025' }};
+
+    /* Semantic colors (now mapped to the brand palette) */
+    --color-background: var(--sh-cream);
+    --color-foreground: var(--sh-text);
+
+    /* Inputs */
     --style-border-radius-inputs: {{ settings.input_corner_radius | default: 8 }}px;
   }
 {% endstyle %}

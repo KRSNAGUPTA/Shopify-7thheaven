@@ -1,59 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap');
 @import "tailwindcss";
-@tailwind utilities;
 
+@theme inline {
+  --color-sh-primary: var(--sh-primary);
+  --color-sh-primary-dark: var(--sh-primary-dark);
+  --color-sh-primary-light: var(--sh-primary-light);
+  --color-sh-brown: var(--sh-brown);
+  --color-sh-brown-dark: var(--sh-brown-dark);
+  --color-sh-cream: var(--sh-cream);
+  --color-sh-cream-light: var(--sh-cream-light);
+  --color-sh-text: var(--sh-text);
+  --color-sh-text-light: var(--sh-text-light);
+  --color-sh-border: var(--sh-border);
+  --color-sh-caramel: var(--sh-caramel);
+  --color-sh-success: var(--sh-success);
+  --color-sh-error: var(--sh-error);
 
-@theme {
-  --color-sh-cream: #fff8f0;
-  --color-sh-brown: #3b2a20;
-  --color-sh-accent: #d6336c;
-  --color-sh-accent-light: #f5e6ed;
-  --color-sh-text: #2a2a2a;
-  --color-sh-text-light: #666;
-  --color-sh-border: #e8dfd5;
+  /* Legacy aliases */
+  --color-sh-accent: var(--sh-primary);
+  --color-sh-accent-light: var(--sh-primary-light);
+
   --font-sniglet: 'Sniglet', cursive, sans-serif;
-}
-
-@layer base {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: var(--color-sh-brown);
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  h1 {
-    font-size: 2.25rem;
-  }
-
-  h2 {
-    font-size: 1.875rem;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-  }
-
-  @media (min-width: 768px) {
-    h1 {
-      font-size: 3rem;
-    }
-
-    h2 {
-      font-size: 2.25rem;
-    }
-  }
-
-  a {
-    color: var(--color-sh-accent);
-    text-decoration: none;
-  }
-
-  a:hover {
-    color: var(--color-sh-brown);
-  }
 }
