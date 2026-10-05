@@ -1,65 +1,354 @@
-<section class="full-width py-12 md:py-16">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <h1 class="mb-8">{{ 'cart.title' | t }}</h1>
+{%- comment -%}
+  Cart page section
+  Updates via AJAX (cart/change.js + Section Rendering API). Without JavaScript,
+  the form still works using the Update and Checkout buttons.
+{%- endcomment -%}
 
-    {% if cart.item_count == 0 %}
-      <p class="mb-8 text-sh-text-light">{{ 'cart.empty' | t }}</p>
-      <a
-        href="{{ routes.collections_url }}/cakes"
-        class="inline-flex items-center justify-center gap-2 rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#b8234c] hover:shadow-md active:scale-95"
-      >
-        {{ 'cart.continue' | t }}
-      </a>
-    {% else %}
-      <form action="{{ routes.cart_url }}" method="post" class="mt-6">
-        {% for item in cart.items %}
-          <div class="mb-4 grid grid-cols-1 gap-4 rounded-2xl border border-sh-border bg-white p-4 sm:grid-cols-[100px_1fr_auto]">
-            <div>
-              {% if item.image %}
-                {{ item.image | image_url: width: 200 | image_tag: loading: 'lazy', class: 'w-full rounded-lg' }}
-              {% endif %}
-            </div>
-            <div>
-              <h3 class="mb-2">{{ item.product.title | escape }}</h3>
-              <p class="mb-2 text-sm text-sh-text-light">{{ item.variant.title }}</p>
-              {% for property in item.properties %}
-                {% unless property.last == blank %}
-                  <p class="my-1 text-sm">
-                    <strong>{{ property.first }}:</strong> {{ property.last }}
-                  </p>
-                {% endunless %}
-              {% endfor %}
-              <div class="mt-3 flex items-center gap-4">
-                <label class="text-sm">
-                  {{ 'cart.quantity' | t }}
-                  <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" class="ml-2 w-16 rounded-lg border border-sh-border px-2 py-1">
-                </label>
-                <a href="{{ item.url_to_remove }}" class="text-sm">{{ 'cart.remove' | t }}</a>
+<section class="full-width py-10 md:py-14">
+  <div
+    id="Cart-{{ section.id }}"
+    class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+    data-section-id="{{ section.id }}"
+  >
+    <div class="mb-8 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <h1 class="font-sniglet">{{ 'cart.title' | t }}</h1>
+      {%- if cart.item_count > 0 -%}
+        <span class="text-base text-sh-text-light">
+          {{ cart.item_count }} {{ cart.item_count | pluralize: 'item', 'items' }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    <p data-cart-error class="mb-4 hidden rounded-xl border border-sh-error/30 bg-sh-error/10 px-4 py-3 text-sm font-medium text-sh-error" role="alert"></p>
+
+    {%- if cart.item_count == 0 -%}
+      <div class="rounded-2xl border border-sh-border bg-white px-6 py-14 text-center">
+        <p class="mb-6 text-lg text-sh-text-light">{{ 'cart.empty' | t }}</p>
+        <a
+          href="{{ routes.collections_url }}/cakes"
+          class="inline-flex items-center justify-center rounded-full bg-sh-primary px-8 py-3 font-semibold text-white transition-colors duration-200 hover:bg-sh-primary-dark hover:text-white"
+        >
+          {{ 'cart.continue' | t }}
+        </a>
+      </div>
+    {%- else -%}
+      <form action="{{ routes.cart_url }}" method="post" novalidate>
+        <div class="grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
+
+          {%- comment -%}Items{%- endcomment -%}
+          <ul class="space-y-4">
+            {%- for item in cart.items -%}
+              <li class="grid grid-cols-[88px_1fr] gap-x-4 gap-y-3 rounded-2xl border border-sh-border bg-white p-4 sm:grid-cols-[112px_1fr_auto] sm:gap-x-5">
+
+                <a href="{{ item.url }}" class="block aspect-square overflow-hidden rounded-xl bg-sh-cream-light">
+                  {%- if item.image -%}
+                    {{
+                      item.image
+                      | image_url: width: 240
+                      | image_tag: loading: 'lazy', class: 'h-full w-full object-contain', alt: item.product.title
+                    }}
+                  {%- endif -%}
+                </a>
+
+                <div class="min-w-0">
+                  <h3 class="text-base leading-snug sm:text-lg">
+                    <a href="{{ item.url }}" class="font-sniglet font-medium text-sh-brown hover:text-sh-brown">
+                      {{ item.product.title | escape }}
+                    </a>
+                  </h3>
+
+                  {%- unless item.product.has_only_default_variant -%}
+                    <p class="mt-0.5 text-sm text-sh-text-light">{{ item.variant.title }}</p>
+                  {%- endunless -%}
+
+                  {%- comment -%}Extra info: weight, SKU, custom properties{%- endcomment -%}
+                  <dl class="mt-2 space-y-0.5 text-xs text-sh-text-light sm:text-sm">
+                    {%- if item.grams > 0 -%}
+                      <div class="flex gap-1.5">
+                        <dt>Weight:</dt>
+                        <dd class="font-medium text-sh-text">
+                          {{ item.grams | weight_with_unit: 'g' }}
+                          {%- if item.quantity > 1 %} each ({{ item.grams | times: item.quantity | weight_with_unit: 'g' }} total){% endif -%}
+                        </dd>
+                      </div>
+                    {%- endif -%}
+                    {%- if item.sku != blank -%}
+                      <div class="flex gap-1.5">
+                        <dt>SKU:</dt>
+                        <dd class="font-medium text-sh-text">{{ item.sku }}</dd>
+                      </div>
+                    {%- endif -%}
+                    {%- for property in item.properties -%}
+                      {%- unless property.last == blank or property.first contains '_' -%}
+                        <div class="flex gap-1.5">
+                          <dt>{{ property.first }}:</dt>
+                          <dd class="font-medium text-sh-text">{{ property.last }}</dd>
+                        </div>
+                      {%- endunless -%}
+                    {%- endfor -%}
+                  </dl>
+
+                  {%- for allocation in item.line_level_discount_allocations -%}
+                    <p class="mt-2 inline-flex items-center rounded-full bg-sh-primary-light px-2.5 py-1 text-xs font-semibold text-sh-primary-dark">
+                      {{ allocation.discount_application.title }} (-{{ allocation.amount | money }})
+                    </p>
+                  {%- endfor -%}
+
+                  {%- comment -%}Quantity and remove{%- endcomment -%}
+                  <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div class="inline-flex items-center rounded-full border border-sh-border bg-white">
+                      <button
+                        type="button"
+                        data-qty-step="-1"
+                        data-line="{{ forloop.index }}"
+                        class="flex h-9 w-9 items-center justify-center rounded-l-full text-lg text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+                        aria-label="Decrease quantity of {{ item.product.title | escape }}"
+                      >
+                        &minus;
+                      </button>
+                      <input
+                        type="number"
+                        name="updates[]"
+                        value="{{ item.quantity }}"
+                        min="0"
+                        inputmode="numeric"
+                        data-qty-input
+                        data-line="{{ forloop.index }}"
+                        class="h-9 w-11 border-0 bg-transparent p-0 text-center text-sm font-semibold text-sh-brown [appearance:textfield] focus:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        aria-label="{{ 'cart.quantity' | t }}"
+                      >
+                      <button
+                        type="button"
+                        data-qty-step="1"
+                        data-line="{{ forloop.index }}"
+                        class="flex h-9 w-9 items-center justify-center rounded-r-full text-lg text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+                        aria-label="Increase quantity of {{ item.product.title | escape }}"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <a
+                      href="{{ item.url_to_remove }}"
+                      data-remove
+                      data-line="{{ forloop.index }}"
+                      class="inline-flex items-center gap-1.5 text-sm font-medium text-sh-text-light transition-colors hover:text-sh-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+                    >
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                      {{ 'cart.remove' | t }}
+                    </a>
+                  </div>
+                </div>
+
+                {%- comment -%}Price{%- endcomment -%}
+                <div class="col-span-2 flex items-baseline justify-between gap-3 border-t border-sh-border pt-3 sm:col-span-1 sm:block sm:border-0 sm:pt-0 sm:text-right">
+                  <div>
+                    {%- if item.original_line_price > item.final_line_price -%}
+                      <s class="block text-sm text-sh-text-light">{{ item.original_line_price | money }}</s>
+                    {%- endif -%}
+                    <span class="font-sniglet text-xl text-sh-primary-dark">{{ item.final_line_price | money }}</span>
+                  </div>
+                  {%- if item.quantity > 1 -%}
+                    <p class="text-xs text-sh-text-light sm:mt-1">{{ item.final_price | money }} each</p>
+                  {%- endif -%}
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+
+          {%- comment -%}Summary{%- endcomment -%}
+          <aside class="rounded-2xl border border-sh-border bg-white p-5 sm:p-6 lg:sticky lg:top-28">
+            <h2 class="mb-4 text-xl">Order summary</h2>
+
+            <dl class="space-y-3 text-sm">
+              <div class="flex justify-between">
+                <dt class="text-sh-text-light">{{ cart.item_count }} {{ cart.item_count | pluralize: 'item', 'items' }}</dt>
+                <dd class="font-medium text-sh-text">{{ cart.original_total_price | money }}</dd>
               </div>
-            </div>
-            <div class="font-bold text-sh-accent">
-              {{ item.final_line_price | money }}
-            </div>
-          </div>
-        {% endfor %}
 
-        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-          <p class="m-0 text-xl">
-            <strong>{{ 'cart.subtotal' | t }}:</strong> {{ cart.total_price | money }}
-          </p>
-          <div class="flex flex-wrap gap-3">
-            <button type="submit" name="update" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-sh-accent px-6 py-3 font-semibold text-sh-accent transition-all duration-200 hover:bg-sh-accent-light active:scale-95">
-              {{ 'cart.update' | t }}
-            </button>
-            <button type="submit" name="checkout" class="inline-flex items-center justify-center gap-2 rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#b8234c] hover:shadow-md active:scale-95">
+              {%- for discount in cart.cart_level_discount_applications -%}
+                <div class="flex justify-between text-sh-success">
+                  <dt>{{ discount.title }}</dt>
+                  <dd class="font-medium">-{{ discount.total_allocated_amount | money }}</dd>
+                </div>
+              {%- endfor -%}
+
+              {%- if cart.total_discount > 0 and cart.cart_level_discount_applications.size == 0 -%}
+                <div class="flex justify-between text-sh-success">
+                  <dt>Savings</dt>
+                  <dd class="font-medium">-{{ cart.total_discount | money }}</dd>
+                </div>
+              {%- endif -%}
+
+              {%- if cart.total_weight > 0 -%}
+                <div class="flex justify-between">
+                  <dt class="text-sh-text-light">Total weight</dt>
+                  <dd class="font-medium text-sh-text">{{ cart.total_weight | weight_with_unit: 'g' }}</dd>
+                </div>
+              {%- endif -%}
+            </dl>
+
+            <div class="mt-4 flex items-baseline justify-between border-t border-sh-border pt-4">
+              <span class="font-semibold text-sh-brown">{{ 'cart.subtotal' | t }}</span>
+              <span class="font-sniglet text-2xl text-sh-primary-dark">{{ cart.total_price | money }}</span>
+            </div>
+            <p class="mt-1 text-xs text-sh-text-light">
+              {%- if shop.taxes_included %}Taxes included. {% endif -%}
+              Delivery is calculated at checkout.
+            </p>
+
+            <div class="mt-5">
+              <label for="CartNote-{{ section.id }}" class="mb-1.5 block text-sm font-semibold text-sh-brown">
+                Message or instructions
+              </label>
+              <textarea
+                id="CartNote-{{ section.id }}"
+                name="note"
+                rows="3"
+                data-cart-note
+                placeholder="e.g. Happy Birthday Riya, no nuts please"
+                class="w-full rounded-xl border border-sh-border bg-white px-3 py-2.5 text-sm text-sh-text placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
+              >{{ cart.note }}</textarea>
+            </div>
+
+            <button
+              type="submit"
+              name="checkout"
+              class="mt-5 inline-flex w-full items-center justify-center rounded-full bg-sh-primary px-6 py-3.5 text-base font-semibold text-white transition-colors duration-200 hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
+            >
               {{ 'cart.checkout' | t }}
             </button>
-          </div>
+
+            <noscript>
+              <button
+                type="submit"
+                name="update"
+                class="mt-3 inline-flex w-full items-center justify-center rounded-full border-2 border-sh-primary px-6 py-3 font-semibold text-sh-primary-dark hover:bg-sh-primary-light"
+              >
+                {{ 'cart.update' | t }}
+              </button>
+            </noscript>
+
+            <a
+              href="{{ routes.collections_url }}/cakes"
+              class="mt-4 block text-center text-sm font-medium text-sh-text-light hover:text-sh-primary-dark"
+            >
+              {{ 'cart.continue' | t }}
+            </a>
+          </aside>
         </div>
       </form>
-    {% endif %}
+    {%- endif -%}
   </div>
 </section>
+
+<script>
+  (() => {
+    const root = document.getElementById('Cart-{{ section.id }}');
+    if (!root) return;
+
+    const sectionId = root.dataset.sectionId;
+    let busy = false;
+
+    const showError = (message) => {
+      const box = root.querySelector('[data-cart-error]');
+      if (!box) return;
+      box.textContent = message || '';
+      box.classList.toggle('hidden', !message);
+    };
+
+    const setBusy = (state) => {
+      busy = state;
+      root.setAttribute('aria-busy', state ? 'true' : 'false');
+      root.classList.toggle('opacity-60', state);
+      root.classList.toggle('pointer-events-none', state);
+    };
+
+    async function changeLine(line, quantity) {
+      if (busy) return;
+      setBusy(true);
+      showError('');
+
+      try {
+        const response = await fetch('{{ routes.cart_change_url }}.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            line: Number(line),
+            quantity: Math.max(0, Number(quantity) || 0),
+            sections: sectionId,
+            sections_url: window.location.pathname
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.description || data.message || 'Could not update your cart.');
+
+        const html = data.sections && data.sections[sectionId];
+        if (!html) { window.location.reload(); return; }
+
+        const fresh = new DOMParser()
+          .parseFromString(html, 'text/html')
+          .getElementById('Cart-' + sectionId);
+
+        if (fresh) root.innerHTML = fresh.innerHTML;
+        else { window.location.reload(); return; }
+
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: data } }));
+      } catch (error) {
+        showError(error.message || 'Could not update your cart. Please try again.');
+        // Put inputs back to the real quantities if the change was refused
+        window.setTimeout(() => window.location.reload(), 2500);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    root.addEventListener('click', (event) => {
+      const step = event.target.closest('[data-qty-step]');
+      if (step) {
+        const input = root.querySelector('[data-qty-input][data-line="' + step.dataset.line + '"]');
+        const current = input ? Number(input.value) || 0 : 0;
+        changeLine(step.dataset.line, current + Number(step.dataset.qtyStep));
+        return;
+      }
+
+      const remove = event.target.closest('[data-remove]');
+      if (remove) {
+        event.preventDefault();
+        changeLine(remove.dataset.line, 0);
+      }
+    });
+
+    root.addEventListener('change', async (event) => {
+      const input = event.target.closest('[data-qty-input]');
+      if (input) {
+        changeLine(input.dataset.line, input.value);
+        return;
+      }
+
+      if (event.target.matches('[data-cart-note]')) {
+        try {
+          await fetch('{{ routes.cart_update_url }}.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ note: event.target.value })
+          });
+        } catch (_) {}
+      }
+    });
+
+    // Pressing Enter in a quantity box should update, not submit the form
+    root.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target.matches('[data-qty-input]')) {
+        event.preventDefault();
+        changeLine(event.target.dataset.line, event.target.value);
+      }
+    });
+  })();
+</script>
 
 {% schema %}
 {
