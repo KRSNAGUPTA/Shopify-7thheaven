@@ -9,12 +9,87 @@
  */
 {
   "sections": {
+    "about_us_aV396E": {
+      "type": "about-us",
+      "blocks": {
+        "stat_PtEyRa": {
+          "type": "stat",
+          "settings": {
+            "value": "350+",
+            "label": "Outlets"
+          }
+        },
+        "stat_pyCVhB": {
+          "type": "stat",
+          "settings": {
+            "value": "125+",
+            "label": "Cities"
+          }
+        },
+        "stat_jMzaTJ": {
+          "type": "stat",
+          "settings": {
+            "value": "7 min",
+            "label": "Live cakes"
+          }
+        },
+        "value_hQ6kxA": {
+          "type": "value",
+          "settings": {
+            "title": "Always fresh",
+            "text": "Baked live in our outlets, so every order is made fresh."
+          }
+        },
+        "value_hBe6BJ": {
+          "type": "value",
+          "settings": {
+            "title": "Premium ingredients",
+            "text": "We choose quality ingredients for rich flavour in every bite."
+          }
+        },
+        "value_UAU3EL": {
+          "type": "value",
+          "settings": {
+            "title": "Made to celebrate",
+            "text": "From birthdays to everyday treats, we bake for life's sweet moments."
+          }
+        }
+      },
+      "block_order": [
+        "stat_PtEyRa",
+        "stat_pyCVhB",
+        "stat_jMzaTJ",
+        "value_hQ6kxA",
+        "value_hBe6BJ",
+        "value_UAU3EL"
+      ],
+      "name": "About us",
+      "settings": {
+        "hero_eyebrow": "About us",
+        "hero_heading": "Baked fresh, made with love",
+        "hero_subheading": "India's premier cake and dessert chain, bringing live fresh bakery products to your celebrations.",
+        "story_image": "shopify://shop_images/gallery-1.avif",
+        "image_position": "left",
+        "story_eyebrow": "Our story",
+        "story_heading": "A little heaven in every bite",
+        "story_text": "<p>Tell your story here: how it started, what you believe in, and what makes your cakes and desserts different.</p><p>Use a second paragraph for what customers can expect from every order.</p>",
+        "values_heading": "What we stand for",
+        "values_subheading": "The promises behind every cake we bake.",
+        "cta_heading": "Ready to celebrate?",
+        "cta_text": "Order fresh cakes and desserts delivered to your door.",
+        "cta_label": "Shop now",
+        "cta_link": "shopify://collections/all",
+        "show_page_content": false
+      }
+    },
     "main": {
       "type": "page",
+      "disabled": true,
       "settings": {}
     }
   },
   "order": [
+    "about_us_aV396E",
     "main"
   ]
 }
