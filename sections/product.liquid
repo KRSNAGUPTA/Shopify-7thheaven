@@ -1,62 +1,285 @@
-{% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
+(function () {
+  'use strict';
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
-{% endcomment %}
+  var root = document.getElementById('sh-product');
+  if (!root) return;
 
-<div class="grid gap-8 md:grid-cols-2">
-  <div class="grid grid-cols-2 gap-4">
-    {% for image in product.images %}
-      {% render 'image', class: 'rounded-xl', image: image %}
-    {% endfor %}
-  </div>
+  var form = document.getElementById('sh-product-form');
+  var pincodeInput = document.getElementById('sh-product-pincode');
+  var pincodeBtn = document.getElementById('sh-product-pincode-check');
+  var deliveryResult = document.getElementById('sh-delivery-result');
+  var deliveryStatus = document.getElementById('sh-delivery-status');
+  var storeField = document.getElementById('sh-fulfilment-store');
+  var pincodeField = document.getElementById('sh-fulfilment-pincode');
+  var priceEl = document.getElementById('sh-product-price');
+  var stickyPriceEl = document.getElementById('sh-sticky-price');
+  var errorEl = document.getElementById('sh-product-error');
+  var messageInput = document.getElementById('sh-cake-message');
+  var messageCount = document.getElementById('sh-message-count');
+  var variantSelect = document.getElementById('sh-variant-select');
 
-  <div>
-    <h1 class="mb-2">{{ product.title }}</h1>
-    <p class="text-2xl font-bold text-sh-accent">{{ product.price | money }}</p>
-    <div class="my-6 leading-relaxed text-sh-text-light">{{ product.description }}</div>
+  var KEY_PIN = 'sh-pincode';
+  var KEY_STORE = 'sh-store';
 
-    {% form 'product', product %}
-      {% assign current_variant = product.selected_or_first_available_variant %}
+  var storeLabels = {
+    andheri: '7th Heaven Andheri',
+    thane: '7th Heaven Thane'
+  };
 
-      <select name="id" class="w-full rounded-lg border border-sh-border px-4 py-3">
-        {% for variant in product.variants %}
-          <option
-            value="{{ variant.id }}"
-            {% if variant == current_variant %}
-              selected="selected"
-            {% endif %}
-          >
-            {{ variant.title }} - {{ variant.price | money }}
-          </option>
-        {% endfor %}
-      </select>
+  var productId = root.dataset.productId;
+  var prepHours = Number(root.dataset.prepHours) || 2;
 
-      <input
-        type="text"
-        name="quantity"
-        min="1"
-        value="1"
-        class="mt-4 w-24 rounded-lg border border-sh-border px-4 py-3"
-      >
-
-      <input
-        type="submit"
-        value="Add to cart"
-        class="mt-4 inline-flex cursor-pointer items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95"
-      >
-      {{ form | payment_button }}
-    {% endform %}
-  </div>
-</div>
-
-{% schema %}
-{
-  "name": "t:general.product",
-  "settings": [],
-  "disabled_on": {
-    "groups": ["header", "footer"]
+  /* ---------- Message counter ---------- */
+  if (messageInput && messageCount) {
+    messageInput.addEventListener('input', function () {
+      messageCount.textContent = String(messageInput.value.length);
+    });
   }
-}
-{% endschema %}
+
+  /* ---------- Variant price update ---------- */
+  function updatePrice() {
+    var displayPrice = null;
+
+    if (variantSelect) {
+      var opt = variantSelect.options[variantSelect.selectedIndex];
+      if (opt && opt.dataset.price) displayPrice = opt.dataset.price;
+    } else {
+      var checked = form.querySelector('input[name="id"]:checked');
+      if (checked && checked.dataset.price) displayPrice = checked.dataset.price;
+    }
+
+    if (displayPrice) {
+      if (priceEl) priceEl.textContent = displayPrice;
+      if (stickyPriceEl) stickyPriceEl.textContent = displayPrice;
+    }
+  }
+
+  if (variantSelect) {
+    variantSelect.addEventListener('change', updatePrice);
+  }
+  form.querySelectorAll('input[name="id"]').forEach(function (radio) {
+    radio.addEventListener('change', updatePrice);
+  });
+
+  /* ---------- Deliverability check ---------- */
+  function setResult(kind, text) {
+    deliveryResult.classList.remove('hidden', 'bg-sh-success/10', 'text-sh-success', 'bg-sh-error/10', 'text-sh-error', 'bg-sh-cream-light', 'text-sh-brown');
+    if (kind === 'ok') {
+      deliveryResult.classList.add('bg-sh-success/10', 'text-sh-success', 'font-semibold');
+    } else if (kind === 'error') {
+      deliveryResult.classList.add('bg-sh-error/10', 'text-sh-error', 'font-semibold');
+    } else {
+      deliveryResult.classList.add('bg-sh-cream-light', 'text-sh-brown');
+    }
+    deliveryResult.textContent = text;
+  }
+
+  function lookupDeliverability(pin) {
+    // Uses the cart-create + delivery-group trick like the header.
+    // Replace with your actual Storefront API call if you have a token.
+    var modal = document.getElementById('sh-pincode-modal');
+    var token = modal && modal.getAttribute('data-token');
+    var variant = modal && modal.getAttribute('data-variant');
+    var version = (modal && modal.getAttribute('data-api-version')) || '2026-01';
+
+    if (!token || !variant) {
+      // No token configured — fall back to accepting any 6-digit pincode
+      return Promise.resolve({ serviceable: /^\d{6}$/.test(pin), fallback: true });
+    }
+
+    var query =
+      'mutation($input: CartInput!) {' +
+      '  cartCreate(input: $input) {' +
+      '    cart { deliveryGroups(first: 5) { nodes { deliveryOptions { deliveryMethodType } } } }' +
+      '    userErrors { message }' +
+      '  }' +
+      '}';
+
+    var variables = {
+      input: {
+        lines: [{ merchandiseId: 'gid://shopify/ProductVariant/' + variant, quantity: 1 }],
+        buyerIdentity: {
+          countryCode: 'IN',
+          deliveryAddressPreferences: [
+            { deliveryAddress: { zip: pin, country: 'IN', province: 'MH' } }
+          ]
+        }
+      }
+    };
+
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 8000);
+
+    return fetch('/api/' + version + '/graphql.json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': token
+      },
+      body: JSON.stringify({ query: query, variables: variables }),
+      signal: ctrl.signal
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        var cart = json && json.data && json.data.cartCreate && json.data.cartCreate.cart;
+        if (!cart) throw new Error('No cart');
+        var groups = (cart.deliveryGroups && cart.deliveryGroups.nodes) || [];
+        var local = groups.some(function (g) {
+          return (g.deliveryOptions || []).some(function (o) {
+            return o.deliveryMethodType === 'LOCAL';
+          });
+        });
+        return { serviceable: local };
+      })
+      .finally(function () { clearTimeout(timer); });
+  }
+
+  function updateDeliveryUI() {
+    var savedPin = localStorage.getItem(KEY_PIN);
+    var savedStore = localStorage.getItem(KEY_STORE);
+
+    if (savedPin) {
+      pincodeInput.value = savedPin;
+      pincodeField.value = savedPin;
+    }
+    if (savedStore) {
+      storeField.value = storeLabels[savedStore] || savedStore;
+    }
+  }
+
+  async function checkPincode() {
+    var pin = (pincodeInput.value || '').trim();
+    if (!/^\d{6}$/.test(pin)) {
+      setResult('error', 'Please enter a valid 6-digit pincode.');
+      return;
+    }
+
+    pincodeBtn.disabled = true;
+    var originalText = pincodeBtn.textContent;
+    pincodeBtn.textContent = '…';
+    setResult('info', 'Checking…');
+
+    try {
+      var data = await lookupDeliverability(pin);
+
+      if (data.serviceable) {
+        // Save to localStorage so the header shows it too
+        localStorage.setItem(KEY_PIN, pin);
+        var store = savedStoreGuess(pin);
+        if (store) localStorage.setItem(KEY_STORE, store);
+
+        updateDeliveryUI();
+        setResult('ok', 'Delivering to ' + pin + '. Add to cart below.');
+        deliveryStatus.textContent = 'Delivering to ' + pin;
+        document.dispatchEvent(new CustomEvent('sh:pincode-updated', { detail: { pincode: pin, serviceable: true } }));
+      } else {
+        setResult('error', "We don't deliver to this pincode yet.");
+      }
+    } catch (e) {
+      setResult('error', "Couldn't check right now. Please try again.");
+    } finally {
+      pincodeBtn.disabled = false;
+      pincodeBtn.textContent = originalText;
+    }
+  }
+
+  function savedStoreGuess(pin) {
+    // Simple placeholder — replace with real store-to-pincode mapping.
+    // If you have a store picker in the header, the header already saved this.
+    return localStorage.getItem(KEY_STORE) || 'andheri';
+  }
+
+  pincodeBtn.addEventListener('click', checkPincode);
+  pincodeInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      checkPincode();
+    }
+  });
+  pincodeInput.addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  });
+
+  /* ---------- Error display ---------- */
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+  function clearError() {
+    errorEl.textContent = '';
+    errorEl.classList.add('hidden');
+  }
+
+  /* ---------- Add to cart ---------- */
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearError();
+
+    var savedPin = localStorage.getItem(KEY_PIN);
+    if (!savedPin) {
+      showError('Please check delivery with your pincode first.');
+      pincodeInput.focus();
+      return;
+    }
+
+    var variantId = null;
+    if (variantSelect) {
+      variantId = variantSelect.value;
+    } else {
+      var checked = form.querySelector('input[name="id"]:checked');
+      variantId = checked && checked.value;
+    }
+
+    if (!variantId) {
+      showError('Please select an option.');
+      return;
+    }
+
+    // Fill hidden fields
+    pincodeField.value = savedPin;
+    var savedStore = localStorage.getItem(KEY_STORE);
+    if (savedStore) storeField.value = storeLabels[savedStore] || savedStore;
+
+    var submitBtns = [
+      document.getElementById('sh-add-to-cart'),
+      document.getElementById('sh-sticky-atc-btn')
+    ];
+
+    submitBtns.forEach(function (btn) {
+      if (btn) { btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent = 'Adding…'; }
+    });
+
+    try {
+      var formData = new FormData(form);
+      var res = await fetch('/cart/add.js', {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' }
+      });
+
+      if (!res.ok) {
+        var err = await res.json().catch(function () { return {}; });
+        throw new Error(err.description || err.message || 'Could not add to cart');
+      }
+
+      document.dispatchEvent(new CustomEvent('cart:updated'));
+      document.dispatchEvent(new CustomEvent('cart:open'));
+    } catch (err) {
+      showError(err.message || 'Could not add to cart');
+    } finally {
+      submitBtns.forEach(function (btn) {
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.originalText || 'Add to cart'; }
+      });
+    }
+  });
+
+  /* ---------- Init ---------- */
+  updateDeliveryUI();
+  updatePrice();
+
+  // If we already have a saved pincode, silently re-check on load
+  var existingPin = localStorage.getItem(KEY_PIN);
+  if (existingPin) {
+    checkPincode();
+  }
+})();

@@ -1252,6 +1252,12 @@
   .bg-sh-success {
     background-color: var(--sh-success);
   }
+  .bg-sh-success\/10 {
+    background-color: var(--sh-success);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--sh-success) 10%, transparent);
+    }
+  }
   .bg-sh-text-light {
     background-color: var(--sh-text-light);
   }
