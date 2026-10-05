@@ -46,8 +46,14 @@
 
 <article class="group flex flex-col {{ extra_class }}" data-product-card>
 
-  {%- comment -%}Image + badges{%- endcomment -%}
-  <div class="relative aspect-square w-full mb-3 sm:mb-4">
+  {%- comment -%}
+    Image + badges.
+    The frame is a fixed square (aspect-square + shrink-0 + overflow-hidden).
+    The image is absolutely positioned and fills the frame, so its natural
+    size can never change the card height. object-contain keeps the whole
+    product visible; switch to object-cover to fill the frame edge to edge.
+  {%- endcomment -%}
+  <div class="relative mb-3 aspect-square w-full shrink-0 overflow-hidden rounded-2xl sm:mb-4">
     {%- if show_badges -%}
       {%- if product.available == false -%}
         <span class="absolute top-1 left-1 sm:top-2 sm:left-2 z-10 rounded-full bg-sh-brown-dark px-2.5 py-1 text-[0.6rem] sm:text-[0.65rem] font-bold uppercase tracking-widest text-white">
@@ -62,7 +68,7 @@
 
     <a
       href="{{ product.url }}"
-      class="block h-full w-full cursor-pointer overflow-hidden rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
+      class="absolute inset-0 block cursor-pointer rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
       aria-label="{{ product.title | escape }}"
     >
       {%- if product.featured_media -%}
@@ -72,12 +78,12 @@
           | image_tag:
             widths: '300, 500, 700',
             sizes: sizes,
-            class: 'h-full w-full object-contain transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none',
+            class: 'absolute inset-0 h-full w-full object-contain transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none',
             loading: loading_attr,
             alt: product.featured_media.alt | default: product.title
         }}
       {%- else -%}
-        <div class="flex h-full w-full items-center justify-center text-sm text-sh-text-light">
+        <div class="absolute inset-0 flex items-center justify-center text-sm text-sh-text-light">
           No Image
         </div>
       {%- endif -%}
