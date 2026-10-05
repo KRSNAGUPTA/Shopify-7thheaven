@@ -44,14 +44,14 @@
         "category_iPEUcQ": {
           "type": "category",
           "settings": {
-            "collection": "desserts",
+            "collection": "bread-and-buns",
             "title": ""
           }
         },
         "category_PHhNLw": {
           "type": "category",
           "settings": {
-            "collection": "donuts",
+            "collection": "cakes",
             "title": ""
           }
         }
@@ -63,6 +63,7 @@
       ],
       "settings": {
         "heading": "Shop by category",
+        "subheading": "",
         "products_to_show": 6,
         "show_badges": true
       }
