@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "type": "footer",
   "name": "Footer group",
@@ -6,20 +15,26 @@
       "type": "footer",
       "settings": {
         "footer_logo": "shopify://shop_images/7thheaven.avif",
-        "logo_width": 60,
-        "show_shop_name": true,
+        "logo_width": 100,
+        "show_shop_name": false,
         "about_text": "India's premier cake and dessert chain offering live fresh bakery products.",
         "menu_1_heading": "Categories",
         "menu_1": "footer",
         "menu_2_heading": "Quick Links",
-        "menu_2": "footer",
+        "menu_2": "customer-account-main-menu",
         "contact_heading": "Connect",
         "contact_email": "cs@7thheaven.in",
         "contact_phone": "+91 96198 97353",
         "show_socials": true,
+        "instagram_url": "https://www.instagram.com/7thheavendesserts",
+        "facebook_url": "https://www.facebook.com/7thHeaven.in",
+        "youtube_url": "https://www.youtube.com/@7thheavencakesdessertsfran185",
+        "x_url": "",
         "show_payment_icons": true
       }
     }
   },
-  "order": ["footer"]
+  "order": [
+    "footer"
+  ]
 }
