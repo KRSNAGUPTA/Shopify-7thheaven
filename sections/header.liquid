@@ -3,7 +3,7 @@
   {%- assign announcement = 'general.announcement' | t -%}
 {%- endif -%}
 
-<div class="sticky top-0 z-40">
+<div class="relative top-0 z-40">
   {%- if section.settings.show_announcement -%}
     <div
       id="sh-announce"
@@ -54,7 +54,10 @@
       >
         {%- if section.settings.logo != blank -%}
           {%- assign logo_width = section.settings.logo_width -%}
-          {%- assign logo_height = section.settings.logo_width | divided_by: section.settings.logo.aspect_ratio | round -%}
+          {%- assign logo_height = section.settings.logo_width
+            | divided_by: section.settings.logo.aspect_ratio
+            | round
+          -%}
           {{
             section.settings.logo
             | image_url: width: logo_width
@@ -63,7 +66,9 @@
               height: logo_height,
               loading: 'eager',
               class: 'h-12 w-auto object-contain sm:h-14 md:h-16',
-              alt: section.settings.logo.alt | default: shop.name | escape
+              alt: section.settings.logo.alt
+            | default: shop.name
+            | escape
           }}
         {%- else -%}
           <span class="text-xl font-extrabold tracking-tight text-white sm:text-2xl">{{ shop.name }}</span>
@@ -77,7 +82,9 @@
             {%- for link in section.settings.menu.links -%}
               <a
                 href="{{ link.url }}"
-                {% if link.current %}aria-current="page"{% endif %}
+                {% if link.current %}
+                  aria-current="page"
+                {% endif %}
                 class="cursor-pointer rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors hover:bg-white/10 hover:text-white active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary lg:px-4 lg:py-2 lg:text-sm {% if link.current %}bg-white/10 text-white{% else %}text-sh-cream/90{% endif %}"
               >
                 {{ link.title }}
@@ -124,7 +131,9 @@
           </svg>
           <span
             data-cart-count
-            {% if cart.item_count == 0 %}hidden{% endif %}
+            {% if cart.item_count == 0 %}
+              hidden
+            {% endif %}
             class="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-sh-brown-dark bg-sh-primary px-1 text-[10px] font-bold text-white"
           >
             {{- cart.item_count -}}
@@ -179,7 +188,9 @@
         {%- for link in section.settings.menu.links -%}
           <a
             href="{{ link.url }}"
-            {% if link.current %}aria-current="page"{% endif %}
+            {% if link.current %}
+              aria-current="page"
+            {% endif %}
             class="block cursor-pointer rounded-xl px-4 py-3 text-base font-semibold transition-colors hover:bg-white/10 hover:text-white active:bg-white/15 {% if link.current %}bg-white/10 text-white{% else %}text-sh-cream{% endif %}"
           >
             {{ link.title }}
@@ -287,6 +298,12 @@
 
 {% stylesheet %}
   /* Mobile menu state – driven by [data-open] on the container */
+  .section-header,
+  .shopify-section-group-header-group {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
   .sh-mobile-menu {
     pointer-events: none;
   }
@@ -297,8 +314,7 @@
   .sh-mobile-menu .sh-menu-overlay {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 350ms cubic-bezier(0.4, 0, 0.2, 1),
-      visibility 0s linear 350ms;
+    transition: opacity 350ms cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 350ms;
   }
   .sh-mobile-menu[data-open='true'] .sh-menu-overlay {
     opacity: 1;
@@ -310,8 +326,7 @@
     transform: translateX(-100%);
     visibility: hidden;
     will-change: transform;
-    transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1),
-      visibility 0s linear 400ms;
+    transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 400ms;
   }
   .sh-mobile-menu[data-open='true'] .sh-menu-panel {
     transform: translateX(0);
@@ -487,8 +502,7 @@
       var menu = $('sh-mobile-menu');
       var modal = $('sh-pincode-modal');
       var locked =
-        (menu && menu.getAttribute('data-open') === 'true') ||
-        (modal && !modal.classList.contains('hidden'));
+        (menu && menu.getAttribute('data-open') === 'true') || (modal && !modal.classList.contains('hidden'));
       document.body.classList.toggle('overflow-hidden', !!locked);
     }
 

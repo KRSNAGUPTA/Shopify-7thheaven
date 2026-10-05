@@ -1,0 +1,86 @@
+{%- comment -%}
+  Global AJAX add-to-cart handler for .ajax-add-to-cart-form.
+  Uses event delegation so it works for product cards rendered anywhere on the page.
+  Include this ONCE per page (e.g., in theme.liquid before </body>).
+{%- endcomment -%}
+
+<script>
+  (() => {
+    if (window.__shCartBound) return;
+    window.__shCartBound = true;
+
+    const COUNT_SELECTORS = [
+      '[data-cart-count]',
+      '.cart-count',
+      '.cart-count-bubble span',
+      '.cart-count-bubble',
+      '#cart-count',
+      '#CartCount'
+    ].join(',');
+
+    const haptic = (pattern) => {
+      try {
+        if ('vibrate' in navigator) navigator.vibrate(pattern);
+      } catch (_) {}
+    };
+
+    const updateCartCount = (count) => {
+      document.querySelectorAll(COUNT_SELECTORS).forEach((el) => {
+        el.textContent = count;
+        el.hidden = count === 0;
+        el.classList.toggle('hidden', count === 0);
+        el.setAttribute('data-cart-count', count);
+      });
+    };
+
+    const CART_ICON_SVG = '<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
+    const CHECK_ICON_SVG = '<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    document.addEventListener('submit', async (e) => {
+      const form = e.target.closest('.ajax-add-to-cart-form');
+      if (!form) return;
+
+      e.preventDefault();
+
+      const button = form.querySelector('button[type="submit"]');
+      if (!button || button.disabled) return;
+
+      clearTimeout(button._resetTimer);
+      button.disabled = true;
+      button.classList.add('opacity-70');
+
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error('Failed to add to cart');
+
+        const item = await response.json();
+        const cart = await fetch('/cart.js', { headers: { Accept: 'application/json' } })
+          .then((r) => r.json());
+
+        updateCartCount(cart.item_count);
+        haptic(30);
+
+        button.classList.remove('opacity-70');
+        button.classList.add('!bg-sh-success', '!border-sh-success', '!text-white');
+        button.innerHTML = CHECK_ICON_SVG;
+
+        document.dispatchEvent(new CustomEvent('cart:updated', { detail: { item, cart } }));
+      } catch (error) {
+        console.error('Error adding item to cart:', error);
+        haptic([40, 60, 40]);
+        button.classList.remove('opacity-70');
+        button.classList.add('!bg-sh-error', '!border-sh-error');
+      } finally {
+        button._resetTimer = setTimeout(() => {
+          button.disabled = false;
+          button.classList.remove('opacity-70', '!bg-sh-success', '!border-sh-success', '!text-white', '!bg-sh-error', '!border-sh-error');
+          button.innerHTML = CART_ICON_SVG;
+        }, 1800);
+      }
+    });
+  })();
+</script>

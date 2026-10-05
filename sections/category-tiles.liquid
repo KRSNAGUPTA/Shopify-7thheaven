@@ -1,34 +1,51 @@
 {%- comment -%}
-  Multi-Category Products Carousel Section
-  Smooth horizontal scrolling per category with custom product cards
+  Category Products Scroll
+  - One horizontal carousel per category block
+  - Uses shared snippets/product-card.liquid (same card as Featured Collection)
 {%- endcomment -%}
 
-<div class="py-12 md:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto font-sans-custom">
-  {%- if section.settings.heading != blank -%}
-    <div class="text-center mb-10 sm:mb-14 space-y-3 max-w-xl mx-auto">
-      
-      <h2 class="font-sniglet text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2C1810] tracking-normal leading-tight">
-        {{ section.settings.heading }}
-      </h2>
+{%- assign products_limit = section.settings.products_to_show | default: 6 -%}
+{%- assign card_width = 'flex-none shrink-0 snap-start w-[72vw] sm:w-[260px] lg:w-[300px]' -%}
+
+<section
+  id="CategoryScroll-{{ section.id }}"
+  class="py-12 sm:py-16 lg:py-24 px-5 sm:px-6 lg:px-8 max-w-7xl mx-auto font-body"
+>
+  {%- comment -%}Section Header{%- endcomment -%}
+  {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+    <div class="text-center mb-10 sm:mb-12 lg:mb-16 max-w-3xl mx-auto">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="font-sniglet text-[1.75rem] sm:text-4xl lg:text-5xl font-medium text-sh-brown tracking-[-0.02em] leading-[1.1] [text-wrap:balance]">
+          {{ section.settings.heading }}
+        </h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="mt-3 sm:mt-4 lg:mt-5 mx-auto max-w-xl text-[0.95rem] sm:text-base lg:text-[1.125rem] text-sh-text-light leading-[1.65] [text-wrap:pretty]">
+          {{ section.settings.subheading }}
+        </p>
+      {%- endif -%}
     </div>
   {%- endif -%}
 
-  <div class="space-y-12 sm:space-y-16">
+  <div class="space-y-12 sm:space-y-14 lg:space-y-20">
     {%- for block in section.blocks -%}
       {%- assign collection = collections[block.settings.collection] -%}
-      {%- assign products_limit = section.settings.products_to_show | default: 8 -%}
       {%- assign category_title = block.settings.title | default: collection.title -%}
 
-      <div class="category-block space-y-6" {{ block.shopify_attributes }}>
+      <div class="category-block" {{ block.shopify_attributes }}>
+        {%- comment -%}Category header{%- endcomment -%}
         {%- if category_title != blank -%}
-          <div class="flex items-center justify-between border-b border-amber-100 pb-3">
-            <h3 class="font-sniglet text-2xl sm:text-3xl font-bold text-[#2C1810]">
+          <div class="mb-5 sm:mb-6 flex items-end justify-between gap-4 border-b border-sh-border pb-3 sm:pb-4">
+            <h3 class="font-sniglet text-xl sm:text-2xl lg:text-3xl font-medium text-sh-brown tracking-[-0.01em] leading-tight [text-wrap:balance]">
               {{ category_title }}
             </h3>
             {%- if collection.url != blank -%}
-              <a href="{{ collection.url }}" class="text-sm font-semibold text-[#E91E63] hover:underline flex items-center gap-1">
-                View All
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <a
+                href="{{ collection.url }}"
+                class="group inline-flex shrink-0 items-center gap-1 rounded-full text-sm font-semibold text-sh-primary-dark transition-colors hover:text-sh-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+              >
+                View all
+                <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -36,139 +53,44 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%} Smooth Horizontal Scroll Container {%- endcomment -%}
-        <div class="relative">
-          <div class="flex overflow-x-auto gap-4 sm:gap-6 pb-4 pt-2 snap-x snap-mandatory scrollbar-hide">
-            {%- if collection != blank and collection.products.size > 0 -%}
-              {%- for product in collection.products limit: products_limit -%}
-                <div class="group flex flex-col bg-white rounded-2xl border border-amber-50 overflow-hidden transition-all duration-300 flex-none w-[75vw] sm:w-[280px] lg:w-[320px] snap-start shrink-0">
-                  <div class="relative aspect-square w-full overflow-hidden flex items-center justify-center">
-                    {%- if section.settings.show_badges -%}
-                      {%- if product.available == false -%}
-                        <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-[0.65rem] uppercase font-bold tracking-widest py-1.5 px-3 rounded-full z-10">
-                          Sold Out
-                        </span>
-                      {%- endif -%}
-                    {%- endif -%}
-
-                    {%- comment -%}Product Image{%- endcomment -%}
-                    <a href="{{ product.url }}" class="block w-full h-full">
-                      {%- if product.featured_media -%}
-                        {{ product.featured_media | image_url: width: 700 | image_tag: class: 'w-full h-full object-contain', loading: 'lazy', alt: product.title }}
-                      {%- else -%}
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">No Image</div>
-                      {%- endif -%}
-                    </a>
-                  </div>
-
-                  {%- comment -%}Product Content{%- endcomment -%}
-                  <div class="flex flex-col flex-1 p-4 space-y-2">
-                    {%- comment -%}Pricing{%- endcomment -%}
-                    <div class="flex flex-row justify-between items-center gap-4">
-                      <div class="font-sniglet text-3xl font-medium text-sh-accent tracking-tight">
-                        {{ product.price | money }}
-                      </div>
-                      {%- if product.compare_at_price > product.price -%}
-                        <p class="text-xl text-gray-500 line-through">
-                          {{ product.compare_at_price | money }}
-                        </p>
-                      {%- endif -%}
-                    </div>
-
-                    {%- comment -%}Product Title{%- endcomment -%}
-                    <h4 class="text-xl line-clamp-2">
-                      <a href="{{ product.url }}" class="hover:no-underline font-medium font-sniglet text-[#2C1810]">{{ product.title }}</a>
-                    </h4>
-
-                    {%- comment -%}Product Description{%- endcomment -%}
-                    <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed font-light flex-1">
-                      {{ product.description | strip_html | default: 'Handcrafted fresh, baked daily with premium ingredients.' }}
-                    </p>
-
-                    {%- comment -%}Action Buttons{%- endcomment -%}
-                    <div class="flex items-center gap-2 pt-4 mt-auto">
-                      {%- form 'product', product, id: product.id, class: 'flex-1 ajax-add-to-cart-form' -%}
-                        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-                        <button
-                          type="submit"
-                          name="add"
-                          class="cursor-pointer w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 text-white text-sm font-semibold bg-sh-accent hover:bg-sh-accent transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                          {%- unless product.available -%}disabled{%- endunless -%}
-                          title="Add to Cart"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                          </svg>
-                          <span class="btn-text">Add to Cart</span>
-                        </button>
-                      {%- endform -%}
-                    </div>
+        {%- comment -%}Scroll track: bleeds to screen edge on mobile so cards peek in{%- endcomment -%}
+        <div
+          class="sh-scrollbar-hide -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-5 px-5 pb-2 sm:-mx-6 sm:gap-5 sm:scroll-pl-6 sm:px-6 lg:mx-0 lg:gap-6 lg:scroll-pl-0 lg:px-0"
+          style="-webkit-overflow-scrolling: touch;"
+        >
+          {%- if collection != blank and collection.products.size > 0 -%}
+            {%- for product in collection.products limit: products_limit -%}
+              {%- assign lazy_flag = true -%}
+              {%- if forloop.parentloop.first and forloop.index <= 2 -%}
+                {%- assign lazy_flag = false -%}
+              {%- endif -%}
+              {% render 'product-card',
+                product: product,
+                show_badges: section.settings.show_badges,
+                class: card_width,
+                lazy: lazy_flag
+              %}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for i in (1..4) -%}
+              <div class="{{ card_width }}" aria-hidden="true">
+                <div class="aspect-square rounded-2xl border border-dashed border-sh-border"></div>
+                <div class="mt-3 space-y-2 sm:mt-4">
+                  <div class="h-4 w-3/4 rounded bg-sh-border/60"></div>
+                  <div class="h-5 w-1/3 rounded bg-sh-border/60"></div>
+                  <div class="mt-3 flex gap-2">
+                    <div class="h-9 flex-1 rounded-full bg-sh-border/60"></div>
+                    <div class="h-9 w-11 rounded-full bg-sh-border/60 sm:w-12"></div>
                   </div>
                 </div>
-              {%- endfor -%}
-            {%- else -%}
-              {%- comment -%}Placeholder Skeletons{%- endcomment -%}
-              {%- for i in (1..4) -%}
-                <div class="flex-none w-[280px] space-y-4">
-                  <div class="aspect-square bg-gradient-to-r from-amber-50 via-amber-100 to-amber-50 rounded-2xl animate-pulse"></div>
-                  <div class="h-6 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 rounded-lg animate-pulse w-2/3"></div>
-                  <div class="h-4 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 rounded-lg animate-pulse w-1/2"></div>
-                  <div class="h-10 bg-gradient-to-r from-pink-100 via-pink-200 to-pink-100 rounded-lg animate-pulse"></div>
-                </div>
-              {%- endfor -%}
-            {%- endif -%}
-          </div>
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
         </div>
       </div>
     {%- endfor -%}
   </div>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.ajax-add-to-cart-form').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const button = form.querySelector('button[type="submit"]');
-        const btnText = form.querySelector('.btn-text');
-        const originalText = btnText ? btnText.textContent : 'Add to Cart';
-
-        if (button) button.disabled = true;
-        if (btnText) btnText.textContent = 'Adding...';
-
-        try {
-          const formData = new FormData(form);
-          const response = await fetch('/cart/add.js', {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          });
-
-          if (!response.ok) throw new Error('Failed to add to cart');
-
-          const item = await response.json();
-          if (btnText) btnText.textContent = 'Added!';
-          
-          document.dispatchEvent(new CustomEvent('cart:updated', { detail: { item } }));
-
-        } catch (error) {
-          console.error('Error adding item to cart:', error);
-          if (btnText) btnText.textContent = 'Error!';
-        } finally {
-          setTimeout(() => {
-            if (button) button.disabled = false;
-            if (btnText) btnText.textContent = originalText;
-          }, 1500);
-        }
-      });
-    });
-  });
-</script>
+</section>
 
 {% schema %}
 {
@@ -177,8 +99,13 @@
     {
       "type": "text",
       "id": "heading",
-      "label": "Section Heading",
+      "label": "Section heading",
       "default": "Shop by Category"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Section subheading"
     },
     {
       "type": "range",
@@ -192,7 +119,7 @@
     {
       "type": "checkbox",
       "id": "show_badges",
-      "label": "Show product badges",
+      "label": "Show product badges (Sale / Sold Out)",
       "default": true
     }
   ],
@@ -204,12 +131,12 @@
         {
           "type": "collection",
           "id": "collection",
-          "label": "Select Collection"
+          "label": "Collection"
         },
         {
           "type": "text",
           "id": "title",
-          "label": "Category Title Override"
+          "label": "Category title override"
         }
       ]
     }
@@ -227,29 +154,11 @@
 {% endschema %}
 
 {% stylesheet %}
-  .font-sniglet {
-    font-family: 'Sniglet', cursive, sans-serif;
-  }
-  
-  .font-sans-custom {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-  
-  /* Hide scrollbars for smooth aesthetic horizontal touch scrolling */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-  .scrollbar-hide {
+  .sh-scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
-  .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  .sh-scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 {% endstylesheet %}

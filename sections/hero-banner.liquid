@@ -1,46 +1,52 @@
 {%- comment -%}
-Hero Banner Section with Fullscreen Background Image
+  Hero Banner — fullscreen background with centered content
+  Mobile-first: compact text & padded layout on phones, scales up gracefully on desktop.
 {%- endcomment -%}
 
 {%- assign bg_image = section.settings.background_image -%}
 
-<div 
-  class="relative w-full h-screen flex items-center justify-center text-white overflow-hidden bg-sh-brown-dark"
+<section
+  class="relative w-full min-h-[100svh] flex items-center justify-center overflow-hidden bg-sh-brown-dark text-white"
   {%- if bg_image != blank %}
-  style="
-    background-image: url('{{ bg_image | image_url: width: 2400 }}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  "
+    style="
+      background-image: url('{{ bg_image | image_url: width: 2400 }}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    "
   {%- endif %}
 >
-  <div class="absolute inset-0 bg-sh-brown-dark/50 z-0"></div>
+  {%- comment -%}Overlay{%- endcomment -%}
+  <div class="absolute inset-0 bg-sh-brown-dark/55 z-0" aria-hidden="true"></div>
 
-  <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-    
-    <h1 class="font-sniglet text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-white leading-tight drop-shadow-lg mb-4">
+  {%- comment -%}Content{%- endcomment -%}
+  <div class="relative z-10 w-full max-w-3xl mx-auto px-6 sm:px-8 lg:px-10 py-20 sm:py-24 md:py-28 text-center">
+
+    <h1 class="font-sniglet text-[1.75rem] leading-[1.2] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl tracking-tight text-white drop-shadow-lg mb-3 sm:mb-4">
       {{ section.settings.heading }}
     </h1>
-    
-    <p class="text-lg sm:text-xl text-sh-cream/90 font-light drop-shadow-md mb-8 max-w-2xl mx-auto">
+
+    <p class="text-sm sm:text-base md:text-lg lg:text-xl text-sh-cream/90 font-light leading-relaxed drop-shadow-md max-w-xl sm:max-w-2xl mx-auto mb-8 sm:mb-10">
       {{ section.settings.subheading }}
     </p>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
       {%- if section.settings.button_link != blank -%}
-        <a 
-          href="{{ section.settings.button_link }}" 
-          class="w-full sm:w-auto inline-flex items-center justify-center bg-sh-primary hover:bg-sh-primary-dark text-white hover:text-white font-semibold text-lg px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+        <a
+          href="{{ section.settings.button_link }}"
+          class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-sh-primary px-7 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-sh-primary-dark hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 focus-visible:ring-offset-sh-brown-dark sm:w-auto sm:px-8 sm:py-4 sm:text-base md:text-lg"
         >
-          {{ section.settings.button_label | default: 'Shop Now' }}
+          <span>{{ section.settings.button_label | default: 'Shop Now' }}</span>
+          <svg class="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
         </a>
       {%- endif -%}
 
       {%- if section.settings.secondary_button_link != blank -%}
-        <a 
-          href="{{ section.settings.secondary_button_link }}" 
-          class="w-full sm:w-auto inline-flex items-center justify-center bg-sh-cream/10 hover:bg-sh-cream/20 text-white hover:text-white border border-sh-cream/50 backdrop-blur-md font-semibold text-lg px-8 py-3.5 rounded-full transition-all duration-200 shadow-lg hover:scale-105 active:scale-95"
+        <a
+          href="{{ section.settings.secondary_button_link }}"
+          class="inline-flex cursor-pointer items-center justify-center rounded-full border border-sh-cream/50 bg-sh-cream/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-md shadow-lg transition-all duration-200 hover:border-sh-cream/80 hover:bg-sh-cream/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-cream/70 focus-visible:ring-offset-2 focus-visible:ring-offset-sh-brown-dark sm:w-auto sm:px-8 sm:py-4 sm:text-base md:text-lg"
         >
           {{ section.settings.secondary_button_label | default: 'Franchise Enquiry' }}
         </a>
@@ -48,7 +54,7 @@ Hero Banner Section with Fullscreen Background Image
     </div>
 
   </div>
-</div>
+</section>
 
 {% schema %}
 {

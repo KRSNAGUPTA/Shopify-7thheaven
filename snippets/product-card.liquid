@@ -1,39 +1,146 @@
-{% doc %}
-  Renders a product card for grids.
+{%- comment -%}
+  Reusable product card.
 
-  @param {product} product - Product to render
-  @param {string} [css_class] - Optional extra class
+  Usage:
+    {% render 'product-card', product: product %}
 
-  @example
-  {% render 'product-card', product: product %}
-{% enddoc %}
+  Optional params:
+    show_badges     — bool, default true
+    show_description — bool, default true
+    lazy            — bool, default true (use 'eager' for above-the-fold grids)
+    sizes           — string, default '(min-width: 1024px) 380px, 50vw'
+    class           — string, extra wrapper classes
+{%- endcomment -%}
 
-<article class="group overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ css_class }}">
-  <a href="{{ product.url }}" class="block text-sh-brown no-underline">
-    {% if product.featured_image %}
-      {{ product.featured_image
-        | image_url: width: 600
-        | image_tag:
-          loading: 'lazy',
-          class: 'h-56 w-full object-cover md:h-72',
-          alt: product.featured_image.alt | default: product.title
-      }}
-    {% else %}
-      {{ 'product-1' | placeholder_svg_tag: 'h-56 w-full object-cover md:h-72' }}
-    {% endif %}
-    <div class="p-4">
-      <h3 class="mb-2 text-lg font-semibold text-sh-brown">{{ product.title | escape }}</h3>
-      <p class="text-xl font-bold text-sh-accent">
-        {% if product.price_varies %}
-          {% assign from_price = product.price_min | money %}
-          {{ 'products.from_price' | t: price: from_price }}
-        {% else %}
-          {{ product.price | money }}
-        {% endif %}
-      </p>
-      {% if product.metafields.custom.eggless_available %}
-        <span class="mt-2 inline-block rounded-full bg-[#fdecea] px-3 py-1 text-sm font-semibold text-[#a12a1f]">{{ 'products.eggless_available' | t }}</span>
-      {% endif %}
+{%- liquid
+  assign show_badges = show_badges | default: true
+  assign show_description = show_description | default: true
+  assign lazy = lazy | default: true
+  assign sizes = sizes | default: '(min-width: 1024px) 380px, 50vw'
+  assign extra_class = class | default: ''
+
+  assign variant = product.selected_or_first_available_variant
+  assign has_variants = false
+  if product.variants.size > 1
+    assign has_variants = true
+  endif
+
+  if lazy
+    assign loading_attr = 'lazy'
+  else
+    assign loading_attr = 'eager'
+  endif
+-%}
+
+<article class="group flex flex-col {{ extra_class }}" data-product-card>
+
+  {%- comment -%}Image + badges{%- endcomment -%}
+  <div class="relative aspect-square w-full mb-3 sm:mb-4">
+    {%- if show_badges -%}
+      {%- if product.available == false -%}
+        <span class="absolute top-1 left-1 sm:top-2 sm:left-2 z-10 rounded-full bg-sh-brown-dark px-2.5 py-1 text-[0.6rem] sm:text-[0.65rem] font-bold uppercase tracking-widest text-white">
+          Sold Out
+        </span>
+      {%- elsif product.compare_at_price > product.price -%}
+        <span class="absolute top-1 left-1 sm:top-2 sm:left-2 z-10 rounded-full bg-sh-primary-dark px-2.5 py-1 text-[0.6rem] sm:text-[0.65rem] font-bold uppercase tracking-widest text-white">
+          Sale
+        </span>
+      {%- endif -%}
+    {%- endif -%}
+
+    <a
+      href="{{ product.url }}"
+      class="block h-full w-full cursor-pointer overflow-hidden rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
+      aria-label="{{ product.title | escape }}"
+    >
+      {%- if product.featured_media -%}
+        {{
+          product.featured_media
+          | image_url: width: 700
+          | image_tag:
+            widths: '300, 500, 700',
+            sizes: sizes,
+            class: 'h-full w-full object-contain transition-transform duration-500 ease-out will-change-transform motion-reduce:transition-none',
+            loading: loading_attr,
+            alt: product.featured_media.alt | default: product.title
+        }}
+      {%- else -%}
+        <div class="flex h-full w-full items-center justify-center text-sm text-sh-text-light">
+          No Image
+        </div>
+      {%- endif -%}
+    </a>
+  </div>
+
+  {%- comment -%}Info{%- endcomment -%}
+  <div class="flex flex-1 flex-col gap-1.5 sm:gap-2 px-0.5 sm:px-1">
+
+    <h3 class="text-sm sm:text-base lg:text-lg font-medium leading-snug text-sh-brown line-clamp-2">
+      <a href="{{ product.url }}" class="cursor-pointer hover:text-sh-primary-dark focus-visible:outline-none focus-visible:underline">
+        {{ product.title }}
+      </a>
+    </h3>
+
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+      <span class="font-sniglet text-lg sm:text-xl lg:text-2xl tracking-tight text-sh-primary-dark">
+        {{ product.price | money }}
+      </span>
+      {%- if product.compare_at_price > product.price -%}
+        <s class="text-xs sm:text-sm text-sh-text-light/80">
+          {{ product.compare_at_price | money }}
+        </s>
+      {%- endif -%}
     </div>
-  </a>
+
+    {%- if show_description and product.description != blank -%}
+      <p class="mt-1 hidden text-xs leading-relaxed text-sh-text-light line-clamp-2 sm:block">
+        {{ product.description | strip_html }}
+      </p>
+    {%- endif -%}
+
+    {%- comment -%}Actions{%- endcomment -%}
+    <div class="mt-3 flex items-stretch gap-2 sm:mt-4">
+      {%- if product.available -%}
+        {%- if has_variants -%}
+          <a
+            href="{{ product.url }}"
+            class="flex-1 inline-flex cursor-pointer items-center justify-center rounded-full bg-sh-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 sm:py-3 sm:text-sm"
+          >
+            Choose Options
+          </a>
+        {%- else -%}
+          <a
+            href="/cart/{{ variant.id }}:1"
+            class="flex-1 inline-flex cursor-pointer items-center justify-center rounded-full bg-sh-primary px-4 py-2.5 text-xs font-semibold text-white transition-colors duration-200 hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 sm:py-3 sm:text-sm"
+          >
+            Buy Now
+          </a>
+
+          {%- form 'product', product, class: 'ajax-add-to-cart-form shrink-0' -%}
+            <input type="hidden" name="id" value="{{ variant.id }}">
+            <button
+              type="submit"
+              name="add"
+              aria-label="Add {{ product.title | escape }} to cart"
+              class="group/cart inline-flex h-full w-11 cursor-pointer items-center justify-center rounded-full border border-sh-border bg-white text-sh-brown transition-colors duration-200 hover:border-sh-primary hover:bg-sh-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-12"
+            >
+              <svg class="h-4 w-4 transition-transform duration-200 group-hover/cart:scale-110" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+            </button>
+          {%- endform -%}
+        {%- endif -%}
+      {%- else -%}
+        <button
+          type="button"
+          disabled
+          class="flex-1 cursor-not-allowed rounded-full bg-sh-text-light/40 px-4 py-2.5 text-xs font-semibold text-white sm:py-3 sm:text-sm"
+        >
+          Sold Out
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
 </article>
