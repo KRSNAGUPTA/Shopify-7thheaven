@@ -15,10 +15,10 @@
       "type": "header",
       "settings": {
         "logo": "shopify://shop_images/7thheaven.avif",
-        "logo_width": 260,
+        "logo_width": 300,
         "menu": "main-menu",
         "show_announcement": true,
-        "announcement_text": "",
+        "announcement_text": "Live Cake in 7 minutes | Use Code KRSNA10 for 10% extra off!",
         "announcement_link": "",
         "storefront_token": "be21f37f205dceb35ad117323844e0a6",
         "probe_variant_id": "49679015510254",
