@@ -1,541 +1,332 @@
 {%- comment -%}
-  Product page — thumb-first, icon-driven
-  - Logo above title, transparent PNG (no bg)
-  - Eggless shown as an icon toggle (Egg / Eggless) — no chips
-  - Weight/Size as compact icon-buttons
-  - Mobile: everything critical pinned to bottom thumb zone
-  - Two CTAs: Add to Cart + Buy Now
-  - Price with compare-at, serves + prep icons, share button
-  - Inline pincode deliverability check
-  - Message on cake + Special instructions (optional)
+  Product page
+  Layout: Gallery | Title → Price → Chips → Options → Personalise → Qty + Total → CTAs → Details
+  Everything (price, total, image, availability, buttons, sticky bar) updates from one render() in the JS
 {%- endcomment -%}
 
-{%- assign prep_hours = product.metafields.custom.prep_hours.value | default: 2 -%}
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign prep = product.metafields.custom.prep_time_hours.value | default: product.metafields.custom.prep_hours.value -%}
 {%- assign serves = product.metafields.custom.serves.value -%}
+{%- assign max_qty = section.settings.max_quantity | default: 10 -%}
+{%- assign suggestions = section.settings.message_suggestions | split: ',' -%}
+{%- assign start_media = current_variant.featured_media | default: product.featured_media -%}
 
-{%- comment -%} Auto-detect option indexes by name {%- endcomment -%}
-{%- assign type_option_index = nil -%}
-{%- assign weight_option_index = nil -%}
-{%- for option in product.options_with_values -%}
-  {%- assign oname = option.name | downcase -%}
-  {%- if oname contains 'egg' or oname == 'type' -%}
-    {%- assign type_option_index = forloop.index0 -%}
-  {%- elsif oname contains 'weight' or oname contains 'size' -%}
-    {%- assign weight_option_index = forloop.index0 -%}
+{%- assign image_count = 0 -%}
+{%- for media in product.media -%}
+  {%- if media.media_type == 'image' -%}
+    {%- assign image_count = image_count | plus: 1 -%}
   {%- endif -%}
 {%- endfor -%}
 
-<section class="w-full bg-sh-cream pb-40 pt-6 sm:pb-10 sm:pt-10 lg:pt-14">
-  <div
-    class="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8"
-    id="sh-product"
-    data-product-id="{{ product.id }}"
-    data-prep-hours="{{ prep_hours }}"
-  >
-    <div class="grid gap-8 lg:grid-cols-2 lg:gap-14">
+{%- assign has_discount = false -%}
+{%- if current_variant.compare_at_price > current_variant.price -%}
+  {%- assign has_discount = true -%}
+  {%- assign saved_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100.0 | divided_by: current_variant.compare_at_price | round -%}
+{%- endif -%}
 
-      {%- comment -%}Image column{%- endcomment -%}
+<section
+  id="sh-product"
+  class="w-ful pb-28 pt-6 font-body sm:pt-10 lg:pb-24 lg:pt-14"
+  data-initial-variant="{{ current_variant.id }}"
+  data-max-qty="{{ max_qty }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-default-only="{{ product.has_only_default_variant }}"
+  data-title="{{ product.title | escape }}"
+>
+  <div class="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-14">
+
+      {%- comment -%}Gallery{%- endcomment -%}
       <div class="lg:sticky lg:top-28 lg:self-start">
-        <div class="relative aspect-square w-full">
-          {%- if product.featured_image -%}
-            {{
-              product.featured_image
-              | image_url: width: 1200
-              | image_tag:
-                id: 'sh-product-image',
-                class: 'h-full w-full object-contain transition-opacity duration-300',
-                loading: 'eager',
-                alt: product.featured_image.alt | default: product.title
-            }}
+        <div class="relative mx-auto aspect-square w-full max-w-md overflow-hidden sm:max-w-none">
+          {%- if start_media -%}
+            <img
+              id="sh-main-image"
+              src="{{ start_media.preview_image | image_url: width: 1200 }}"
+              alt="{{ start_media.alt | default: product.title | escape }}"
+              width="{{ start_media.preview_image.width }}"
+              height="{{ start_media.preview_image.height }}"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              class="h-full w-full object-contain p-4 transition-opacity duration-200 sm:p-6"
+            >
           {%- else -%}
-            <div class="flex h-full w-full items-center justify-center text-sh-text-light">
-              {{ 'product-1' | placeholder_svg_tag: 'h-2/3 w-2/3' }}
-            </div>
+            {{ 'product-1' | placeholder_svg_tag: 'h-full w-full object-contain p-12 text-sh-border' }}
           {%- endif -%}
 
-          {%- comment -%}Share button{%- endcomment -%}
-          <button
-            type="button"
-            id="sh-share-btn"
-            aria-label="Share this product"
-            class="absolute right-3 top-3 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/95 text-sh-brown shadow-sm backdrop-blur transition-all hover:bg-white hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
-            data-share-url="{{ shop.url }}{{ product.url }}"
-            data-share-title="{{ product.title | escape }}"
+          <span
+            data-soldout-badge
+            class="absolute left-3 top-3 z-10 rounded-full bg-black/70 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-white backdrop-blur-md {% if current_variant.available %}hidden{% endif %}"
           >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342a3 3 0 100-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367 0 3 3 0 00-5.367 0zm0 12.632a3 3 0 105.367 0 3 3 0 00-5.367 0z"/>
-            </svg>
-            <span
-              id="sh-share-toast"
-              class="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-sh-brown-dark px-3 py-1 text-xs font-medium text-white opacity-0 transition-opacity"
-            >
-              Link copied
-            </span>
-          </button>
+            Sold out
+          </span>
         </div>
+
+        {%- if image_count > 1 -%}
+          <div class="sh-pdp-scroll mt-3 flex gap-2 overflow-x-auto pb-1">
+            {%- for media in product.media -%}
+              {%- if media.media_type == 'image' -%}
+                <button
+                  type="button"
+                  data-thumb
+                  data-media-id="{{ media.id }}"
+                  data-src="{{ media.preview_image | image_url: width: 1200 }}"
+                  data-alt="{{ media.alt | default: product.title | escape }}"
+                  aria-label="View image {{ forloop.index }}"
+                  class="h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl border-2 bg-sh-cream-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary {% if media.id == start_media.id %}border-sh-primary{% else %}border-transparent hover:border-sh-border{% endif %}"
+                >
+                  {{ media.preview_image | image_url: width: 160 | image_tag: class: 'h-full w-full object-cover', loading: 'lazy', alt: '' }}
+                </button>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
       </div>
 
-      {%- comment -%}Info column{%- endcomment -%}
+      {%- comment -%}Info{%- endcomment -%}
       <div class="flex flex-col">
 
-        {%- comment -%}Logo bar{%- endcomment -%}
-        <div class="mb-5 flex items-center gap-3">
-          {%- if section.settings.logo != blank -%}
-            {{
-              section.settings.logo
-              | image_url: width: 200
-              | image_tag:
-                class: 'h-11 w-auto object-contain sm:h-12',
-                loading: 'eager',
-                alt: shop.name | escape
-            }}
-          {%- elsif shop.brand.logo != blank -%}
-            {{
-              shop.brand.logo
-              | image_url: width: 200
-              | image_tag:
-                class: 'h-11 w-auto object-contain sm:h-12',
-                loading: 'eager',
-                alt: shop.name | escape
-            }}
-          {%- else -%}
-            <span class="font-sniglet text-2xl font-bold tracking-tight text-sh-brown">{{ shop.name }}</span>
-          {%- endif -%}
-        </div>
+        {%- if product.type != blank -%}
+          <p class="text-xs font-semibold uppercase leading-snug tracking-[0.12em] text-sh-primary-dark">{{ product.type }}</p>
+        {%- endif -%}
 
-        <h1 class="font-sniglet text-2xl font-bold leading-tight tracking-tight text-sh-brown sm:text-3xl lg:text-4xl">
+        <h1 class="{% if product.type != blank %}mt-2 {% endif %}font-sniglet text-[1.75rem] font-medium leading-[1.1] tracking-[-0.02em] text-sh-brown [text-wrap:balance] sm:text-4xl lg:text-[2.5rem]">
           {{ product.title | escape }}
         </h1>
 
-        {%- comment -%}Serves + prep icons{%- endcomment -%}
-        {%- if serves or product.metafields.custom.prep_hours.value -%}
-          <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-sh-text-light">
-            {%- if serves -%}
-              <span class="inline-flex items-center gap-1.5">
-                <svg class="h-4 w-4 shrink-0 text-sh-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                </svg>
-                <span>Serves <strong class="font-semibold text-sh-brown">{{ serves }}</strong></span>
-              </span>
-            {%- endif -%}
-            {%- if product.metafields.custom.prep_hours.value -%}
-              <span class="inline-flex items-center gap-1.5">
-                <svg class="h-4 w-4 shrink-0 text-sh-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span>Ready in <strong class="font-semibold text-sh-brown">{{ product.metafields.custom.prep_hours.value }} hrs</strong></span>
-              </span>
-            {%- endif -%}
-          </div>
-        {%- endif -%}
-
-        {%- comment -%}Price{%- endcomment -%}
-        <div class="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span class="font-sniglet text-3xl leading-none text-sh-primary-dark sm:text-4xl" id="sh-product-price">
-            {%- if product.price_varies -%}
-              {{ product.price_min | money }}
-            {%- else -%}
-              {{ product.price | money }}
-            {%- endif -%}
+        {%- comment -%}Price (per item){%- endcomment -%}
+        <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <span data-price class="font-sniglet text-[1.875rem] leading-none text-sh-primary-dark sm:text-4xl">
+            {{- current_variant.price | money -}}
           </span>
-          <s
-            class="text-base text-sh-text-light/80 {% unless product.compare_at_price > product.price %}hidden{% endunless %}"
-            id="sh-compare-price"
-          >
-            {%- if product.compare_at_price > product.price -%}
-              {{ product.compare_at_price | money }}
-            {%- endif -%}
+          <s data-compare class="text-base text-sh-text-light {% unless has_discount %}hidden{% endunless %}">
+            {%- if has_discount -%}{{ current_variant.compare_at_price | money }}{%- endif -%}
           </s>
+          <span data-save class="rounded-full bg-sh-primary-light px-2.5 py-1 text-xs font-semibold text-sh-primary-dark {% unless has_discount %}hidden{% endunless %}">
+            {%- if has_discount -%}{{ saved_pct }}% off{%- endif -%}
+          </span>
         </div>
 
-        {%- comment -%}Description{%- endcomment -%}
-        {%- if product.description != blank -%}
-          <div class="prose prose-sm mt-5 max-w-none leading-relaxed text-sh-text-light">
-            {{ product.description }}
-          </div>
+        {%- comment -%}Serves / prep chips{%- endcomment -%}
+        {%- if serves != blank or prep != blank -%}
+          <ul class="mt-4 flex flex-wrap gap-2">
+            {%- if serves != blank -%}
+              <li class="inline-flex items-center gap-1.5 rounded-full bg-sh-cream-light px-3 py-1.5 text-xs font-medium text-sh-text-light sm:text-sm">
+                <svg class="h-4 w-4 shrink-0 text-sh-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Serves <strong class="font-semibold text-sh-brown">{{ serves }}</strong></span>
+              </li>
+            {%- endif -%}
+            {%- if prep != blank -%}
+              <li class="inline-flex items-center gap-1.5 rounded-full bg-sh-cream-light px-3 py-1.5 text-xs font-medium text-sh-text-light sm:text-sm">
+                <svg class="h-4 w-4 shrink-0 text-sh-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Ready in <strong class="font-semibold text-sh-brown">{{ prep }} hrs</strong></span>
+              </li>
+            {%- endif -%}
+          </ul>
         {%- endif -%}
 
-        {%- comment -%}Deliverability — visible on desktop, also duplicated in bottom bar on mobile{%- endcomment -%}
-        <div class="mt-6 hidden rounded-2xl border border-sh-border bg-white p-4 sm:block sm:p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex-1">
-              <p class="text-sm font-semibold text-sh-brown">
-                {{ section.settings.delivery_heading | default: 'Check delivery' }}
-              </p>
-              <p class="mt-0.5 text-xs text-sh-text-light" id="sh-delivery-status">
-                {{ section.settings.delivery_prompt | default: 'Enter your pincode to see if we deliver this to you.' }}
-              </p>
-            </div>
-            <div class="flex shrink-0 items-center gap-2">
-              <input
-                type="text"
-                inputmode="numeric"
-                maxlength="6"
-                id="sh-product-pincode"
-                placeholder="Pincode"
-                class="w-24 rounded-full border border-sh-border bg-sh-cream-light px-3 py-1.5 text-center text-sm tracking-widest text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40 sm:w-28"
-              >
-              <button
-                type="button"
-                id="sh-product-pincode-check"
-                class="cursor-pointer rounded-full bg-sh-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
-              >
-                Check
-              </button>
-            </div>
-          </div>
-          <div id="sh-delivery-result" class="mt-3 hidden rounded-xl px-3 py-2 text-sm" aria-live="polite"></div>
-        </div>
-
-        {%- comment -%}Form{%- endcomment -%}
-        {% form 'product', product, id: 'sh-product-form' %}
-          <input type="hidden" name="properties[Fulfilment store]" id="sh-fulfilment-store" value="">
-          <input type="hidden" name="properties[Pincode]" id="sh-fulfilment-pincode" value="">
-          <input type="hidden" name="id" id="sh-variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+        {% form 'product', product, id: 'sh-product-form', class: 'mt-7 border-t border-sh-border pt-6' %}
+          <input type="hidden" name="id" id="sh-variant-id" value="{{ current_variant.id }}">
           <input type="hidden" name="quantity" id="sh-qty-input" value="1">
 
-          {%- comment -%}TYPE option (Egg / Eggless) as ICON toggle — desktop{%- endcomment -%}
-          {%- if type_option_index != nil -%}
-            {%- assign type_option = product.options_with_values[type_option_index] -%}
-            <div class="mt-6 hidden sm:block" data-option-index="{{ type_option_index }}">
-              <label class="mb-2 block text-sm font-semibold text-sh-brown">{{ type_option.name }}</label>
-              <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="{{ type_option.name }}">
-                {%- for value in type_option.values -%}
-                  {%- assign value_down = value | downcase -%}
-                  <button
-                    type="button"
-                    data-option-value="{{ value | escape }}"
-                    data-option-position="{{ type_option.position }}"
-                    class="sh-option-icon flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-sh-border bg-white px-4 py-3 text-sm font-semibold text-sh-brown transition-all hover:border-sh-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 data-[selected=true]:border-sh-primary data-[selected=true]:bg-sh-primary data-[selected=true]:text-white"
-                  >
-                    {%- if value_down contains 'eggless' -%}
-                      <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                      </svg>
-                    {%- else -%}
-                      <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <ellipse cx="12" cy="14" rx="6" ry="7" stroke-width="2"/>
-                      </svg>
-                    {%- endif -%}
-                    <span>{{ value }}</span>
-                  </button>
-                {%- endfor -%}
-              </div>
+          {%- comment -%}Options (all rendered as pills){%- endcomment -%}
+          {%- unless product.has_only_default_variant -%}
+            <div class="space-y-6">
+              {%- for option in product.options_with_values -%}
+                {%- assign idx = forloop.index0 -%}
+                {%- assign selected_value = current_variant.options[idx] -%}
+                <div>
+                  <p id="sh-opt-label-{{ idx }}" class="mb-3 text-sm font-semibold text-sh-brown">
+                    {{ option.name }}<span class="font-normal text-sh-text-light" data-option-selected="{{ idx }}">: {{ selected_value }}</span>
+                  </p>
+                  <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="sh-opt-label-{{ idx }}">
+                    {%- for value in option.values -%}
+                      <button
+                        type="button"
+                        role="radio"
+                        data-option-btn
+                        data-option-index="{{ idx }}"
+                        data-value="{{ value | escape }}"
+                        aria-checked="{% if value == selected_value %}true{% else %}false{% endif %}"
+                        class="cursor-pointer rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.97] {% if value == selected_value %}border-sh-primary bg-sh-primary text-white{% else %}border-sh-border bg-white text-sh-brown hover:border-sh-primary{% endif %}"
+                      >
+                        {{ value }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endfor -%}
             </div>
-          {%- endif -%}
+          {%- endunless -%}
 
-          {%- comment -%}WEIGHT / SIZE — desktop{%- endcomment -%}
-          {%- if weight_option_index != nil -%}
-            {%- assign weight_option = product.options_with_values[weight_option_index] -%}
-            <div class="mt-6 hidden sm:block" data-option-index="{{ weight_option_index }}">
-              <label class="mb-2 block text-sm font-semibold text-sh-brown">{{ weight_option.name }}</label>
-              <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="{{ weight_option.name }}">
-                {%- for value in weight_option.values -%}
-                  <button
-                    type="button"
-                    data-option-value="{{ value | escape }}"
-                    data-option-position="{{ weight_option.position }}"
-                    class="sh-option-icon flex cursor-pointer items-center gap-2 rounded-2xl border-2 border-sh-border bg-white px-4 py-3 text-sm font-semibold text-sh-brown transition-all hover:border-sh-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 data-[selected=true]:border-sh-primary data-[selected=true]:bg-sh-primary data-[selected=true]:text-white"
-                  >
-                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
-                    </svg>
-                    <span>{{ value }}</span>
-                  </button>
-                {%- endfor -%}
-              </div>
-            </div>
-          {%- endif -%}
-
-          {%- comment -%}Quantity stepper (desktop){%- endcomment -%}
-          <div class="mt-6 hidden sm:block">
-            <label class="mb-2 block text-sm font-semibold text-sh-brown">Quantity</label>
-            <div class="inline-flex items-center overflow-hidden rounded-full border border-sh-border bg-white">
-              <button type="button" data-qty="-1" aria-label="Decrease quantity"
-                class="sh-qty-btn inline-flex h-10 w-10 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-              </button>
-              <span class="w-10 text-center text-sm font-semibold text-sh-brown" data-qty-display>1</span>
-              <button type="button" data-qty="1" aria-label="Increase quantity"
-                class="sh-qty-btn inline-flex h-10 w-10 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              </button>
-            </div>
-          </div>
-
-          {%- comment -%}Message on cake{%- endcomment -%}
+          {%- comment -%}Personalise{%- endcomment -%}
           {%- if section.settings.show_message_field -%}
-            <div class="mt-6">
-              <label for="sh-cake-message" class="mb-2 block text-sm font-semibold text-sh-brown">
-                Message on cake <span class="font-normal text-sh-text-light">(optional)</span>
-              </label>
-              <textarea
+            <div class="{% unless product.has_only_default_variant %}mt-7{% endunless %}">
+              <div class="mb-2 flex items-baseline justify-between gap-3">
+                <label for="sh-cake-message" class="text-sm font-semibold text-sh-brown">
+                  Message on cake <span class="font-normal text-sh-text-light">(optional)</span>
+                </label>
+                <span class="text-xs tabular-nums text-sh-text-light" data-count>0/30</span>
+              </div>
+              <input
+                type="text"
                 name="properties[Message on cake]"
                 id="sh-cake-message"
                 maxlength="30"
-                placeholder="Happy Birthday!"
-                class="min-h-16 w-full resize-y rounded-xl border border-sh-border bg-white px-4 py-3 text-base text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
-              ></textarea>
-              <p class="mt-1 text-xs text-sh-text-light"><span id="sh-message-count">0</span>/30</p>
+                autocomplete="off"
+                placeholder="e.g. Happy Birthday Vaishnavi!"
+                class="w-full rounded-xl border border-sh-border bg-white px-4 py-3 text-base text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
+              >
+              {%- if suggestions.size > 0 -%}
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {%- for suggestion in suggestions -%}
+                    {%- assign s = suggestion | strip -%}
+                    {%- if s != blank -%}
+                      <button
+                        type="button"
+                        data-suggestion="{{ s | escape }}"
+                        class="cursor-pointer rounded-full border border-sh-border bg-sh-cream-light px-3 py-1.5 text-xs font-medium text-sh-text-light transition-colors hover:border-sh-primary hover:text-sh-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+                      >
+                        {{ s }}
+                      </button>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
             </div>
           {%- endif -%}
 
-          {%- comment -%}Special instructions{%- endcomment -%}
           {%- if section.settings.show_instructions_field -%}
-            <div class="mt-6">
-              <label for="sh-instructions" class="mb-2 block text-sm font-semibold text-sh-brown">
-                Special instructions <span class="font-normal text-sh-text-light">(optional)</span>
-              </label>
+            <details class="group mt-5">
+              <summary class="flex cursor-pointer list-none items-center gap-2 rounded text-sm font-semibold text-sh-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary [&::-webkit-details-marker]:hidden">
+                Add special instructions
+                <svg class="h-4 w-4 text-sh-text-light transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
               <textarea
                 name="properties[Special instructions]"
                 id="sh-instructions"
+                rows="2"
                 maxlength="200"
                 placeholder="Allergies, delivery notes…"
-                class="min-h-16 w-full resize-y rounded-xl border border-sh-border bg-white px-4 py-3 text-base text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
+                class="mt-3 min-h-16 w-full resize-y rounded-xl border border-sh-border bg-white px-4 py-3 text-base text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
               ></textarea>
-            </div>
+            </details>
           {%- endif -%}
 
-          <p id="sh-product-error" class="mt-4 hidden rounded-lg bg-sh-error/10 px-3 py-2 text-sm font-semibold text-sh-error" role="alert"></p>
+          {%- comment -%}Quantity + live total + CTAs{%- endcomment -%}
+          <div id="sh-cta" class="mt-7 border-t border-sh-border pt-6">
+            <div class="flex items-center justify-between gap-4">
+              <div class="inline-flex items-center overflow-hidden rounded-full border border-sh-border bg-white" role="group" aria-label="Quantity">
+                <button
+                  type="button"
+                  data-qty-step="-1"
+                  aria-label="Decrease quantity"
+                  disabled
+                  class="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                </button>
+                <span class="w-10 text-center text-base font-semibold tabular-nums text-sh-brown" data-qty-value aria-live="polite">1</span>
+                <button
+                  type="button"
+                  data-qty-step="1"
+                  aria-label="Increase quantity"
+                  class="inline-flex h-11 w-11 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </button>
+              </div>
 
-          {%- comment -%}Desktop CTAs (Add + Buy){%- endcomment -%}
-          <div class="mt-6 hidden gap-3 sm:flex">
-            <button
-              type="submit"
-              id="sh-add-to-cart-desktop"
-              data-cta="add"
-              class="flex-1 cursor-pointer items-center justify-center rounded-full bg-sh-primary px-6 py-4 text-base font-semibold text-white transition-all hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              {% unless product.available %}disabled{% endunless %}
-            >
-              Add to cart
-            </button>
-            <button
-              type="submit"
-              id="sh-buy-now-desktop"
-              data-cta="buy"
-              class="flex-1 cursor-pointer items-center justify-center rounded-full border-2 border-sh-brown-dark bg-sh-brown-dark px-6 py-4 text-base font-semibold text-white transition-all hover:bg-sh-primary hover:border-sh-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-              {% unless product.available %}disabled{% endunless %}
-            >
-              Buy now
-            </button>
+              <div class="text-right">
+                <p class="text-xs text-sh-text-light" data-total-caption>Total</p>
+                <p class="font-sniglet text-2xl leading-tight text-sh-brown sm:text-[1.75rem]" data-total>{{ current_variant.price | money }}</p>
+              </div>
+            </div>
+
+            <p id="sh-product-error" class="mt-4 hidden rounded-lg bg-sh-error/10 px-3 py-2 text-sm font-semibold text-sh-error" role="alert"></p>
+
+            <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="submit"
+                id="sh-add-to-cart"
+                data-cta="add"
+                class="inline-flex flex-1 cursor-pointer items-center justify-center rounded-full bg-sh-primary px-6 py-4 text-base font-semibold text-white transition-all hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                {% unless current_variant.available %}disabled{% endunless %}
+              >
+                <span data-cta-label>{% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+              </button>
+              <button
+                type="submit"
+                id="sh-buy-now"
+                data-cta="buy"
+                class="inline-flex flex-1 cursor-pointer items-center justify-center rounded-full border-2 border-sh-brown-dark bg-transparent px-6 py-4 text-base font-semibold text-sh-brown-dark transition-all hover:bg-sh-brown-dark hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                {% unless current_variant.available %}disabled{% endunless %}
+              >
+                <span data-cta-label>{% if current_variant.available %}Buy now{% else %}Sold out{% endif %}</span>
+              </button>
+            </div>
           </div>
         {% endform %}
+
+        {%- comment -%}Description{%- endcomment -%}
+        {%- if product.description != blank -%}
+          <div class="mt-8 border-t border-sh-border pt-6">
+            <h2 class="text-xs font-semibold uppercase leading-snug tracking-[0.12em] text-sh-primary-dark">Details</h2>
+            <div class="mt-3 text-[0.95rem] leading-[1.7] text-sh-text-light [text-wrap:pretty] sm:text-base [&_a]:text-sh-primary-dark [&_a]:underline [&_a]:underline-offset-4 [&_li]:mt-1 [&_p]:mt-3 [&_p:first-child]:mt-0 [&_strong]:font-semibold [&_strong]:text-sh-brown [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-5">
+              {{ product.description }}
+            </div>
+          </div>
+        {%- endif -%}
       </div>
     </div>
   </div>
-</section>
 
-{%- comment -%}
-  MOBILE THUMB BAR
-  Everything important pinned to the bottom. Slides up a compact
-  options sheet on tap for variant/quantity selection.
-{%- endcomment -%}
-<div
-  class="fixed inset-x-0 bottom-0 z-[95] sm:hidden"
-  id="sh-thumb-bar"
-  data-open="false"
->
-  {%- comment -%}Options sheet{%- endcomment -%}
+  {%- comment -%}Mobile sticky buy bar (appears when the main buttons scroll out of view){%- endcomment -%}
   <div
-    id="sh-options-sheet"
-    class="pointer-events-none max-h-[70vh] translate-y-full overflow-y-auto rounded-t-3xl border-t border-sh-border bg-white shadow-[0_-8px_24px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-out"
+    id="sh-sticky-bar"
+    class="pointer-events-none fixed inset-x-0 bottom-0 z-30 translate-y-full border-t border-sh-border bg-white/95 backdrop-blur-xl transition-transform duration-300 lg:hidden"
+    style="padding-bottom: env(safe-area-inset-bottom, 0px);"
+    aria-hidden="true"
   >
-    <div class="sticky top-0 z-10 flex items-center justify-between border-b border-sh-border bg-white px-5 py-4">
-      <div class="min-w-0">
-        <p class="truncate text-sm font-semibold text-sh-brown">{{ product.title }}</p>
-        <p class="font-sniglet text-base text-sh-primary-dark" data-price-display>{{ product.price | money }}</p>
+    <div class="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3 sm:px-6">
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-xs text-sh-text-light" data-bar-summary></p>
+        <p class="font-sniglet text-xl leading-tight text-sh-primary-dark" data-total>{{ current_variant.price | money }}</p>
       </div>
       <button
         type="button"
-        id="sh-sheet-close"
-        class="ml-3 inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
-        aria-label="Close options"
+        data-bar-add
+        tabindex="-1"
+        class="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full bg-sh-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        {% unless current_variant.available %}disabled{% endunless %}
       >
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="space-y-5 p-5">
-      {%- comment -%}Eggless icon toggle{%- endcomment -%}
-      {%- if type_option_index != nil -%}
-        {%- assign type_option = product.options_with_values[type_option_index] -%}
-        <div>
-          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-sh-text-light">{{ type_option.name }}</label>
-          <div class="grid grid-cols-2 gap-2">
-            {%- for value in type_option.values -%}
-              {%- assign value_down = value | downcase -%}
-              <button
-                type="button"
-                data-option-value="{{ value | escape }}"
-                data-option-position="{{ type_option.position }}"
-                class="sh-option-icon flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-sh-border bg-white px-4 py-3 text-sm font-semibold text-sh-brown transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary data-[selected=true]:border-sh-primary data-[selected=true]:bg-sh-primary data-[selected=true]:text-white"
-              >
-                {%- if value_down contains 'eggless' -%}
-                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                  </svg>
-                {%- else -%}
-                  <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <ellipse cx="12" cy="14" rx="6" ry="7" stroke-width="2"/>
-                  </svg>
-                {%- endif -%}
-                <span>{{ value }}</span>
-              </button>
-            {%- endfor -%}
-          </div>
-        </div>
-      {%- endif -%}
-
-      {%- comment -%}Weight / size{%- endcomment -%}
-      {%- if weight_option_index != nil -%}
-        {%- assign weight_option = product.options_with_values[weight_option_index] -%}
-        <div>
-          <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-sh-text-light">{{ weight_option.name }}</label>
-          <div class="grid grid-cols-2 gap-2">
-            {%- for value in weight_option.values -%}
-              <button
-                type="button"
-                data-option-value="{{ value | escape }}"
-                data-option-position="{{ weight_option.position }}"
-                class="sh-option-icon flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-sh-border bg-white px-4 py-3 text-sm font-semibold text-sh-brown transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary data-[selected=true]:border-sh-primary data-[selected=true]:bg-sh-primary data-[selected=true]:text-white"
-              >
-                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
-                </svg>
-                <span>{{ value }}</span>
-              </button>
-            {%- endfor -%}
-          </div>
-        </div>
-      {%- endif -%}
-
-      {%- comment -%}Quantity{%- endcomment -%}
-      <div>
-        <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-sh-text-light">Quantity</label>
-        <div class="inline-flex items-center overflow-hidden rounded-full border border-sh-border bg-white">
-          <button type="button" data-qty="-1" aria-label="Decrease quantity"
-            class="sh-qty-btn inline-flex h-11 w-11 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-          </button>
-          <span class="w-12 text-center text-base font-semibold text-sh-brown" data-qty-display>1</span>
-          <button type="button" data-qty="1" aria-label="Increase quantity"
-            class="sh-qty-btn inline-flex h-11 w-11 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          </button>
-        </div>
-      </div>
-
-      {%- comment -%}Pincode check (mobile){%- endcomment -%}
-      <div>
-        <label class="mb-2 block text-xs font-semibold uppercase tracking-wider text-sh-text-light">Delivery pincode</label>
-        <div class="flex gap-2">
-          <input
-            type="text"
-            inputmode="numeric"
-            maxlength="6"
-            id="sh-product-pincode-mobile"
-            placeholder="Pincode"
-            class="min-w-0 flex-1 rounded-full border border-sh-border bg-sh-cream-light px-4 py-2.5 text-sm tracking-widest text-sh-brown placeholder:text-sh-text-light/60 focus:border-sh-primary focus:outline-none focus:ring-2 focus:ring-sh-primary/40"
-          >
-          <button
-            type="button"
-            id="sh-product-pincode-check-mobile"
-            class="shrink-0 cursor-pointer rounded-full bg-sh-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2"
-          >
-            Check
-          </button>
-        </div>
-        <div id="sh-delivery-result-mobile" class="mt-2 hidden rounded-xl px-3 py-2 text-sm" aria-live="polite"></div>
-      </div>
-    </div>
-  </div>
-
-  {%- comment -%}Compact action bar — always visible{%- endcomment -%}
-  <div class="border-t border-sh-border bg-white/95 px-3 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] backdrop-blur">
-    <div class="mx-auto flex max-w-md items-center gap-2">
-      <button
-        type="button"
-        id="sh-sheet-open"
-        class="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-sh-border bg-white px-3 py-3 text-xs font-semibold text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
-        aria-label="Choose options"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        <span>Options</span>
-      </button>
-
-      <button
-        type="submit"
-        form="sh-product-form"
-        id="sh-add-to-cart-mobile"
-        data-cta="add"
-        class="flex flex-1 cursor-pointer items-center justify-center rounded-full bg-sh-primary px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-        {% unless product.available %}disabled{% endunless %}
-      >
-        Add
-      </button>
-
-      <button
-        type="submit"
-        form="sh-product-form"
-        id="sh-buy-now-mobile"
-        data-cta="buy"
-        class="flex flex-1 cursor-pointer items-center justify-center rounded-full bg-sh-brown-dark px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-sh-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-        {% unless product.available %}disabled{% endunless %}
-      >
-        Buy
+        <span data-cta-label>{% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
       </button>
     </div>
   </div>
-</div>
 
-{%- comment -%}Variant JSON{%- endcomment -%}
-<script type="application/json" id="sh-variants-data">
-  [
-    {%- for variant in product.variants -%}
-      {
-        "id": {{ variant.id }},
-        "options": {{ variant.options | json }},
-        "price": {{ variant.price }},
-        "compare_at_price": {{ variant.compare_at_price | default: 0 }},
-        "available": {{ variant.available }},
-        "featured_image": {%- if variant.featured_image -%}{{ variant.featured_image | image_url: width: 1200 | json }}{%- else -%}null{%- endif -%}
-      }{%- unless forloop.last -%},{%- endunless -%}
-    {%- endfor -%}
-  ]
-</script>
+  <script type="application/json" id="sh-variants-data">
+    [
+      {%- for variant in product.variants -%}
+        {
+          "id": {{ variant.id }},
+          "options": {{ variant.options | json }},
+          "price": {{ variant.price }},
+          "compare_at_price": {{ variant.compare_at_price | default: 0 }},
+          "available": {{ variant.available }},
+          "media_id": {% if variant.featured_media %}{{ variant.featured_media.id }}{% else %}null{% endif %}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+</section>
 
 {% schema %}
 {
   "name": "Product",
   "settings": [
-    {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "Brand logo (shown above title)",
-      "info": "Falls back to Shopify brand logo → shop name."
-    },
-    {
-      "type": "header",
-      "content": "Delivery check"
-    },
-    {
-      "type": "text",
-      "id": "delivery_heading",
-      "label": "Delivery heading",
-      "default": "Check delivery"
-    },
-    {
-      "type": "text",
-      "id": "delivery_prompt",
-      "label": "Delivery prompt",
-      "default": "Enter your pincode to see if we deliver this to you."
-    },
-    {
-      "type": "header",
-      "content": "Optional fields"
-    },
+    { "type": "header", "content": "Personalisation" },
     {
       "type": "checkbox",
       "id": "show_message_field",
@@ -543,391 +334,436 @@
       "default": true
     },
     {
+      "type": "text",
+      "id": "message_suggestions",
+      "label": "Message suggestions",
+      "info": "Comma-separated. Shown as tap-to-fill chips under the message field.",
+      "default": "Happy Birthday!, Happy Anniversary!, Congratulations!"
+    },
+    {
       "type": "checkbox",
       "id": "show_instructions_field",
       "label": "Show 'Special instructions' field",
       "default": true
+    },
+    { "type": "header", "content": "Purchase" },
+    {
+      "type": "range",
+      "id": "max_quantity",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 10,
+      "label": "Max quantity per order"
     }
   ]
 }
-{% endschema %} 
+{% endschema %}
+
+{% stylesheet %}
+  .sh-pdp-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .sh-pdp-scroll::-webkit-scrollbar {
+    display: none;
+  }
+{% endstylesheet %}
 
 {% javascript %}
   (function () {
     'use strict';
 
-    var root = document.getElementById('sh-product');
-    if (!root) return;
+    /* Class sets are written out in full so Tailwind's scanner picks them up */
+    var ON = ['border-sh-primary', 'bg-sh-primary', 'text-white'];
+    var OFF = ['border-sh-border', 'bg-white', 'text-sh-brown', 'hover:border-sh-primary'];
+    var THUMB_ON = ['border-sh-primary'];
+    var THUMB_OFF = ['border-transparent', 'hover:border-sh-border'];
+    var BAR_SHOW = 'translate-y-0';
+    var BAR_HIDE = 'translate-y-full';
 
-    var form = document.getElementById('sh-product-form');
-    var variantIdInput = document.getElementById('sh-variant-id');
-    var qtyInput = document.getElementById('sh-qty-input');
-    var qtyDisplays = document.querySelectorAll('[data-qty-display]');
-    var priceEl = document.getElementById('sh-product-price');
-    var compareEl = document.getElementById('sh-compare-price');
-    var priceDisplays = document.querySelectorAll('[data-price-display]');
-    var imageEl = document.getElementById('sh-product-image');
-    var errorEl = document.getElementById('sh-product-error');
-    var messageInput = document.getElementById('sh-cake-message');
-    var messageCount = document.getElementById('sh-message-count');
-    var shareBtn = document.getElementById('sh-share-btn');
-    var shareToast = document.getElementById('sh-share-toast');
-    var sheet = document.getElementById('sh-options-sheet');
-    var sheetOpen = document.getElementById('sh-sheet-open');
-    var sheetClose = document.getElementById('sh-sheet-close');
-    var storeField = document.getElementById('sh-fulfilment-store');
-    var pincodeField = document.getElementById('sh-fulfilment-pincode');
+    var observers = [];
 
-    var KEY_PIN = 'sh-pincode';
-    var KEY_STORE = 'sh-store';
-    var storeLabels = {
-      andheri: '7th Heaven Andheri',
-      thane: '7th Heaven Thane'
-    };
-
-    var variants = [];
-    try {
-      variants = JSON.parse(document.getElementById('sh-variants-data').textContent);
-    } catch (e) {}
-
-    var qty = 1;
-    var selectedOptions = {};
-    var variantId = null;
-
-    /* ---------- Money formatting ---------- */
-    function moneyFormat(cents) {
-      // Format matches ₹X,XXX pattern; adjust to shop settings if needed
-      var n = Number(cents) / 100;
-      return '₹' + n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    function swap(el, add, remove) {
+      remove.forEach(function (c) { el.classList.remove(c); });
+      add.forEach(function (c) { el.classList.add(c); });
     }
 
-    /* ---------- Init options from first available variant ---------- */
-    (function init() {
-      var initial = variants.find(function (v) { return v.available; }) || variants[0];
-      if (!initial) return;
-      variantId = initial.id;
-      if (variantIdInput) variantIdInput.value = initial.id;
-
-      initial.options.forEach(function (val, idx) {
-        selectedOptions[idx] = val;
-      });
-
-      document.querySelectorAll('.sh-option-icon').forEach(function (btn) {
-        var pos = parseInt(btn.dataset.optionPosition, 10) - 1;
-        if (String(selectedOptions[pos]) === btn.dataset.optionValue) {
-          btn.dataset.selected = 'true';
-        }
-      });
-
-      updateUI();
-    })();
-
-    /* ---------- Find matching variant ---------- */
-    function findMatch() {
-      return variants.find(function (v) {
-        return v.options.every(function (val, idx) {
-          return String(selectedOptions[idx]) === String(val);
-        });
-      });
-    }
-
-    /* ---------- Update price/availability/image ---------- */
-    function updateUI() {
-      var match = findMatch();
-      if (!match) return;
-
-      variantId = match.id;
-      if (variantIdInput) variantIdInput.value = match.id;
-
-      var priceStr = moneyFormat(match.price);
-      if (priceEl) priceEl.textContent = priceStr;
-
-      priceDisplays.forEach(function (el) { el.textContent = priceStr; });
-
-      if (compareEl) {
-        if (match.compare_at_price && match.compare_at_price > match.price) {
-          compareEl.textContent = moneyFormat(match.compare_at_price);
-          compareEl.classList.remove('hidden');
-        } else {
-          compareEl.textContent = '';
-          compareEl.classList.add('hidden');
-        }
+    /* Formats cents using the store's own money format, so it matches the product cards */
+    function formatMoney(cents, format) {
+      var fmt = format;
+      var re = /\{\{\s*(\w+)\s*\}\}/;
+      function withDelimiters(number, precision, thousands, decimal) {
+        thousands = thousands || ',';
+        decimal = decimal || '.';
+        if (isNaN(number) || number == null) return '0';
+        var fixed = (number / 100).toFixed(precision);
+        var parts = fixed.split('.');
+        var whole = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + thousands);
+        return parts[1] ? whole + decimal + parts[1] : whole;
       }
-
-      // Variant image swap
-      if (match.featured_image && imageEl) {
-        imageEl.src = match.featured_image;
+      var match = fmt.match(re);
+      var key = match ? match[1] : 'amount';
+      var value;
+      switch (key) {
+        case 'amount_no_decimals': value = withDelimiters(cents, 0); break;
+        case 'amount_with_comma_separator': value = withDelimiters(cents, 2, '.', ','); break;
+        case 'amount_no_decimals_with_comma_separator': value = withDelimiters(cents, 0, '.', ','); break;
+        case 'amount_with_apostrophe_separator': value = withDelimiters(cents, 2, "'", '.'); break;
+        case 'amount_no_decimals_with_space_separator': value = withDelimiters(cents, 0, ' '); break;
+        case 'amount_with_space_separator': value = withDelimiters(cents, 2, ' ', ','); break;
+        default: value = withDelimiters(cents, 2);
       }
-
-      // Availability
-      var ctaIds = [
-        'sh-add-to-cart-desktop',
-        'sh-buy-now-desktop',
-        'sh-add-to-cart-mobile',
-        'sh-buy-now-mobile'
-      ];
-      ctaIds.forEach(function (id) {
-        var b = document.getElementById(id);
-        if (!b) return;
-        if (match.available) {
-          b.disabled = false;
-        } else {
-          b.disabled = true;
-        }
-      });
+      return fmt.replace(re, value);
     }
 
-    /* ---------- Option icon clicks ---------- */
-    document.querySelectorAll('.sh-option-icon').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var pos = parseInt(btn.dataset.optionPosition, 10) - 1;
-        var val = btn.dataset.optionValue;
+    function init() {
+      var root = document.getElementById('sh-product');
+      if (!root || root.getAttribute('data-ready') === 'true') return;
+      root.setAttribute('data-ready', 'true');
 
-        document.querySelectorAll('.sh-option-icon[data-option-position="' + btn.dataset.optionPosition + '"]').forEach(function (sib) {
-          sib.dataset.selected = 'false';
-        });
-        btn.dataset.selected = 'true';
+      observers.forEach(function (o) { o.disconnect(); });
+      observers = [];
 
-        selectedOptions[pos] = val;
-        updateUI();
-      });
-    });
-
-    /* ---------- Quantity ---------- */
-    document.querySelectorAll('.sh-qty-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var delta = parseInt(btn.dataset.qty, 10) || 0;
-        qty = Math.max(1, qty + delta);
-        if (qtyInput) qtyInput.value = qty;
-        qtyDisplays.forEach(function (el) { el.textContent = qty; });
-      });
-    });
-
-    /* ---------- Message counter ---------- */
-    if (messageInput && messageCount) {
-      messageInput.addEventListener('input', function () {
-        messageCount.textContent = String(messageInput.value.length);
-      });
-    }
-
-    /* ---------- Share ---------- */
-    if (shareBtn) {
-      shareBtn.addEventListener('click', async function () {
-        var url = shareBtn.dataset.shareUrl;
-        var title = shareBtn.dataset.shareTitle;
-        try {
-          if (navigator.share) {
-            await navigator.share({ title: title, url: url });
-          } else {
-            await navigator.clipboard.writeText(url);
-            if (shareToast) {
-              shareToast.style.opacity = '1';
-              setTimeout(function () { shareToast.style.opacity = '0'; }, 1600);
-            }
-          }
-        } catch (e) {}
-      });
-    }
-
-    /* ---------- Options sheet (mobile) ---------- */
-    function openSheet() {
-      if (!sheet) return;
-      sheet.classList.remove('pointer-events-none', 'translate-y-full');
-      document.body.classList.add('overflow-hidden');
-    }
-    function closeSheet() {
-      if (!sheet) return;
-      sheet.classList.add('pointer-events-none', 'translate-y-full');
-      document.body.classList.remove('overflow-hidden');
-    }
-    if (sheetOpen) sheetOpen.addEventListener('click', openSheet);
-    if (sheetClose) sheetClose.addEventListener('click', closeSheet);
-
-    /* ---------- Pincode check (desktop + mobile) ---------- */
-    function setResult(el, kind, text) {
-      if (!el) return;
-      el.classList.remove('hidden', 'bg-sh-success/10', 'text-sh-success', 'bg-sh-error/10', 'text-sh-error', 'bg-sh-cream-light', 'text-sh-brown');
-      if (kind === 'ok') el.classList.add('bg-sh-success/10', 'text-sh-success', 'font-semibold');
-      else if (kind === 'error') el.classList.add('bg-sh-error/10', 'text-sh-error', 'font-semibold');
-      else el.classList.add('bg-sh-cream-light', 'text-sh-brown');
-      el.textContent = text;
-    }
-
-    async function checkPincode(pin, resultEl, inputEl, buttonEl) {
-      if (!/^\d{6}$/.test(pin)) {
-        setResult(resultEl, 'error', 'Please enter a valid 6-digit pincode.');
-        return;
-      }
-
-      if (buttonEl) {
-        buttonEl.disabled = true;
-        buttonEl.dataset.originalText = buttonEl.textContent;
-        buttonEl.textContent = '…';
-      }
-      setResult(resultEl, 'info', 'Checking…');
-
+      var variants = [];
       try {
-        var modal = document.getElementById('sh-pincode-modal');
-        var token = modal && modal.getAttribute('data-token');
-        var probeVariant = modal && modal.getAttribute('data-variant');
-        var version = (modal && modal.getAttribute('data-api-version')) || '2026-01';
+        variants = JSON.parse(document.getElementById('sh-variants-data').textContent);
+      } catch (e) {}
+      if (!variants.length) return;
 
-        var serviceable = false;
+      /* ---------- State ---------- */
+      var initialId = parseInt(root.getAttribute('data-initial-variant'), 10);
+      var initial =
+        variants.filter(function (v) { return v.id === initialId; })[0] ||
+        variants.filter(function (v) { return v.available; })[0] ||
+        variants[0];
 
-        if (token && probeVariant) {
-          var query =
-            'mutation($input: CartInput!) {' +
-            '  cartCreate(input: $input) {' +
-            '    cart { deliveryGroups(first: 5) { nodes { deliveryOptions { deliveryMethodType } } } }' +
-            '  }' +
-            '}';
-          var variables = {
-            input: {
-              lines: [{ merchandiseId: 'gid://shopify/ProductVariant/' + probeVariant, quantity: 1 }],
-              buyerIdentity: {
-                countryCode: 'IN',
-                deliveryAddressPreferences: [{ deliveryAddress: { zip: pin, country: 'IN', province: 'MH' } }]
-              }
-            }
-          };
-          var res = await fetch('/api/' + version + '/graphql.json', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Shopify-Storefront-Access-Token': token
-            },
-            body: JSON.stringify({ query: query, variables: variables })
+      var selected = initial.options.slice();
+      var qty = 1;
+      var maxQty = parseInt(root.getAttribute('data-max-qty'), 10) || 10;
+      var moneyFmt = root.getAttribute('data-money-format');
+      var defaultOnly = root.getAttribute('data-default-only') === 'true';
+      var title = root.getAttribute('data-title') || '';
+      var lastVariantId = null;
+      var busy = false;
+      var flash = '';
+      var fromBar = false;
+      var lastCta = 'add';
+
+      function money(c) { return formatMoney(c, moneyFmt); }
+
+      /* ---------- Elements ---------- */
+      var form = document.getElementById('sh-product-form');
+      var variantInput = document.getElementById('sh-variant-id');
+      var qtyInput = document.getElementById('sh-qty-input');
+      var errorEl = document.getElementById('sh-product-error');
+      var mainImg = document.getElementById('sh-main-image');
+      var priceEl = root.querySelector('[data-price]');
+      var compareEl = root.querySelector('[data-compare]');
+      var saveEl = root.querySelector('[data-save]');
+      var totalEls = root.querySelectorAll('[data-total]');
+      var captionEl = root.querySelector('[data-total-caption]');
+      var summaryEl = root.querySelector('[data-bar-summary]');
+      var soldBadge = root.querySelector('[data-soldout-badge]');
+      var qtyValueEls = root.querySelectorAll('[data-qty-value]');
+      var minusBtn = root.querySelector('[data-qty-step="-1"]');
+      var plusBtn = root.querySelector('[data-qty-step="1"]');
+      var optionBtns = Array.prototype.slice.call(root.querySelectorAll('[data-option-btn]'));
+      var thumbs = Array.prototype.slice.call(root.querySelectorAll('[data-thumb]'));
+      var addBtn = document.getElementById('sh-add-to-cart');
+      var buyBtn = document.getElementById('sh-buy-now');
+      var bar = document.getElementById('sh-sticky-bar');
+      var barBtn = root.querySelector('[data-bar-add]');
+      var msgInput = document.getElementById('sh-cake-message');
+      var counterEl = root.querySelector('[data-count]');
+
+      /* ---------- Variant lookup ---------- */
+      function exact(sel) {
+        return variants.filter(function (v) {
+          return v.options.every(function (o, i) { return String(o) === String(sel[i]); });
+        })[0] || null;
+      }
+
+      function current() { return exact(selected); }
+
+      /* Picks the closest real variant when a chosen value doesn't exist with the current other choices */
+      function bestFor(idx, val) {
+        var best = null;
+        var bestScore = -1;
+        variants.forEach(function (v) {
+          if (String(v.options[idx]) !== String(val)) return;
+          var score = 0;
+          v.options.forEach(function (o, i) {
+            if (i !== idx && String(o) === String(selected[i])) score++;
           });
-          var json = await res.json();
-          var cart = json && json.data && json.data.cartCreate && json.data.cartCreate.cart;
-          if (cart) {
-            var groups = (cart.deliveryGroups && cart.deliveryGroups.nodes) || [];
-            serviceable = groups.some(function (g) {
-              return (g.deliveryOptions || []).some(function (o) { return o.deliveryMethodType === 'LOCAL'; });
-            });
+          if (v.available) score += 0.5;
+          if (score > bestScore) { best = v; bestScore = score; }
+        });
+        return best;
+      }
+
+      /* ---------- Gallery ---------- */
+      function setImage(src, alt) {
+        if (!mainImg || !src) return;
+
+        /* Same image — nothing to swap, but make sure opacity isn't stuck */
+        if (mainImg.getAttribute('src') === src) {
+          mainImg.classList.remove('opacity-0');
+          return;
+        }
+
+        mainImg.classList.add('opacity-0');
+        var pre = new Image();
+        var done = function () {
+          mainImg.src = src;
+          mainImg.alt = alt || '';
+          /* Force reflow so removing opacity-0 triggers the CSS transition */
+          void mainImg.offsetWidth;
+          mainImg.classList.remove('opacity-0');
+        };
+        pre.onload = done;
+        pre.onerror = done;
+        pre.src = src;
+      }
+
+      function selectThumb(thumb) {
+        thumbs.forEach(function (t) {
+          var on = t === thumb;
+          swap(t, on ? THUMB_ON : THUMB_OFF, on ? THUMB_OFF : THUMB_ON);
+          if (on) t.setAttribute('aria-current', 'true');
+          else t.removeAttribute('aria-current');
+        });
+        setImage(thumb.getAttribute('data-src'), thumb.getAttribute('data-alt'));
+      }
+
+      /* ---------- Render: single source of truth for the UI ---------- */
+      function render() {
+        var v = current();
+        if (!v) return;
+
+        if (variantInput) variantInput.value = v.id;
+        if (qtyInput) qtyInput.value = qty;
+
+        /* Unit price + discount */
+        if (priceEl) priceEl.innerHTML = money(v.price);
+        var onSale = v.compare_at_price && v.compare_at_price > v.price;
+        if (compareEl) {
+          compareEl.innerHTML = onSale ? money(v.compare_at_price) : '';
+          compareEl.classList.toggle('hidden', !onSale);
+        }
+        if (saveEl) {
+          saveEl.textContent = onSale
+            ? Math.round(((v.compare_at_price - v.price) / v.compare_at_price) * 100) + '% off'
+            : '';
+          saveEl.classList.toggle('hidden', !onSale);
+        }
+
+        /* Quantity-aware total */
+        var total = money(v.price * qty);
+        Array.prototype.forEach.call(totalEls, function (el) { el.innerHTML = total; });
+        if (captionEl) captionEl.innerHTML = qty > 1 ? qty + ' × ' + money(v.price) : 'Total';
+        Array.prototype.forEach.call(qtyValueEls, function (el) { el.textContent = qty; });
+        if (minusBtn) minusBtn.disabled = qty <= 1;
+        if (plusBtn) plusBtn.disabled = qty >= maxQty;
+
+        /* Option pills: selected, sold-out and non-existent combinations */
+        optionBtns.forEach(function (btn) {
+          var idx = parseInt(btn.getAttribute('data-option-index'), 10);
+          var val = btn.getAttribute('data-value');
+          var isSel = String(selected[idx]) === String(val);
+
+          swap(btn, isSel ? ON : OFF, isSel ? OFF : ON);
+          btn.setAttribute('aria-checked', isSel ? 'true' : 'false');
+
+          var cand = selected.slice();
+          cand[idx] = val;
+          var m = exact(cand);
+          btn.classList.toggle('opacity-50', !isSel && (!m || !m.available));
+          btn.classList.toggle('line-through', !isSel && !!m && !m.available);
+        });
+
+        Array.prototype.forEach.call(root.querySelectorAll('[data-option-selected]'), function (el) {
+          el.textContent = ': ' + selected[parseInt(el.getAttribute('data-option-selected'), 10)];
+        });
+
+        /* Availability + labels */
+        var addLabel = busy ? '…' : flash || (v.available ? 'Add to cart' : 'Sold out');
+        var buyLabel = busy ? '…' : v.available ? 'Buy now' : 'Sold out';
+        var lock = busy || !v.available;
+
+        [[addBtn, addLabel], [buyBtn, buyLabel], [barBtn, addLabel]].forEach(function (pair) {
+          var btn = pair[0];
+          if (!btn) return;
+          btn.disabled = lock;
+          var label = btn.querySelector('[data-cta-label]');
+          if (label) label.textContent = pair[1];
+        });
+        if (soldBadge) soldBadge.classList.toggle('hidden', v.available);
+
+        /* Sticky bar summary */
+        if (summaryEl) {
+          summaryEl.textContent = (defaultOnly ? title : selected.join(' · ')) + (qty > 1 ? ' × ' + qty : '');
+        }
+
+        /* Variant changed: sync gallery + URL */
+        if (lastVariantId !== null && v.id !== lastVariantId) {
+          var thumb = null;
+          if (v.media_id) {
+            thumb = thumbs.filter(function (t) {
+              return t.getAttribute('data-media-id') === String(v.media_id);
+            })[0];
           }
-        } else {
-          serviceable = true;
+          /* No variant-specific image → revert to the first gallery image */
+          if (!thumb && thumbs.length) {
+            thumb = thumbs[0];
+          }
+          if (thumb) {
+            selectThumb(thumb);
+          }
+          try {
+            var u = new URL(window.location.href);
+            u.searchParams.set('variant', v.id);
+            window.history.replaceState({}, '', u.toString());
+          } catch (e) {}
         }
-
-        if (serviceable) {
-          localStorage.setItem(KEY_PIN, pin);
-          if (pincodeField) pincodeField.value = pin;
-          var store = localStorage.getItem(KEY_STORE);
-          if (store && storeField) storeField.value = storeLabels[store] || store;
-
-          setResult(resultEl, 'ok', 'Delivering to ' + pin + '.');
-        } else {
-          setResult(resultEl, 'error', "We don't deliver to this pincode yet.");
-        }
-      } catch (e) {
-        setResult(resultEl, 'error', "Couldn't check. Please try again.");
-      } finally {
-        if (buttonEl) {
-          buttonEl.disabled = false;
-          buttonEl.textContent = buttonEl.dataset.originalText || 'Check';
-        }
-      }
-    }
-
-    function bindPincode(inputId, buttonId, resultId) {
-      var input = document.getElementById(inputId);
-      var button = document.getElementById(buttonId);
-      var result = document.getElementById(resultId);
-      if (!input || !button) return;
-
-      button.addEventListener('click', function () {
-        checkPincode(input.value.trim(), result, input, button);
-      });
-
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          checkPincode(input.value.trim(), result, input, button);
-        }
-      });
-
-      input.addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-      });
-
-      var savedPin = localStorage.getItem(KEY_PIN);
-      if (savedPin) input.value = savedPin;
-    }
-
-    bindPincode('sh-product-pincode', 'sh-product-pincode-check', 'sh-delivery-result');
-    bindPincode('sh-product-pincode-mobile', 'sh-product-pincode-check-mobile', 'sh-delivery-result-mobile');
-
-    /* ---------- Form submit (Add vs Buy) ---------- */
-    function showError(msg) {
-      if (!errorEl) return;
-      errorEl.textContent = msg;
-      errorEl.classList.remove('hidden');
-    }
-    function clearError() {
-      if (!errorEl) return;
-      errorEl.textContent = '';
-      errorEl.classList.add('hidden');
-    }
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      clearError();
-
-      var savedPin = localStorage.getItem(KEY_PIN);
-      if (!savedPin) {
-        showError('Please check delivery with your pincode first.');
-        return;
+        lastVariantId = v.id;
       }
 
-      if (pincodeField) pincodeField.value = savedPin;
-      var savedStore = localStorage.getItem(KEY_STORE);
-      if (savedStore && storeField) storeField.value = storeLabels[savedStore] || savedStore;
+      /* ---------- Clicks (delegated) ---------- */
+      root.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
 
-      // Detect which button was clicked
-      var submitter = e.submitter || document.activeElement;
-      var isBuy = submitter && submitter.dataset && submitter.dataset.cta === 'buy';
+        var optBtn = t.closest('[data-option-btn]');
+        if (optBtn) {
+          var next = bestFor(parseInt(optBtn.getAttribute('data-option-index'), 10), optBtn.getAttribute('data-value'));
+          if (next) { selected = next.options.slice(); render(); }
+          return;
+        }
 
-      var ctaIds = [
-        'sh-add-to-cart-desktop',
-        'sh-buy-now-desktop',
-        'sh-add-to-cart-mobile',
-        'sh-buy-now-mobile'
-      ];
-      ctaIds.forEach(function (id) {
-        var b = document.getElementById(id);
-        if (b) { b.disabled = true; b.dataset.originalText = b.textContent; b.textContent = '…'; }
+        var thumb = t.closest('[data-thumb]');
+        if (thumb) { selectThumb(thumb); return; }
+
+        var step = t.closest('[data-qty-step]');
+        if (step) {
+          var delta = parseInt(step.getAttribute('data-qty-step'), 10) || 0;
+          qty = Math.min(maxQty, Math.max(1, qty + delta));
+          render();
+          return;
+        }
+
+        var chip = t.closest('[data-suggestion]');
+        if (chip && msgInput) {
+          msgInput.value = chip.getAttribute('data-suggestion').slice(0, msgInput.maxLength);
+          msgInput.dispatchEvent(new Event('input', { bubbles: true }));
+          msgInput.focus();
+          return;
+        }
+
+        var cta = t.closest('[data-cta]');
+        if (cta) { lastCta = cta.getAttribute('data-cta'); fromBar = false; return; }
+
+        if (t.closest('[data-bar-add]') && addBtn && !addBtn.disabled) {
+          fromBar = true;
+          addBtn.click();
+        }
       });
 
-      try {
-        var formData = new FormData(form);
+      if (msgInput && counterEl) {
+        msgInput.addEventListener('input', function () {
+          counterEl.textContent = msgInput.value.length + '/' + msgInput.maxLength;
+        });
+      }
 
-        var res = await fetch('/cart/add.js', {
+      /* ---------- Submit ---------- */
+      function showError(msg) {
+        if (!errorEl) return;
+        errorEl.textContent = msg;
+        errorEl.classList.remove('hidden');
+        if (fromBar && errorEl.scrollIntoView) errorEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+      function clearError() {
+        if (!errorEl) return;
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearError();
+
+        var v = current();
+        if (!v || !v.available || busy) return;
+
+        var isBuy = lastCta === 'buy';
+        busy = true;
+        render();
+
+        fetch('/cart/add.js', {
           method: 'POST',
-          body: formData,
+          body: new FormData(form),
           headers: { Accept: 'application/json' }
-        });
+        })
+          .then(function (res) {
+            if (!res.ok) {
+              return res.json().catch(function () { return {}; }).then(function (err) {
+                throw new Error(err.description || err.message || 'Could not add to cart');
+              });
+            }
+            return res.json();
+          })
+          .then(function () {
+            document.dispatchEvent(new CustomEvent('cart:updated'));
+            if (isBuy) {
+              window.location.href = '/checkout';
+              return;
+            }
+            busy = false;
+            flash = 'Added ✓';
+            render();
+            document.dispatchEvent(new CustomEvent('cart:open'));
+            window.setTimeout(function () { flash = ''; render(); }, 1600);
+          })
+          .catch(function (err) {
+            busy = false;
+            render();
+            showError(err.message || 'Could not add to cart');
+          });
+      });
 
-        if (!res.ok) {
-          var err = await res.json().catch(function () { return {}; });
-          throw new Error(err.description || err.message || 'Could not add to cart');
-        }
+      /* ---------- Sticky bar visibility ---------- */
+      var cta = document.getElementById('sh-cta');
+      var ctaVisible = false;
+      var sectionVisible = false;
 
-        document.dispatchEvent(new CustomEvent('cart:updated'));
-
-        if (isBuy) {
-          window.location.href = '/checkout';
-        } else {
-          document.dispatchEvent(new CustomEvent('cart:open'));
-        }
-      } catch (err) {
-        showError(err.message || 'Could not add to cart');
-      } finally {
-        ctaIds.forEach(function (id) {
-          var b = document.getElementById(id);
-          if (b) { b.disabled = false; b.textContent = b.dataset.originalText; }
-        });
+      function updateBar() {
+        if (!bar) return;
+        var show = sectionVisible && !ctaVisible;
+        swap(bar, [show ? BAR_SHOW : BAR_HIDE], [show ? BAR_HIDE : BAR_SHOW]);
+        bar.classList.toggle('pointer-events-none', !show);
+        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+        if (barBtn) barBtn.tabIndex = show ? 0 : -1;
       }
-    });
+
+      if (bar && cta && 'IntersectionObserver' in window) {
+        var ioCta = new IntersectionObserver(function (entries) {
+          ctaVisible = entries[0].isIntersecting;
+          updateBar();
+        });
+        var ioSection = new IntersectionObserver(function (entries) {
+          sectionVisible = entries[0].isIntersecting;
+          updateBar();
+        });
+        ioCta.observe(cta);
+        ioSection.observe(root);
+        observers.push(ioCta, ioSection);
+      }
+
+      render();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+    document.addEventListener('shopify:section:load', init);
   })();
 {% endjavascript %}

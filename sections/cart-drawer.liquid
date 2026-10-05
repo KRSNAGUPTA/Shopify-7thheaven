@@ -1,137 +1,492 @@
+{%- comment -%}
+  Cart drawer
+  - Per-line quantity stepper and remove (uses /cart/change.js with the line key)
+  - Shows image, variant, personalisation properties, line price and any discount
+  - Listens for both `cart:open` / `cart:updated` and the old `sh:cart:*` events
+  - Moved to <body> on init so position:fixed is never trapped by a transformed or filtered ancestor
+{%- endcomment -%}
+
 <div
   id="sh-cart-drawer"
-  class="fixed inset-y-0 right-0 z-[999] flex h-screen w-full max-w-md translate-x-full flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out"
+  data-open="false"
   aria-hidden="true"
+  class="sh-cart fixed inset-0 z-[999] font-body"
   data-money-format="{{ shop.money_format | escape }}"
   data-empty-message="{{ 'cart.empty' | t | escape }}"
 >
-  <div class="flex items-center justify-between border-b border-sh-border p-6">
-    <h3 class="text-xl font-bold text-sh-brown">{{ 'cart.title' | t }}</h3>
-    <button
-      type="button"
-      id="sh-cart-close"
-      class="cursor-pointer p-1 text-2xl leading-none text-sh-text-light transition-colors hover:text-sh-brown"
-      aria-label="{{ 'cart.close' | t }}"
-    >
-      ✕
-    </button>
-  </div>
+  <div
+    data-cart-close
+    class="sh-cart-overlay absolute inset-0 bg-sh-brown-dark/50 backdrop-blur-sm"
+    aria-hidden="true"
+  ></div>
 
-  <div id="sh-cart-items" class="flex-1 overflow-y-auto p-4"></div>
-
-  <div class="border-t border-sh-border p-6">
-    <div class="mb-4 flex items-center justify-between text-lg font-semibold text-sh-brown">
-      <strong>{{ 'cart.subtotal' | t }}</strong>
-      <strong id="sh-cart-total">₹0</strong>
+  <aside
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sh-cart-title"
+    class="sh-cart-panel absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl"
+  >
+    {%- comment -%}Header{%- endcomment -%}
+    <div class="flex items-center justify-between gap-4 border-b border-sh-border px-5 py-4 sm:px-6">
+      <h2 id="sh-cart-title" class="font-sniglet text-xl font-medium leading-none tracking-[-0.01em] text-sh-brown sm:text-2xl">
+        {{ 'cart.title' | t }}<span id="sh-cart-count-label" class="ml-1.5 text-base font-normal text-sh-text-light"></span>
+      </h2>
+      <button
+        type="button"
+        data-cart-close
+        id="sh-cart-close"
+        class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-sh-text-light transition-colors hover:bg-sh-cream-light hover:text-sh-brown focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+        aria-label="{{ 'cart.close' | t }}"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
-    <a
-      href="/checkout"
-      id="sh-cart-checkout"
-      class="flex w-full items-center justify-center rounded-xl bg-sh-accent px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#b8234c] active:scale-95"
-    >
-      {{ 'cart.checkout' | t }}
-    </a>
-    <button
-      type="button"
-      id="sh-cart-continue"
-      class="mt-2 flex w-full items-center justify-center rounded-xl bg-sh-brown px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-[#2a1a12] active:scale-95"
-    >
-      {{ 'cart.continue' | t }}
-    </button>
-  </div>
+
+    {%- comment -%}Items{%- endcomment -%}
+    <div id="sh-cart-scroll" class="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 [-webkit-overflow-scrolling:touch]">
+      <p
+        id="sh-cart-msg"
+        class="mt-4 hidden rounded-lg bg-sh-error/10 px-3 py-2 text-sm font-semibold text-sh-error"
+        role="alert"
+      ></p>
+      <ul id="sh-cart-items" class="divide-y divide-sh-border"></ul>
+    </div>
+
+    {%- comment -%}Footer{%- endcomment -%}
+    <div id="sh-cart-footer" class="hidden border-t border-sh-border bg-white px-5 pt-4 sm:px-6" style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));">
+      <p id="sh-cart-savings" class="mb-2 hidden text-sm font-semibold text-sh-success"></p>
+      <div class="flex items-baseline justify-between gap-4">
+        <span class="text-base font-semibold text-sh-brown">{{ 'cart.subtotal' | t }}</span>
+        <span id="sh-cart-total" class="font-sniglet text-2xl leading-none text-sh-brown">₹0</span>
+      </div>
+      <p class="mt-1 text-xs text-sh-text-light">Taxes and delivery are calculated at checkout.</p>
+
+      <a
+        href="{{ routes.cart_url | default: '/cart' | replace: '/cart', '/checkout' }}"
+        id="sh-cart-checkout"
+        class="mt-4 flex w-full cursor-pointer items-center justify-center rounded-full bg-sh-primary px-6 py-4 text-base font-semibold text-white transition-all hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2 active:scale-[0.98]"
+      >
+        {{ 'cart.checkout' | t }}
+      </a>
+      <button
+        type="button"
+        data-cart-close
+        id="sh-cart-continue"
+        class="mt-2 flex w-full cursor-pointer items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary"
+      >
+        {{ 'cart.continue' | t }}
+      </button>
+    </div>
+  </aside>
 </div>
 
-<div id="sh-cart-overlay" class="fixed inset-0 z-[998] bg-black/40" hidden></div>
+{% stylesheet %}
+  /* Drawer state is driven by [data-open] on the wrapper */
+  .sh-cart {
+    pointer-events: none;
+    visibility: hidden;
+    transition: visibility 0s linear 300ms;
+  }
+  .sh-cart[data-open='true'] {
+    pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .sh-cart .sh-cart-overlay {
+    opacity: 0;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .sh-cart[data-open='true'] .sh-cart-overlay {
+    opacity: 1;
+  }
+  .sh-cart .sh-cart-panel {
+    transform: translateX(100%);
+    will-change: transform;
+    transition: transform 350ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .sh-cart[data-open='true'] .sh-cart-panel {
+    transform: translateX(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sh-cart,
+    .sh-cart .sh-cart-overlay,
+    .sh-cart .sh-cart-panel {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
 
 {% javascript %}
   (function () {
-    var drawer = document.getElementById('sh-cart-drawer');
-    var overlay = document.getElementById('sh-cart-overlay');
-    var itemsEl = document.getElementById('sh-cart-items');
-    var totalEl = document.getElementById('sh-cart-total');
-    var closeBtn = document.getElementById('sh-cart-close');
-    var continueBtn = document.getElementById('sh-cart-continue');
-    var moneyFormat = drawer.getAttribute('data-money-format') || '';
-    var emptyMessage = drawer.getAttribute('data-empty-message') || 'Your cart is empty';
+    'use strict';
 
-    function formatMoney(cents) {
-      if (window.Shopify && Shopify.formatMoney && moneyFormat) {
-        return Shopify.formatMoney(cents, moneyFormat);
-      }
-      return '₹' + (cents / 100).toLocaleString('en-IN');
+    var lastTrigger = null;
+    var loadToken = 0;
+    var isOpen = false;
+
+    function $(id) {
+      return document.getElementById(id);
     }
 
+    /* ---------- Helpers ---------- */
     function escapeHtml(str) {
-      return String(str || '')
+      return String(str == null ? '' : str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
 
-    async function updateCart() {
-      var res = await fetch('/cart.js');
-      var cart = await res.json();
-      var countEls = document.querySelectorAll('[data-cart-count]');
-      countEls.forEach(function (el) {
-        el.textContent = String(cart.item_count);
-        el.hidden = cart.item_count === 0;
+    /* Uses the store's own money format so prices match the rest of the theme */
+    function formatMoney(cents) {
+      var drawer = $('sh-cart-drawer');
+      var fmt = (drawer && drawer.getAttribute('data-money-format'));
+      var re = /\{\{\s*(\w+)\s*\}\}/;
+      function withDelimiters(number, precision, thousands, decimal) {
+        thousands = thousands || ',';
+        decimal = decimal || '.';
+        if (isNaN(number) || number == null) return '0';
+        var fixed = (number / 100).toFixed(precision);
+        var parts = fixed.split('.');
+        var whole = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + thousands);
+        return parts[1] ? whole + decimal + parts[1] : whole;
+      }
+      var match = fmt.match(re);
+      var key = match ? match[1] : 'amount';
+      var value;
+      switch (key) {
+        case 'amount_no_decimals': value = withDelimiters(cents, 0); break;
+        case 'amount_with_comma_separator': value = withDelimiters(cents, 2, '.', ','); break;
+        case 'amount_no_decimals_with_comma_separator': value = withDelimiters(cents, 0, '.', ','); break;
+        case 'amount_with_apostrophe_separator': value = withDelimiters(cents, 2, "'", '.'); break;
+        case 'amount_no_decimals_with_space_separator': value = withDelimiters(cents, 0, ' '); break;
+        case 'amount_with_space_separator': value = withDelimiters(cents, 2, ' ', ','); break;
+        default: value = withDelimiters(cents, 2);
+      }
+      return fmt.replace(re, value);
+    }
+
+    function imageUrl(url, width) {
+      if (!url) return '';
+      return url + (url.indexOf('?') > -1 ? '&' : '?') + 'width=' + width;
+    }
+
+    /* Move the drawer to <body> so no transformed/filtered ancestor can trap it */
+    function portal() {
+      document.querySelectorAll('body > #sh-cart-drawer').forEach(function (old) {
+        if (!document.querySelector('#sh-cart-drawer:not(body > #sh-cart-drawer)')) return;
+        old.parentNode.removeChild(old);
+      });
+      var el = $('sh-cart-drawer');
+      if (el && el.parentNode !== document.body) document.body.appendChild(el);
+    }
+
+    function showMessage(text) {
+      var box = $('sh-cart-msg');
+      if (!box) return;
+      box.textContent = text || '';
+      box.classList.toggle('hidden', !text);
+    }
+
+    function setCount(count) {
+      document.querySelectorAll('[data-cart-count]').forEach(function (el) {
+        el.textContent = count > 99 ? '99+' : String(count);
+        el.hidden = count <= 0;
+      });
+      var label = $('sh-cart-count-label');
+      if (label) label.textContent = count > 0 ? '(' + count + ')' : '';
+    }
+
+    /* ---------- Render ---------- */
+    var ICON_TRASH =
+      '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>';
+    var ICON_MINUS =
+      '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>';
+    var ICON_PLUS =
+      '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>';
+    var ICON_BAG =
+      '<svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>';
+
+    function itemHtml(item) {
+      var title = escapeHtml(item.product_title);
+      var key = escapeHtml(item.key);
+      var variant =
+        item.variant_title && item.variant_title !== 'Default Title'
+          ? '<p class="mt-0.5 text-xs text-sh-text-light">' + escapeHtml(item.variant_title) + '</p>'
+          : '';
+
+      var img = item.featured_image && item.featured_image.url ? item.featured_image.url : item.image;
+      var imgHtml = img
+        ? '<img src="' + escapeHtml(imageUrl(img, 240)) + '" alt="' + escapeHtml((item.featured_image && item.featured_image.alt) || item.product_title) + '" width="80" height="80" loading="lazy" class="h-full w-full object-cover">'
+        : '';
+
+      var props = '';
+      var p = item.properties || {};
+      Object.keys(p).forEach(function (k) {
+        var v = p[k];
+        if (k.charAt(0) === '_' || v === '' || v == null) return;
+        props +=
+          '<p class="mt-1 text-xs leading-snug text-sh-text-light [overflow-wrap:anywhere]"><span class="font-semibold text-sh-brown">' +
+          escapeHtml(k) + ':</span> ' + escapeHtml(v) + '</p>';
       });
 
-      itemsEl.innerHTML = '';
+      var discounted = item.original_line_price > item.final_line_price;
+      var priceHtml =
+        '<div class="text-right">' +
+        (discounted
+          ? '<s class="block text-xs text-sh-text-light">' + formatMoney(item.original_line_price) + '</s>'
+          : '') +
+        '<span class="block font-semibold tabular-nums text-sh-brown">' + formatMoney(item.final_line_price) + '</span>' +
+        (item.quantity > 1
+          ? '<span class="block text-xs tabular-nums text-sh-text-light">' + item.quantity + ' × ' + formatMoney(item.final_price) + '</span>'
+          : '') +
+        '</div>';
+
+      return (
+        '<li data-line-key="' + key + '" class="sh-cart-line flex gap-4 py-5 transition-opacity">' +
+        '<a href="' + escapeHtml(item.url) + '" class="block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-sh-cream-light sm:h-24 sm:w-24">' + imgHtml + '</a>' +
+        '<div class="flex min-w-0 flex-1 flex-col">' +
+          '<div class="flex items-start justify-between gap-2">' +
+            '<div class="min-w-0">' +
+              '<a href="' + escapeHtml(item.url) + '" class="line-clamp-2 font-sniglet text-base font-medium leading-snug text-sh-brown transition-colors hover:text-sh-primary-dark">' + title + '</a>' +
+              variant +
+            '</div>' +
+            '<button type="button" data-cart-remove title="Remove" aria-label="Remove ' + title + '" ' +
+              'class="-mr-1.5 -mt-1.5 inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-sh-text-light transition-colors hover:bg-sh-error/10 hover:text-sh-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">' +
+              ICON_TRASH +
+            '</button>' +
+          '</div>' +
+          props +
+          '<div class="mt-auto flex items-end justify-between gap-3 pt-3">' +
+            '<div class="inline-flex items-center overflow-hidden rounded-full border border-sh-border bg-white" role="group" aria-label="Quantity">' +
+              '<button type="button" data-cart-step="-1" aria-label="Decrease quantity" class="inline-flex h-9 w-9 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">' + ICON_MINUS + '</button>' +
+              '<span class="w-8 text-center text-sm font-semibold tabular-nums text-sh-brown" aria-live="polite">' + item.quantity + '</span>' +
+              '<button type="button" data-cart-step="1" aria-label="Increase quantity" class="inline-flex h-9 w-9 cursor-pointer items-center justify-center text-sh-brown transition-colors hover:bg-sh-cream-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary">' + ICON_PLUS + '</button>' +
+            '</div>' +
+            priceHtml +
+          '</div>' +
+        '</div>' +
+        '</li>'
+      );
+    }
+
+    function render(cart) {
+      var list = $('sh-cart-items');
+      var footer = $('sh-cart-footer');
+      var scroller = $('sh-cart-scroll');
+      if (!list) return;
+
+      var top = scroller ? scroller.scrollTop : 0;
+      setCount(cart.item_count);
+
       if (!cart.items.length) {
-        itemsEl.innerHTML = '<p class="py-8 text-center text-sh-text-light">' + escapeHtml(emptyMessage) + '</p>';
-        totalEl.textContent = formatMoney(0);
+        var drawer = $('sh-cart-drawer');
+        var empty = (drawer && drawer.getAttribute('data-empty-message')) || 'Your cart is empty';
+        list.innerHTML =
+          '<li class="flex flex-col items-center px-4 py-16 text-center">' +
+          '<span class="flex h-16 w-16 items-center justify-center rounded-full bg-sh-cream-light text-sh-text-light">' + ICON_BAG + '</span>' +
+          '<p class="mt-5 font-sniglet text-xl font-medium text-sh-brown">' + escapeHtml(empty) + '</p>' +
+          '<button type="button" data-cart-close class="mt-6 inline-flex cursor-pointer items-center justify-center rounded-full bg-sh-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sh-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sh-primary focus-visible:ring-offset-2">' +
+          escapeHtml($('sh-cart-continue') ? $('sh-cart-continue').textContent.trim() : 'Continue shopping') +
+          '</button></li>';
+        if (footer) footer.classList.add('hidden');
         return;
       }
 
-      cart.items.forEach(function (item) {
-        var attrs = item.properties || {};
-        var html = '<div class="mb-2 border-b border-sh-border p-4">'
-          + '<h4 class="mb-1 font-semibold text-sh-brown">' + escapeHtml(item.product_title) + '</h4>'
-          + '<p class="text-sm text-sh-text-light">' + escapeHtml(item.variant_title || '') + '</p>';
-        if (attrs['Message on cake']) html += '<p class="text-sm text-sh-text-light">Message: "' + escapeHtml(attrs['Message on cake']) + '"</p>';
-        if (attrs['Delivery date']) html += '<p class="text-sm text-sh-text-light">Date: ' + escapeHtml(attrs['Delivery date']) + '</p>';
-        if (attrs['Delivery slot']) html += '<p class="text-sm text-sh-text-light">Slot: ' + escapeHtml(attrs['Delivery slot']) + '</p>';
-        if (attrs['Fulfilment store']) html += '<p class="text-sm text-sh-text-light">Store: ' + escapeHtml(attrs['Fulfilment store']) + '</p>';
-        html += '<div class="mt-3 flex items-center justify-between">'
-          + '<span class="text-sm">Qty: ' + item.quantity + '</span>'
-          + '<strong class="text-sh-accent">' + formatMoney(item.final_line_price) + '</strong></div></div>';
-        itemsEl.innerHTML += html;
-      });
+      list.innerHTML = cart.items.map(itemHtml).join('');
+      if (scroller) scroller.scrollTop = top;
 
-      totalEl.textContent = formatMoney(cart.total_price);
+      var total = $('sh-cart-total');
+      if (total) total.innerHTML = formatMoney(cart.total_price);
+
+      var savings = $('sh-cart-savings');
+      if (savings) {
+        var saved = cart.total_discount || 0;
+        savings.textContent = saved > 0 ? 'You save ' + formatMoney(saved).replace(/<[^>]+>/g, '') : '';
+        savings.classList.toggle('hidden', !(saved > 0));
+      }
+      if (footer) footer.classList.remove('hidden');
+    }
+
+    /* ---------- Data ---------- */
+    function load() {
+      var token = ++loadToken;
+      return fetch('/cart.js', { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (cart) {
+          if (token !== loadToken) return cart; // a newer request already won
+          render(cart);
+          return cart;
+        })
+        .catch(function () {});
+    }
+
+    function setBusy(key, busy) {
+      var rows = document.querySelectorAll('.sh-cart-line');
+      Array.prototype.forEach.call(rows, function (row) {
+        if (row.getAttribute('data-line-key') !== key) return;
+        row.classList.toggle('opacity-50', busy);
+        row.classList.toggle('pointer-events-none', busy);
+        row.setAttribute('aria-busy', busy ? 'true' : 'false');
+      });
+    }
+
+    function change(key, quantity) {
+      showMessage('');
+      setBusy(key, true);
+      var token = ++loadToken;
+
+      return fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ id: key, quantity: quantity }),
+      })
+        .then(function (res) {
+          return res.json().then(function (json) {
+            if (!res.ok) throw new Error(json.description || json.message || 'Could not update your cart.');
+            return json;
+          });
+        })
+        .then(function (cart) {
+          if (token === loadToken) render(cart);
+
+          /* Shopify caps the quantity silently when stock runs out */
+          if (quantity > 0) {
+            var line = cart.items.filter(function (i) { return i.key === key; })[0];
+            if (line && line.quantity < quantity) {
+              showMessage('Only ' + line.quantity + ' available for this item.');
+            }
+          }
+
+          document.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart: cart, source: 'drawer' } }));
+        })
+        .catch(function (err) {
+          showMessage(err.message || 'Could not update your cart.');
+          setBusy(key, false);
+          load();
+        });
+    }
+
+    /* ---------- Open / close ---------- */
+    function focusables() {
+      var drawer = $('sh-cart-drawer');
+      if (!drawer) return [];
+      return Array.prototype.slice.call(
+        drawer.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      ).filter(function (el) { return el.offsetParent !== null; });
     }
 
     function openCart() {
-      drawer.classList.remove('translate-x-full');
-      drawer.classList.add('translate-x-0');
+      var drawer = $('sh-cart-drawer');
+      if (!drawer || isOpen) { if (isOpen) load(); return; }
+      isOpen = true;
+      showMessage('');
+      drawer.setAttribute('data-open', 'true');
       drawer.setAttribute('aria-hidden', 'false');
-      overlay.hidden = false;
-      updateCart();
+      document.documentElement.style.overflow = 'hidden';
+      load().then(function () {
+        var close = $('sh-cart-close');
+        if (close) close.focus({ preventScroll: true });
+      });
     }
 
     function closeCart() {
-      drawer.classList.add('translate-x-full');
-      drawer.classList.remove('translate-x-0');
+      var drawer = $('sh-cart-drawer');
+      if (!drawer || !isOpen) return;
+      isOpen = false;
+      drawer.setAttribute('data-open', 'false');
       drawer.setAttribute('aria-hidden', 'true');
-      overlay.hidden = true;
+      document.documentElement.style.overflow = '';
+      if (lastTrigger && lastTrigger.focus) lastTrigger.focus({ preventScroll: true });
     }
 
-    document.querySelectorAll('[data-cart-open]').forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        openCart();
+    /* ---------- Global listeners (bound once; init can re-run on section reload) ---------- */
+    if (!window.__shCartBound) {
+      window.__shCartBound = true;
+
+      document.addEventListener('click', function (e) {
+        var t = e.target;
+        if (!t || !t.closest) return;
+
+        var opener = t.closest('[data-cart-open]');
+        if (opener) {
+          e.preventDefault();
+          lastTrigger = opener;
+          openCart();
+          return;
+        }
+
+        var drawer = $('sh-cart-drawer');
+        if (!drawer || !drawer.contains(t)) return;
+
+        if (t.closest('[data-cart-close]')) {
+          e.preventDefault();
+          closeCart();
+          return;
+        }
+
+        var line = t.closest('[data-line-key]');
+        if (!line) return;
+        var key = line.getAttribute('data-line-key');
+
+        if (t.closest('[data-cart-remove]')) {
+          e.preventDefault();
+          change(key, 0);
+          return;
+        }
+
+        var step = t.closest('[data-cart-step]');
+        if (step) {
+          e.preventDefault();
+          var current = parseInt(line.querySelector('[aria-live]').textContent, 10) || 1;
+          var next = current + (parseInt(step.getAttribute('data-cart-step'), 10) || 0);
+          change(key, Math.max(0, next)); // stepping below 1 removes the line
+        }
       });
-    });
 
-    closeBtn.addEventListener('click', closeCart);
-    continueBtn.addEventListener('click', closeCart);
-    overlay.addEventListener('click', closeCart);
-    document.addEventListener('sh:cart:open', openCart);
-    document.addEventListener('sh:cart:updated', updateCart);
+      document.addEventListener('keydown', function (e) {
+        if (!isOpen) return;
+        if (e.key === 'Escape') { closeCart(); return; }
+        if (e.key !== 'Tab') return;
 
-    updateCart();
+        var els = focusables();
+        if (!els.length) return;
+        var first = els[0];
+        var last = els[els.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+
+      /* Product page and other sections fire these. The old sh:* names still work. */
+      function onOpen() { openCart(); }
+      function onUpdated(e) {
+        if (e && e.detail && e.detail.source === 'drawer') return; // our own change, already rendered
+        load();
+      }
+      document.addEventListener('cart:open', onOpen);
+      document.addEventListener('sh:cart:open', onOpen);
+      document.addEventListener('cart:updated', onUpdated);
+      document.addEventListener('sh:cart:updated', onUpdated);
+
+      /* Back/forward cache can restore a stale cart */
+      window.addEventListener('pageshow', function (e) {
+        if (e.persisted) load();
+      });
+    }
+
+    function init() {
+      portal();
+      isOpen = false;
+      document.documentElement.style.overflow = '';
+      load();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+    document.addEventListener('shopify:section:load', init);
   })();
 {% endjavascript %}
 
